@@ -296,7 +296,7 @@ elif section == "🛍️ Products":
                         filepath = os.path.join(STATIC_DIR, filename)
                         with open(filepath, "wb") as f:
                             f.write(uploaded.read())
-                        update_product(p["id"], {"image": f"static/images/{filename}"})
+                        update_product(p["id"], {"image": f"app/static/images/{filename}"})
                         st.success("Image updated!")
                         st.rerun()
 
@@ -415,7 +415,7 @@ elif section == "🛍️ Products":
                         filepath = os.path.join(STATIC_DIR, filename)
                         with open(filepath, "wb") as f:
                             f.write(new_img_file.read())
-                        update_product(prod_id, {"image": f"static/images/{filename}"})
+                        update_product(prod_id, {"image": f"app/static/images/{filename}"})
 
                     st.success(f"✅ '{new_name}' added with ID: {prod_id}")
                     st.rerun()
@@ -501,7 +501,7 @@ elif section == "🖼️ Media Library":
             fpath = os.path.join(STATIC_DIR, fname)
             with open(fpath, "wb") as f:
                 f.write(up_file.read())
-            st.success(f"✅ Uploaded: `static/images/{fname}`")
+            st.success(f"✅ Uploaded: `app/static/images/{fname}`")
             st.rerun()
 
     # Gallery of uploaded images
@@ -522,7 +522,7 @@ elif section == "🖼️ Media Library":
             with cols[i % 4]:
                 fpath = os.path.join(STATIC_DIR, fname)
                 st.image(fpath, caption=fname, use_container_width=True)
-                st.code(f"static/images/{fname}", language=None)
+                st.code(f"app/static/images/{fname}", language=None)
                 if st.button("🗑️ Delete", key=f"del_img_{fname}"):
                     os.remove(fpath)
                     st.success(f"Deleted {fname}")

@@ -6,13 +6,19 @@
     "price": 24.99,
     "original_price": 39.99,
     "category": "Hoops",
-    "colors": ["Rose Gold"],
-    "image": "https://images.unsplash.com/photo-1630018548696-e6f716289c97?w=400&h=400&fit=crop",
+    "colors": [
+      "Rose Gold"
+    ],
+    "image": "app/static/images/001.jpg",
     "stock": 45,
     "featured": true,
     "rating": 4.7,
     "reviews": 128,
-    "tags": ["daily wear", "hoop", "gold"]
+    "tags": [
+      "daily wear",
+      "hoop",
+      "gold"
+    ]
   },
   {
     "id": "002",
@@ -21,13 +27,21 @@
     "price": 34.99,
     "original_price": 49.99,
     "category": "Drops",
-    "colors": ["Silver", "White"],
+    "colors": [
+      "Silver",
+      "White"
+    ],
     "image": "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop",
     "stock": 30,
     "featured": true,
     "rating": 4.9,
     "reviews": 214,
-    "tags": ["pearl", "drop", "silver", "occasion"]
+    "tags": [
+      "pearl",
+      "drop",
+      "silver",
+      "occasion"
+    ]
   },
   {
     "id": "003",
@@ -36,13 +50,20 @@
     "price": 19.99,
     "original_price": 29.99,
     "category": "Studs",
-    "colors": ["Silver", "Crystal"],
+    "colors": [
+      "Silver",
+      "Crystal"
+    ],
     "image": "https://images.unsplash.com/photo-1589128777073-263566ae5e4d?w=400&h=400&fit=crop",
     "stock": 80,
     "featured": true,
     "rating": 4.5,
     "reviews": 95,
-    "tags": ["crystal", "stud", "daily wear"]
+    "tags": [
+      "crystal",
+      "stud",
+      "daily wear"
+    ]
   },
   {
     "id": "004",
@@ -51,13 +72,20 @@
     "price": 44.99,
     "original_price": 64.99,
     "category": "Chandeliers",
-    "colors": ["Gold"],
+    "colors": [
+      "Gold"
+    ],
     "image": "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop",
     "stock": 20,
     "featured": true,
     "rating": 4.8,
     "reviews": 67,
-    "tags": ["gold", "chandelier", "occasion", "party"]
+    "tags": [
+      "gold",
+      "chandelier",
+      "occasion",
+      "party"
+    ]
   },
   {
     "id": "005",
@@ -66,13 +94,21 @@
     "price": 27.99,
     "original_price": 37.99,
     "category": "Dangles",
-    "colors": ["Turquoise", "Silver"],
+    "colors": [
+      "Turquoise",
+      "Silver"
+    ],
     "image": "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=400&fit=crop",
     "stock": 35,
     "featured": false,
     "rating": 4.6,
     "reviews": 82,
-    "tags": ["turquoise", "boho", "dangle", "handcrafted"]
+    "tags": [
+      "turquoise",
+      "boho",
+      "dangle",
+      "handcrafted"
+    ]
   },
   {
     "id": "006",
@@ -81,13 +117,20 @@
     "price": 29.99,
     "original_price": 44.99,
     "category": "Hoops",
-    "colors": ["Gold", "Silver"],
+    "colors": [
+      "Gold",
+      "Silver"
+    ],
     "image": "https://images.unsplash.com/photo-1573408301185-9519f94815b1?w=400&h=400&fit=crop",
     "stock": 55,
     "featured": false,
     "rating": 4.4,
     "reviews": 113,
-    "tags": ["huggie", "hoop", "daily wear"]
+    "tags": [
+      "huggie",
+      "hoop",
+      "daily wear"
+    ]
   },
   {
     "id": "007",
@@ -96,13 +139,22 @@
     "price": 49.99,
     "original_price": 74.99,
     "category": "Drops",
-    "colors": ["Gold", "Red"],
+    "colors": [
+      "Gold",
+      "Red"
+    ],
     "image": "https://images.unsplash.com/photo-1603254866580-d41c0e591b11?w=400&h=400&fit=crop",
     "stock": 15,
     "featured": true,
     "rating": 5.0,
     "reviews": 49,
-    "tags": ["ruby", "heart", "gold", "gifting", "occasion"]
+    "tags": [
+      "ruby",
+      "heart",
+      "gold",
+      "gifting",
+      "occasion"
+    ]
   },
   {
     "id": "008",
@@ -111,28 +163,43 @@
     "price": 16.99,
     "original_price": 22.99,
     "category": "Studs",
-    "colors": ["Gold"],
+    "colors": [
+      "Gold"
+    ],
     "image": "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=400&h=400&fit=crop",
     "stock": 100,
     "featured": false,
     "rating": 4.3,
     "reviews": 176,
-    "tags": ["minimal", "stud", "daily wear", "gold"]
+    "tags": [
+      "minimal",
+      "stud",
+      "daily wear",
+      "gold"
+    ]
   },
   {
     "id": "009",
     "name": "Emerald Green Teardrop Earrings",
-    "description": "Luxurious emerald green stone teardrops with pavé crystal surround. Designed for the woman who commands attention at every event.",
+    "description": "Luxurious emerald green stone teardrops with pav\u00e9 crystal surround. Designed for the woman who commands attention at every event.",
     "price": 54.99,
     "original_price": 79.99,
     "category": "Drops",
-    "colors": ["Green", "Silver"],
+    "colors": [
+      "Green",
+      "Silver"
+    ],
     "image": "https://images.unsplash.com/photo-1610694955371-d4a3e0ce4b52?w=400&h=400&fit=crop",
     "stock": 18,
     "featured": false,
     "rating": 4.7,
     "reviews": 41,
-    "tags": ["emerald", "teardrop", "occasion", "luxury"]
+    "tags": [
+      "emerald",
+      "teardrop",
+      "occasion",
+      "luxury"
+    ]
   },
   {
     "id": "010",
@@ -141,13 +208,20 @@
     "price": 22.99,
     "original_price": 32.99,
     "category": "Hoops",
-    "colors": ["Silver"],
+    "colors": [
+      "Silver"
+    ],
     "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
     "stock": 60,
     "featured": false,
     "rating": 4.5,
     "reviews": 88,
-    "tags": ["hoop", "silver", "twisted", "daily wear"]
+    "tags": [
+      "hoop",
+      "silver",
+      "twisted",
+      "daily wear"
+    ]
   },
   {
     "id": "011",
@@ -156,13 +230,21 @@
     "price": 21.99,
     "original_price": 31.99,
     "category": "Studs",
-    "colors": ["Silver", "Crystal"],
+    "colors": [
+      "Silver",
+      "Crystal"
+    ],
     "image": "https://images.unsplash.com/photo-1561828995-aa79a2db86dd?w=400&h=400&fit=crop",
     "stock": 70,
     "featured": false,
     "rating": 4.6,
     "reviews": 103,
-    "tags": ["floral", "stud", "daily wear", "crystal"]
+    "tags": [
+      "floral",
+      "stud",
+      "daily wear",
+      "crystal"
+    ]
   },
   {
     "id": "012",
@@ -171,12 +253,21 @@
     "price": 39.99,
     "original_price": 59.99,
     "category": "Chandeliers",
-    "colors": ["Black", "Gold"],
+    "colors": [
+      "Black",
+      "Gold"
+    ],
     "image": "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=400&h=400&fit=crop",
     "stock": 25,
     "featured": true,
     "rating": 4.8,
     "reviews": 57,
-    "tags": ["onyx", "black", "gold", "statement", "occasion"]
+    "tags": [
+      "onyx",
+      "black",
+      "gold",
+      "statement",
+      "occasion"
+    ]
   }
 ]

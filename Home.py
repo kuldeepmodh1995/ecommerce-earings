@@ -6,6 +6,18 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from utils.data_manager import load_products, save_order
 
+BASE_DIR = os.path.dirname(__file__)
+
+
+def resolve_image(img_path: str) -> str:
+    """Return a local file path for st.image() or a URL for <img src>.
+    Converts 'app/static/images/foo.jpg' -> absolute local path for st.image().
+    Leaves external URLs unchanged.
+    """
+    if img_path and img_path.startswith("app/static/"):
+        return os.path.join(BASE_DIR, img_path[len("app/"):])
+    return img_path
+
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Love Earrings",
@@ -373,11 +385,21 @@ if st.session_state.view == "home":
     st.markdown('<p class="section-sub">Handpicked favourites loved by thousands</p>', unsafe_allow_html=True)
 
     all_products = load_products()
-    featured = [p for p in all_products if p.get("featured")][:6]
+    featured = [p for p in all_products if p.get("featured")]
 
     cols = st.columns(3)
     for i, p in enumerate(featured):
         render_product_card(p, cols[i % 3])
+
+    # Non-featured products
+    non_featured = [p for p in all_products if not p.get("featured")]
+    if non_featured:
+        st.markdown("<hr class='divider'>", unsafe_allow_html=True)
+        st.markdown('<h2 class="section-title">🛍️ More Earrings</h2>', unsafe_allow_html=True)
+        st.markdown('<p class="section-sub">Explore our full collection</p>', unsafe_allow_html=True)
+        cols2 = st.columns(3)
+        for i, p in enumerate(non_featured):
+            render_product_card(p, cols2[i % 3])
 
     st.markdown("<hr class='divider'>", unsafe_allow_html=True)
 
@@ -478,7 +500,7 @@ elif st.session_state.view == "detail":
     img_col, info_col = st.columns([1, 1])
 
     with img_col:
-        st.image(p["image"], use_container_width=True)
+        st.image(resolve_image(p["image"]), use_container_width=True)
 
     with info_col:
         discount = 0
@@ -570,7 +592,7 @@ elif st.session_state.view == "cart":
                 with st.container():
                     ic, nc, pc, rc = st.columns([1, 3, 2, 1])
                     with ic:
-                        st.image(item["image"], width=80)
+                        st.image(resolve_image(item["image"]), width=80)
                     with nc:
                         st.markdown(f"**{item['name']}**")
                         st.caption(f"Category: {item.get('category','')}")
