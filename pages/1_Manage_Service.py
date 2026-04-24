@@ -21,6 +21,17 @@ from utils.data_manager import (
 STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "images")
 os.makedirs(STATIC_DIR, exist_ok=True)
 
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+
+def resolve_image(img_path: str) -> str:
+    """Convert 'app/static/images/foo.jpg' to an absolute local path for st.image().
+    Leaves external URLs unchanged.
+    """
+    if img_path and img_path.startswith("app/static/"):
+        return os.path.join(BASE_DIR, img_path[len("app/"):])
+    return img_path
+
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Manage Service | Love Earrings",
@@ -280,7 +291,7 @@ elif section == "🛍️ Products":
                 col_img, col_form = st.columns([1, 2])
 
                 with col_img:
-                    st.image(p["image"], use_container_width=True)
+                    st.image(resolve_image(p["image"]), use_container_width=True)
 
                     # Image upload
                     st.markdown("**Update Product Image**")
