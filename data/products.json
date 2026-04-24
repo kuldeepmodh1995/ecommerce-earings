@@ -3,8 +3,8 @@
     "id": "001",
     "name": "Rose Gold Hoop Earrings",
     "description": "Elegant rose gold hoops with a brushed finish. Perfect for everyday wear or special occasions. Lightweight and comfortable for all-day use.",
-    "price": 24.99,
-    "original_price": 39.99,
+    "price": 30.0,
+    "original_price": 40.0,
     "category": "Hoops",
     "colors": [
       "Rose Gold"
@@ -143,7 +143,7 @@
       "Gold",
       "Red"
     ],
-    "image": "https://images.unsplash.com/photo-1603254866580-d41c0e591b11?w=400&h=400&fit=crop",
+    "image": "app/static/images/007.webp",
     "stock": 15,
     "featured": true,
     "rating": 5.0,
@@ -236,7 +236,7 @@
     ],
     "image": "https://images.unsplash.com/photo-1561828995-aa79a2db86dd?w=400&h=400&fit=crop",
     "stock": 70,
-    "featured": false,
+    "featured": true,
     "rating": 4.6,
     "reviews": 103,
     "tags": [
