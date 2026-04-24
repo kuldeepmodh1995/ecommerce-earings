@@ -293,8 +293,8 @@ elif section == "🛍️ Products":
                 with col_img:
                     st.image(resolve_image(p["image"]), use_container_width=True)
 
-                    # Image upload
-                    st.markdown("**Update Product Image**")
+                    # Quick image upload (saves immediately on upload)
+                    st.markdown("**Upload New Image**")
                     uploaded = st.file_uploader(
                         "Upload new image",
                         type=["jpg", "jpeg", "png", "webp"],
@@ -308,15 +308,8 @@ elif section == "🛍️ Products":
                         with open(filepath, "wb") as f:
                             f.write(uploaded.read())
                         update_product(p["id"], {"image": f"app/static/images/{filename}"})
-                        st.success("Image updated!")
+                        st.success("✅ Image saved!")
                         st.rerun()
-
-                    # Or URL
-                    new_url = st.text_input(
-                        "Or paste image URL",
-                        value=p.get("image", ""),
-                        key=f"url_{p['id']}",
-                    )
 
                 with col_form:
                     with st.form(key=f"edit_{p['id']}"):
@@ -347,6 +340,13 @@ elif section == "🛍️ Products":
                         )
                         featured = st.checkbox("Featured Product", value=p.get("featured", False))
 
+                        # Image URL field is INSIDE the form so it is captured
+                        # atomically with the rest of the fields on submit
+                        new_url = st.text_input(
+                            "🔗 Image URL (paste to change)",
+                            value=p.get("image", ""),
+                        )
+
                         sc1, sc2 = st.columns(2)
                         with sc1:
                             save_btn = st.form_submit_button("💾 Save Changes", use_container_width=True, type="primary")
@@ -354,7 +354,6 @@ elif section == "🛍️ Products":
                             del_btn = st.form_submit_button("🗑️ Delete Product", use_container_width=True)
 
                         if save_btn:
-                            img_val = new_url if new_url != p.get("image", "") else p.get("image", "")
                             update_product(
                                 p["id"],
                                 {
@@ -367,11 +366,10 @@ elif section == "🛍️ Products":
                                     "colors": [c.strip() for c in colors_raw.split(",") if c.strip()],
                                     "tags": [t.strip() for t in tags_raw.split(",") if t.strip()],
                                     "featured": featured,
-                                    "image": img_val,
+                                    "image": new_url,
                                 },
                             )
                             st.success(f"✅ '{name}' updated successfully!")
-                            st.rerun()
 
                         if del_btn:
                             delete_product(p["id"])
