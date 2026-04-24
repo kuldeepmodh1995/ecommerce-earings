@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import sys
 import os
 
@@ -11,15 +10,12 @@ BASE_DIR = os.path.dirname(__file__)
 
 
 def resolve_image(img_path: str) -> str:
-    """Return a local file path for st.image() or a URL for <img src>.
-    Converts 'app/static/images/foo.jpg' -> absolute local path for st.image().
-    Leaves external URLs unchanged.
-    """
     if img_path and img_path.startswith("app/static/"):
         return os.path.join(BASE_DIR, img_path[len("app/"):])
     return img_path
 
-# ── Page config ──────────────────────────────────────────────────────────────
+
+# ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Love Earrings",
     page_icon="💎",
@@ -31,18 +27,38 @@ st.set_page_config(
 st.markdown(
     """
 <style>
-  /* ── Global ── */
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;600&display=swap');
 
   html, body, [class*="css"] { font-family: 'Lato', sans-serif; }
+
+  /* Remove top padding so navbar sits flush */
   .block-container { padding-top: 0 !important; }
+  header[data-testid="stHeader"] { display: none !important; }
+
+  /* ── Top Navbar ── */
+  .navbar-wrap {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    padding: 12px 28px;
+    border-radius: 0 0 18px 18px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+  }
+  .navbar-brand {
+    font-family: 'Playfair Display', serif;
+    color: #f5c6d0;
+    font-size: 1.55em;
+    font-weight: 700;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
 
   /* ── Hero ── */
   .hero {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     padding: 70px 40px;
     text-align: center;
-    border-radius: 0 0 24px 24px;
+    border-radius: 20px;
     margin-bottom: 32px;
     position: relative;
     overflow: hidden;
@@ -54,42 +70,21 @@ st.markdown(
   }
   .hero h1 {
     font-family: 'Playfair Display', serif;
-    color: #f5c6d0;
-    font-size: 3.6em;
-    margin: 0 0 10px;
-    letter-spacing: 3px;
+    color: #f5c6d0; font-size: 3.6em;
+    margin: 0 0 10px; letter-spacing: 3px;
   }
   .hero p {
-    color: #d4a5b5;
-    font-size: 1.15em;
-    margin: 0 0 28px;
-    font-weight: 300;
-    letter-spacing: 1px;
+    color: #d4a5b5; font-size: 1.15em;
+    margin: 0 0 28px; font-weight: 300; letter-spacing: 1px;
   }
-  .hero-cta {
-    display: inline-block;
-    background: linear-gradient(135deg, #e91e8c, #c2185b);
-    color: #fff !important;
-    padding: 13px 38px;
-    border-radius: 50px;
-    font-size: 1em;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-decoration: none;
-    transition: all .3s;
-    box-shadow: 0 6px 24px rgba(233,30,140,.35);
-  }
-  .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(233,30,140,.5); }
 
   /* ── Product card ── */
   .product-card {
-    background: #fff;
-    border-radius: 16px;
-    overflow: hidden;
+    background: #fff; border-radius: 16px; overflow: hidden;
     box-shadow: 0 2px 16px rgba(0,0,0,.07);
     transition: transform .25s, box-shadow .25s;
-    margin-bottom: 20px;
-    border: 1px solid #f0e8ed;
+    margin-bottom: 4px; border: 1px solid #f0e8ed;
+    cursor: pointer;
   }
   .product-card:hover { transform: translateY(-5px); box-shadow: 0 12px 36px rgba(0,0,0,.13); }
 
@@ -100,22 +95,19 @@ st.markdown(
   .badge {
     position: absolute; top: 10px; left: 10px;
     background: #e91e8c; color: #fff;
-    padding: 3px 10px; border-radius: 20px;
-    font-size: .75em; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px; font-size: .75em; font-weight: 700;
   }
   .badge-featured {
     position: absolute; top: 10px; right: 10px;
     background: #0f3460; color: #f5c6d0;
-    padding: 3px 10px; border-radius: 20px;
-    font-size: .72em; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px; font-size: .72em; font-weight: 600;
   }
 
   .product-info { padding: 14px 16px 18px; }
   .product-name {
     font-family: 'Playfair Display', serif;
-    font-size: 1.02em; font-weight: 600;
-    color: #1a1a2e; margin: 0 0 6px;
-    line-height: 1.35;
+    font-size: 1.02em; font-weight: 600; color: #1a1a2e;
+    margin: 0 0 6px; line-height: 1.35;
   }
   .stars { color: #f4a423; font-size: .85em; margin-bottom: 6px; }
   .price-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
@@ -123,25 +115,10 @@ st.markdown(
   .price-was { font-size: .88em; color: #aaa; text-decoration: line-through; }
   .discount { font-size: .8em; color: #e91e8c; font-weight: 600; }
 
-  /* ── Buttons ── */
-  .btn-cart {
-    background: linear-gradient(135deg, #e91e8c, #c2185b);
-    color: #fff !important; border: none;
-    width: 100%; padding: 9px 0; border-radius: 8px;
-    font-size: .9em; font-weight: 600; cursor: pointer;
-    letter-spacing: .5px; margin-bottom: 6px;
-  }
-  .btn-outline {
-    background: transparent; color: #c2185b !important;
-    border: 1.5px solid #c2185b; width: 100%; padding: 7px 0;
-    border-radius: 8px; font-size: .9em; font-weight: 600; cursor: pointer;
-  }
-
   /* ── Section headers ── */
   .section-title {
     font-family: 'Playfair Display', serif;
-    font-size: 2em; color: #1a1a2e; text-align: center;
-    margin-bottom: 6px;
+    font-size: 2em; color: #1a1a2e; text-align: center; margin-bottom: 6px;
   }
   .section-sub {
     text-align: center; color: #888; margin-bottom: 30px;
@@ -153,37 +130,26 @@ st.markdown(
   .cat-strip { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; justify-content: center; }
   .cat-pill {
     background: #f9f0f4; color: #c2185b; border: 1.5px solid #f5c6d0;
-    border-radius: 50px; padding: 6px 20px; font-size: .88em;
-    font-weight: 600; cursor: pointer; transition: all .2s;
+    border-radius: 50px; padding: 6px 20px; font-size: .88em; font-weight: 600; cursor: pointer;
   }
-  .cat-pill:hover, .cat-pill.active { background: #c2185b; color: #fff; border-color: #c2185b; }
-
-  /* ── Cart sidebar ── */
-  .cart-item {
-    background: #fdf6f9; border-radius: 10px;
-    padding: 10px 12px; margin-bottom: 8px;
-    border: 1px solid #f0e4ec;
-  }
-  .cart-item-name { font-weight: 600; font-size: .92em; color: #1a1a2e; }
-  .cart-item-price { color: #c2185b; font-weight: 700; }
+  .cat-pill:hover { background: #c2185b; color: #fff; border-color: #c2185b; }
 
   /* ── Footer ── */
   .footer {
     background: #1a1a2e; color: #d4a5b5;
-    text-align: center; padding: 32px 20px;
-    margin-top: 50px; border-radius: 16px 16px 0 0;
+    text-align: center; padding: 32px 20px; margin-top: 50px; border-radius: 16px 16px 0 0;
   }
   .footer h3 { font-family: 'Playfair Display', serif; color: #f5c6d0; margin-bottom: 8px; }
   .footer a { color: #f5c6d0; text-decoration: none; margin: 0 12px; }
-  .footer a:hover { text-decoration: underline; }
 
-  /* ── Toast ── */
-  .stAlert { border-radius: 12px !important; }
-
-  /* ── Sidebar ── */
+  /* ── Sidebar filters only ── */
   [data-testid="stSidebar"] { background: #fdf6f9 !important; }
-  [data-testid="stSidebar"] .stMarkdown h2 {
-    font-family: 'Playfair Display', serif; color: #c2185b;
+  [data-testid="stSidebar"] h2 { font-family: 'Playfair Display', serif; color: #c2185b; }
+
+  /* ── Cart dialog items ── */
+  .cart-dialog-item {
+    background: #fdf6f9; border-radius: 10px;
+    padding: 12px 14px; margin-bottom: 10px; border: 1px solid #f0e4ec;
   }
 </style>
 """,
@@ -194,55 +160,20 @@ st.markdown(
 if "cart" not in st.session_state:
     st.session_state.cart = []
 if "view" not in st.session_state:
-    st.session_state.view = "shop"
+    st.session_state.view = "home"
 if "selected_product" not in st.session_state:
     st.session_state.selected_product = None
 if "checkout_done" not in st.session_state:
     st.session_state.checkout_done = False
 
-# ── Clickable product cards (JS injected into parent frame) ───────────────────
-components.html(
-    """
-<script>
-(function () {
-    function setupCards() {
-        var doc = window.parent.document;
-        doc.querySelectorAll('.product-card:not([data-click-ready])').forEach(function (card) {
-            card.setAttribute('data-click-ready', '1');
-            card.style.cursor = 'pointer';
-            card.addEventListener('click', function (e) {
-                // Don't intercept clicks on the Streamlit buttons below the card
-                if (e.target.closest('button')) return;
-                // Walk up the DOM to find the nearest "View Details" button
-                var el = card.parentElement;
-                for (var depth = 0; depth < 10; depth++) {
-                    if (!el) break;
-                    var found = Array.from(el.querySelectorAll('button')).find(
-                        function (b) { return b.innerText.trim().includes('View Details'); }
-                    );
-                    if (found) { found.click(); return; }
-                    el = el.parentElement;
-                }
-            });
-        });
-    }
-    setupCards();
-    new MutationObserver(setupCards).observe(
-        window.parent.document.body, { childList: true, subtree: true }
-    );
-})();
-</script>
-""",
-    height=0,
-)
 
-
-def add_to_cart(product):
+# ── Helpers ───────────────────────────────────────────────────────────────────
+def add_to_cart(product, qty=1):
     for item in st.session_state.cart:
         if item["id"] == product["id"]:
-            item["qty"] += 1
+            item["qty"] += qty
             return
-    st.session_state.cart.append({**product, "qty": 1})
+    st.session_state.cart.append({**product, "qty": qty})
 
 
 def cart_count():
@@ -253,39 +184,136 @@ def cart_total():
     return sum(i["price"] * i["qty"] for i in st.session_state.cart)
 
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
-with st.sidebar:
-    st.markdown("## 💎 Love Earrings")
-    st.markdown("---")
+# ── Cart popup dialog ─────────────────────────────────────────────────────────
+@st.dialog("🛒 Your Cart")
+def cart_popup():
+    if not st.session_state.cart:
+        st.markdown(
+            "<div style='text-align:center;padding:20px 0'>"
+            "<div style='font-size:3em'>🛒</div>"
+            "<h3 style='color:#1a1a2e'>Your cart is empty</h3>"
+            "<p style='color:#888'>Add some earrings to get started!</p>"
+            "</div>",
+            unsafe_allow_html=True,
+        )
+        if st.button("🛍️ Continue Shopping", use_container_width=True, type="primary"):
+            st.rerun()
+        return
 
-    # Navigation
-    st.markdown("### Navigation")
-    nav = st.radio(
-        "",
-        ["🏠 Home", "🛍️ Shop All", "🛒 Cart"],
-        index=0,
-        label_visibility="collapsed",
+    # Cart items
+    for idx, item in enumerate(st.session_state.cart):
+        st.markdown(
+            f"""<div class="cart-dialog-item">
+              <div style="font-weight:600;color:#1a1a2e;margin-bottom:4px">{item['name']}</div>
+              <div style="color:#c2185b;font-size:.9em">${item['price']:.2f} each</div>
+            </div>""",
+            unsafe_allow_html=True,
+        )
+        col_minus, col_qty, col_plus, col_sub, col_del = st.columns([1, 1, 1, 2, 1])
+        with col_minus:
+            if st.button("−", key=f"minus_{idx}", use_container_width=True):
+                if st.session_state.cart[idx]["qty"] > 1:
+                    st.session_state.cart[idx]["qty"] -= 1
+                else:
+                    st.session_state.cart.pop(idx)
+                st.rerun()
+        with col_qty:
+            st.markdown(
+                f"<div style='text-align:center;font-weight:700;font-size:1.1em;padding-top:6px'>"
+                f"{item['qty']}</div>",
+                unsafe_allow_html=True,
+            )
+        with col_plus:
+            if st.button("+", key=f"plus_{idx}", use_container_width=True):
+                st.session_state.cart[idx]["qty"] += 1
+                st.rerun()
+        with col_sub:
+            st.markdown(
+                f"<div style='text-align:right;font-weight:600;color:#c2185b;padding-top:6px'>"
+                f"${item['price'] * item['qty']:.2f}</div>",
+                unsafe_allow_html=True,
+            )
+        with col_del:
+            if st.button("🗑️", key=f"rm_{idx}", use_container_width=True):
+                st.session_state.cart.pop(idx)
+                st.rerun()
+
+    st.markdown("<hr style='border-color:#f5c6d0;margin:16px 0 12px'>", unsafe_allow_html=True)
+
+    subtotal = cart_total()
+    shipping = 0.0 if subtotal >= 35 else 4.99
+    total = subtotal + shipping
+
+    st.markdown(
+        f"""<div style="background:#fff;border-radius:12px;padding:16px;border:1px solid #f5c6d0">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+            <span style="color:#555">Subtotal</span>
+            <strong>${subtotal:.2f}</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="color:#555">Shipping</span>
+            <strong>{'FREE 🎉' if shipping == 0 else f'${shipping:.2f}'}</strong>
+          </div>
+          {'<p style="color:#e91e8c;font-size:.82em;margin:4px 0 0">Add $' + f"{35 - subtotal:.2f}" + ' more for free shipping!</p>' if shipping > 0 else ''}
+          <hr style="border-color:#f5c6d0;margin:10px 0">
+          <div style="display:flex;justify-content:space-between;font-size:1.15em">
+            <strong>Total</strong>
+            <strong style="color:#c2185b">${total:.2f}</strong>
+          </div>
+        </div>""",
+        unsafe_allow_html=True,
     )
-    if nav == "🏠 Home":
-        st.session_state.view = "home"
-    elif nav == "🛍️ Shop All":
-        st.session_state.view = "shop"
-    elif nav == "🛒 Cart":
-        st.session_state.view = "cart"
 
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("✅ Proceed to Checkout", use_container_width=True, type="primary"):
+        st.session_state.view = "cart"
+        st.rerun()
+
+
+# ── Top Navigation Bar ────────────────────────────────────────────────────────
+st.markdown(
+    '<div class="navbar-wrap"><span class="navbar-brand">💎 Love Earrings</span></div>',
+    unsafe_allow_html=True,
+)
+
+nb1, nb2, nb3, nb4, nb_space, nb_cart = st.columns([1.2, 1, 1, 1.2, 4, 1.8])
+
+with nb1:
+    if st.button("🏠 Home", use_container_width=True, key="nav_home"):
+        st.session_state.view = "home"
+        st.session_state.selected_product = None
+        st.rerun()
+with nb2:
+    if st.button("🛍️ Shop", use_container_width=True, key="nav_shop"):
+        st.session_state.view = "shop"
+        st.session_state.selected_product = None
+        st.rerun()
+with nb3:
+    if st.button("⚙️ Manage", use_container_width=True, key="nav_manage"):
+        st.switch_page("pages/1_Manage_Service.py")
+with nb_cart:
+    cart_n = cart_count()
+    cart_label = f"🛒 Cart  {'·  ' + str(cart_n) if cart_n > 0 else ''}"
+    if st.button(cart_label, use_container_width=True, key="nav_cart",
+                 type="primary" if cart_n > 0 else "secondary"):
+        cart_popup()
+
+st.markdown("<hr style='margin:0 0 20px;border-color:#f0e8ed'>", unsafe_allow_html=True)
+
+
+# ── Sidebar — filters ONLY ────────────────────────────────────────────────────
+with st.sidebar:
+    st.markdown("## 🔍 Filter Products")
     st.markdown("---")
 
-    # Filters (visible on shop view)
-    st.markdown("### Filter Products")
-
-    all_products = load_products()
-    categories = ["All"] + sorted({p["category"] for p in all_products})
+    _all = load_products()
+    categories = ["All"] + sorted({p["category"] for p in _all})
     selected_cat = st.selectbox("Category", categories)
 
-    all_colors = sorted({c for p in all_products for c in p.get("colors", [])})
+    all_colors = sorted({c for p in _all for c in p.get("colors", [])})
     selected_color = st.selectbox("Color", ["All"] + all_colors)
 
-    prices = [p["price"] for p in all_products]
+    prices = [p["price"] for p in _all]
     price_range = st.slider(
         "Price Range ($)",
         min_value=float(min(prices)),
@@ -295,25 +323,9 @@ with st.sidebar:
     )
 
     sort_by = st.selectbox(
-        "Sort By", ["Featured", "Price: Low to High", "Price: High to Low", "Top Rated"]
+        "Sort By",
+        ["Featured", "Price: Low to High", "Price: High to Low", "Top Rated"],
     )
-
-    st.markdown("---")
-    st.markdown(f"### 🛒 Cart ({cart_count()} items)")
-    if st.session_state.cart:
-        for item in st.session_state.cart:
-            st.markdown(
-                f"""<div class="cart-item">
-                <div class="cart-item-name">{item['name']}</div>
-                <div class="cart-item-price">${item['price']:.2f} × {item['qty']}</div>
-            </div>""",
-                unsafe_allow_html=True,
-            )
-        st.markdown(f"**Total: ${cart_total():.2f}**")
-        if st.button("🛒 Checkout", use_container_width=True):
-            st.session_state.view = "cart"
-    else:
-        st.caption("Your cart is empty")
 
 
 # ── Filter & sort helper ──────────────────────────────────────────────────────
@@ -323,9 +335,7 @@ def apply_filters(products):
         filtered = [p for p in filtered if p["category"] == selected_cat]
     if selected_color != "All":
         filtered = [p for p in filtered if selected_color in p.get("colors", [])]
-    filtered = [
-        p for p in filtered if price_range[0] <= p["price"] <= price_range[1]
-    ]
+    filtered = [p for p in filtered if price_range[0] <= p["price"] <= price_range[1]]
     if sort_by == "Price: Low to High":
         filtered.sort(key=lambda x: x["price"])
     elif sort_by == "Price: High to Low":
@@ -346,23 +356,18 @@ def render_product_card(p, col):
         stars = "★" * int(p.get("rating", 0)) + "☆" * (5 - int(p.get("rating", 0)))
         badge_html = f'<span class="badge">-{discount}%</span>' if discount else ""
         featured_html = (
-            '<span class="badge-featured">✦ Featured</span>'
-            if p.get("featured")
-            else ""
+            '<span class="badge-featured">✦ Featured</span>' if p.get("featured") else ""
         )
         orig_html = (
             f'<span class="price-was">${p["original_price"]:.2f}</span>'
             if p.get("original_price")
             else ""
         )
-        disc_html = (
-            f'<span class="discount">{discount}% OFF</span>' if discount else ""
-        )
+        disc_html = f'<span class="discount">{discount}% OFF</span>' if discount else ""
 
-        # data-pid lets the JS click-handler locate the matching View button
         st.markdown(
             f"""
-<div class="product-card" data-pid="{p['id']}">
+<div class="product-card">
   <div class="product-img-wrap">
     <img src="{p['image']}" alt="{p['name']}">
     {badge_html}{featured_html}
@@ -395,7 +400,6 @@ def render_product_card(p, col):
 # VIEW: HOME
 # ─────────────────────────────────────────────────────────────────────────────
 if st.session_state.view == "home":
-    # Hero
     st.markdown(
         """
 <div class="hero">
@@ -405,7 +409,6 @@ if st.session_state.view == "home":
         unsafe_allow_html=True,
     )
 
-    # Categories strip
     st.markdown(
         """
 <div class="cat-strip">
@@ -418,23 +421,27 @@ if st.session_state.view == "home":
         unsafe_allow_html=True,
     )
 
-    # Featured products
-    st.markdown('<h2 class="section-title">✦ Featured Collection</h2>', unsafe_allow_html=True)
-    st.markdown('<p class="section-sub">Handpicked favourites loved by thousands</p>', unsafe_allow_html=True)
-
     all_products = load_products()
-    featured = [p for p in all_products if p.get("featured")]
 
+    # Featured section
+    st.markdown('<h2 class="section-title">✦ Featured Collection</h2>', unsafe_allow_html=True)
+    st.markdown(
+        '<p class="section-sub">Handpicked favourites loved by thousands</p>',
+        unsafe_allow_html=True,
+    )
+    featured = [p for p in all_products if p.get("featured")]
     cols = st.columns(3)
     for i, p in enumerate(featured):
         render_product_card(p, cols[i % 3])
 
-    # Non-featured products
+    # More Earrings section
     non_featured = [p for p in all_products if not p.get("featured")]
     if non_featured:
         st.markdown("<hr class='divider'>", unsafe_allow_html=True)
         st.markdown('<h2 class="section-title">🛍️ More Earrings</h2>', unsafe_allow_html=True)
-        st.markdown('<p class="section-sub">Explore our full collection</p>', unsafe_allow_html=True)
+        st.markdown(
+            '<p class="section-sub">Explore our full collection</p>', unsafe_allow_html=True
+        )
         cols2 = st.columns(3)
         for i, p in enumerate(non_featured):
             render_product_card(p, cols2[i % 3])
@@ -460,7 +467,6 @@ if st.session_state.view == "home":
                 unsafe_allow_html=True,
             )
 
-    # Shop now button
     st.markdown("<br>", unsafe_allow_html=True)
     _, mid, _ = st.columns([2, 1, 2])
     with mid:
@@ -468,7 +474,6 @@ if st.session_state.view == "home":
             st.session_state.view = "shop"
             st.rerun()
 
-    # Footer
     st.markdown(
         """
 <div class="footer">
@@ -492,15 +497,13 @@ if st.session_state.view == "home":
 elif st.session_state.view == "shop":
     st.markdown('<h2 class="section-title">🛍️ All Earrings</h2>', unsafe_allow_html=True)
 
-    # Search bar
     search = st.text_input("🔍 Search earrings...", placeholder="e.g. gold hoop, pearl stud...")
     all_products = load_products()
 
     if search:
         q = search.lower()
         all_products = [
-            p
-            for p in all_products
+            p for p in all_products
             if q in p["name"].lower()
             or q in p.get("description", "").lower()
             or any(q in t for t in p.get("tags", []))
@@ -532,6 +535,7 @@ elif st.session_state.view == "detail":
 
     if st.button("← Back to Shop"):
         st.session_state.view = "shop"
+        st.session_state.selected_product = None
         st.rerun()
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -551,16 +555,13 @@ elif st.session_state.view == "detail":
 <h1 style="font-family:'Playfair Display',serif;color:#1a1a2e;font-size:2em">{p['name']}</h1>
 <div style="color:#f4a423;font-size:1.1em">{stars}
   <span style="color:#999;font-size:.85em">({p.get('reviews',0)} reviews)</span>
-</div>
-<br>
+</div><br>
 <div style="display:flex;align-items:center;gap:14px">
   <span style="font-size:2em;font-weight:700;color:#c2185b">${p['price']:.2f}</span>
   {'<span style="text-decoration:line-through;color:#aaa;font-size:1.2em">$' + f"{p['original_price']:.2f}" + '</span>' if p.get('original_price') else ''}
   {'<span style="background:#e91e8c;color:#fff;padding:3px 12px;border-radius:20px;font-size:.85em;font-weight:700">' + str(discount) + '% OFF</span>' if discount else ''}
-</div>
-<br>
-<p style="color:#555;line-height:1.7">{p.get('description','')}</p>
-<br>
+</div><br>
+<p style="color:#555;line-height:1.7">{p.get('description','')}</p><br>
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
   {''.join(f'<span style="background:#f9f0f4;color:#c2185b;border:1px solid #f5c6d0;border-radius:20px;padding:4px 14px;font-size:.82em;font-weight:600">{c}</span>' for c in p.get('colors',[]))}
 </div>
@@ -573,18 +574,18 @@ elif st.session_state.view == "detail":
             unsafe_allow_html=True,
         )
 
-        qty = st.number_input("Quantity", min_value=1, max_value=min(p.get("stock", 1), 10), value=1)
+        qty = st.number_input(
+            "Quantity", min_value=1, max_value=min(p.get("stock", 1), 10), value=1
+        )
 
         a1, a2 = st.columns(2)
         with a1:
             if st.button("🛒 Add to Cart", use_container_width=True, type="primary"):
-                for _ in range(qty):
-                    add_to_cart(p)
-                st.success(f"Added {qty} × {p['name']} to cart!")
+                add_to_cart(p, qty)
+                st.toast(f"✅ {qty} × {p['name']} added to cart!")
         with a2:
             if st.button("💗 Buy Now", use_container_width=True):
-                for _ in range(qty):
-                    add_to_cart(p)
+                add_to_cart(p, qty)
                 st.session_state.view = "cart"
                 st.rerun()
 
@@ -592,8 +593,7 @@ elif st.session_state.view == "detail":
     st.markdown("### You Might Also Like")
     all_products = load_products()
     related = [
-        x
-        for x in all_products
+        x for x in all_products
         if x["category"] == p["category"] and x["id"] != p["id"]
     ][:3]
     if related:
@@ -603,7 +603,7 @@ elif st.session_state.view == "detail":
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# VIEW: CART
+# VIEW: CART  (full checkout page)
 # ─────────────────────────────────────────────────────────────────────────────
 elif st.session_state.view == "cart":
     st.markdown('<h2 class="section-title">🛒 Your Cart</h2>', unsafe_allow_html=True)
@@ -637,7 +637,7 @@ elif st.session_state.view == "cart":
                     with pc:
                         new_qty = st.number_input(
                             "Qty", min_value=1, max_value=10,
-                            value=item["qty"], key=f"qty_{idx}"
+                            value=item["qty"], key=f"qty_{idx}",
                         )
                         st.session_state.cart[idx]["qty"] = new_qty
                         st.markdown(f"**${item['price'] * new_qty:.2f}**")
@@ -686,7 +686,8 @@ elif st.session_state.view == "cart":
                         "customer_email": email,
                         "address": address,
                         "items": [
-                            {"id": i["id"], "name": i["name"], "price": i["price"], "qty": i["qty"]}
+                            {"id": i["id"], "name": i["name"],
+                             "price": i["price"], "qty": i["qty"]}
                             for i in st.session_state.cart
                         ],
                         "total": total,
