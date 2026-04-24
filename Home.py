@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import sys
 import os
 
@@ -199,6 +200,42 @@ if "selected_product" not in st.session_state:
 if "checkout_done" not in st.session_state:
     st.session_state.checkout_done = False
 
+# ── Clickable product cards (JS injected into parent frame) ───────────────────
+components.html(
+    """
+<script>
+(function () {
+    function setupCards() {
+        var doc = window.parent.document;
+        doc.querySelectorAll('.product-card:not([data-click-ready])').forEach(function (card) {
+            card.setAttribute('data-click-ready', '1');
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', function (e) {
+                // Don't intercept clicks on the Streamlit buttons below the card
+                if (e.target.closest('button')) return;
+                // Walk up the DOM to find the nearest "View Details" button
+                var el = card.parentElement;
+                for (var depth = 0; depth < 10; depth++) {
+                    if (!el) break;
+                    var found = Array.from(el.querySelectorAll('button')).find(
+                        function (b) { return b.innerText.trim().includes('View Details'); }
+                    );
+                    if (found) { found.click(); return; }
+                    el = el.parentElement;
+                }
+            });
+        });
+    }
+    setupCards();
+    new MutationObserver(setupCards).observe(
+        window.parent.document.body, { childList: true, subtree: true }
+    );
+})();
+</script>
+""",
+    height=0,
+)
+
 
 def add_to_cart(product):
     for item in st.session_state.cart:
@@ -322,9 +359,10 @@ def render_product_card(p, col):
             f'<span class="discount">{discount}% OFF</span>' if discount else ""
         )
 
+        # data-pid lets the JS click-handler locate the matching View button
         st.markdown(
             f"""
-<div class="product-card">
+<div class="product-card" data-pid="{p['id']}">
   <div class="product-img-wrap">
     <img src="{p['image']}" alt="{p['name']}">
     {badge_html}{featured_html}
@@ -345,9 +383,9 @@ def render_product_card(p, col):
         with c1:
             if st.button("🛒 Add to Cart", key=f"cart_{p['id']}", use_container_width=True):
                 add_to_cart(p)
-                st.success(f"Added to cart!", icon="✅")
+                st.toast(f"✅ {p['name']} added to cart!")
         with c2:
-            if st.button("👁️ View", key=f"view_{p['id']}", use_container_width=True):
+            if st.button("👁️ View Details", key=f"view_{p['id']}", use_container_width=True):
                 st.session_state.selected_product = p
                 st.session_state.view = "detail"
                 st.rerun()

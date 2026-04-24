@@ -278,16 +278,27 @@ elif section == "🛍️ Products":
 
     # ── All Products tab ──
     with tab1:
-        products = load_products()
+        all_products = load_products()
         search = st.text_input("🔍 Search products...", placeholder="Name, category, color...")
         if search:
             q = search.lower()
-            products = [p for p in products if q in p["name"].lower() or q in p.get("category", "").lower()]
+            all_products = [p for p in all_products if q in p["name"].lower() or q in p.get("category", "").lower()]
 
-        st.caption(f"{len(products)} products")
+        st.caption(f"{len(all_products)} products total")
 
-        for p in products:
-            with st.expander(f"{'⭐ ' if p.get('featured') else ''}{p['name']} — {p['category']} — ${p['price']:.2f}"):
+        # ── Featured Collection section ──────────────────────────────────────
+        featured_products = [p for p in all_products if p.get("featured")]
+        more_products = [p for p in all_products if not p.get("featured")]
+
+        if featured_products:
+            st.markdown(
+                '<div class="section-title" style="margin-top:8px">⭐ Featured Collection</div>',
+                unsafe_allow_html=True,
+            )
+            st.caption(f"{len(featured_products)} featured products")
+
+        for p in featured_products:
+            with st.expander(f"⭐ {p['name']} — {p['category']} — ${p['price']:.2f}"):
                 col_img, col_form = st.columns([1, 2])
 
                 with col_img:
@@ -342,6 +353,102 @@ elif section == "🛍️ Products":
 
                         # Image URL field is INSIDE the form so it is captured
                         # atomically with the rest of the fields on submit
+                        new_url = st.text_input(
+                            "🔗 Image URL (paste to change)",
+                            value=p.get("image", ""),
+                        )
+
+                        sc1, sc2 = st.columns(2)
+                        with sc1:
+                            save_btn = st.form_submit_button("💾 Save Changes", use_container_width=True, type="primary")
+                        with sc2:
+                            del_btn = st.form_submit_button("🗑️ Delete Product", use_container_width=True)
+
+                        if save_btn:
+                            update_product(
+                                p["id"],
+                                {
+                                    "name": name,
+                                    "description": desc,
+                                    "price": price,
+                                    "original_price": orig_price,
+                                    "category": category,
+                                    "stock": stock,
+                                    "colors": [c.strip() for c in colors_raw.split(",") if c.strip()],
+                                    "tags": [t.strip() for t in tags_raw.split(",") if t.strip()],
+                                    "featured": featured,
+                                    "image": new_url,
+                                },
+                            )
+                            st.success(f"✅ '{name}' updated successfully!")
+
+                        if del_btn:
+                            delete_product(p["id"])
+                            st.warning(f"🗑️ '{p['name']}' deleted.")
+                            st.rerun()
+
+        # ── More Earrings section ────────────────────────────────────────────
+        if more_products:
+            st.markdown("<hr style='border-color:#f5c6d0;margin:20px 0'>", unsafe_allow_html=True)
+            st.markdown(
+                '<div class="section-title">🛍️ More Earrings</div>',
+                unsafe_allow_html=True,
+            )
+            st.caption(f"{len(more_products)} non-featured products")
+
+        for p in more_products:
+            with st.expander(f"{p['name']} — {p['category']} — ${p['price']:.2f}"):
+                col_img, col_form = st.columns([1, 2])
+
+                with col_img:
+                    st.image(resolve_image(p["image"]), use_container_width=True)
+
+                    st.markdown("**Upload New Image**")
+                    uploaded = st.file_uploader(
+                        "Upload new image",
+                        type=["jpg", "jpeg", "png", "webp"],
+                        key=f"upload_{p['id']}",
+                        label_visibility="collapsed",
+                    )
+                    if uploaded:
+                        ext = uploaded.name.split(".")[-1]
+                        filename = f"{p['id']}.{ext}"
+                        filepath = os.path.join(STATIC_DIR, filename)
+                        with open(filepath, "wb") as f:
+                            f.write(uploaded.read())
+                        update_product(p["id"], {"image": f"app/static/images/{filename}"})
+                        st.success("✅ Image saved!")
+                        st.rerun()
+
+                with col_form:
+                    with st.form(key=f"edit_{p['id']}"):
+                        name = st.text_input("Product Name", value=p["name"])
+                        desc = st.text_area("Description", value=p.get("description", ""), height=100)
+
+                        fc1, fc2 = st.columns(2)
+                        with fc1:
+                            price = st.number_input("Price ($)", value=float(p["price"]), step=0.01)
+                            stock = st.number_input("Stock", value=int(p.get("stock", 0)), step=1)
+                        with fc2:
+                            orig_price = st.number_input(
+                                "Original Price ($)", value=float(p.get("original_price", p["price"])), step=0.01
+                            )
+                            category = st.selectbox(
+                                "Category",
+                                ["Studs", "Hoops", "Drops", "Chandeliers", "Dangles"],
+                                index=["Studs", "Hoops", "Drops", "Chandeliers", "Dangles"].index(p.get("category", "Studs"))
+                                if p.get("category") in ["Studs", "Hoops", "Drops", "Chandeliers", "Dangles"]
+                                else 0,
+                            )
+
+                        colors_raw = st.text_input(
+                            "Colors (comma-separated)", value=", ".join(p.get("colors", []))
+                        )
+                        tags_raw = st.text_input(
+                            "Tags (comma-separated)", value=", ".join(p.get("tags", []))
+                        )
+                        featured = st.checkbox("Featured Product", value=p.get("featured", False))
+
                         new_url = st.text_input(
                             "🔗 Image URL (paste to change)",
                             value=p.get("image", ""),
