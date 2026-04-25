@@ -315,79 +315,84 @@ with st.sidebar:
     st.markdown("---")
 
     _all = load_products()
-    categories = ["All"] + sorted({p["category"] for p in _all})
-    prices = [p["price"] for p in _all]
-    price_min, price_max = float(min(prices)), float(max(prices))
 
-    # Initialise price range once products are known
-    if st.session_state.filter_price is None:
-        st.session_state.filter_price = (price_min, price_max)
+    if not _all:
+        st.info("No products are currently available.")
+    else:
+        categories = ["All"] + sorted({p["category"] for p in _all})
+        prices = [p["price"] for p in _all]
+        price_min, price_max = float(min(prices)), float(max(prices))
 
-    # Clamp stored price to current product range
-    stored_price = (
-        max(price_min, st.session_state.filter_price[0]),
-        min(price_max, st.session_state.filter_price[1]),
-    )
-
-    all_colors = sorted({c for p in _all for c in p.get("colors", [])})
-    color_options = ["All"] + all_colors
-
-    cat_idx = categories.index(st.session_state.filter_cat) if st.session_state.filter_cat in categories else 0
-    color_idx = color_options.index(st.session_state.filter_color) if st.session_state.filter_color in color_options else 0
-    sort_options = ["Featured", "Price: Low to High", "Price: High to Low", "Top Rated"]
-    sort_idx = sort_options.index(st.session_state.filter_sort) if st.session_state.filter_sort in sort_options else 0
-
-    selected_cat = st.selectbox("Category", categories, index=cat_idx)
-    selected_color = st.selectbox("Color", color_options, index=color_idx)
-    price_range = st.slider(
-        "Price Range ($)",
-        min_value=price_min,
-        max_value=price_max,
-        value=stored_price,
-        step=1.0,
-    )
-    sort_by = st.selectbox("Sort By", sort_options, index=sort_idx)
-
-    # Detect any filter change vs. last run
-    filters_changed = (
-        selected_cat != st.session_state.filter_cat
-        or selected_color != st.session_state.filter_color
-        or price_range != st.session_state.filter_price
-        or sort_by != st.session_state.filter_sort
-    )
-
-    # Persist filter selections
-    st.session_state.filter_cat = selected_cat
-    st.session_state.filter_color = selected_color
-    st.session_state.filter_price = price_range
-    st.session_state.filter_sort = sort_by
-
-    # Active-filter badge + clear button
-    active_count = sum([
-        selected_cat != "All",
-        selected_color != "All",
-        price_range != (price_min, price_max),
-        sort_by != "Featured",
-    ])
-    if active_count:
-        st.markdown(
-            f"<div style='background:#fce4ec;border-radius:8px;padding:6px 10px;"
-            f"color:#c2185b;font-size:.85em;margin-bottom:6px'>"
-            f"<b>{active_count} filter{'s' if active_count > 1 else ''} active</b></div>",
-            unsafe_allow_html=True,
-        )
-        if st.button("✖ Clear All Filters", use_container_width=True):
-            st.session_state.filter_cat = "All"
-            st.session_state.filter_color = "All"
+        # Initialise price range once products are known
+        if st.session_state.filter_price is None:
             st.session_state.filter_price = (price_min, price_max)
-            st.session_state.filter_sort = "Featured"
-            st.rerun()
 
-    # Auto-navigate to shop when a filter changes
-    if filters_changed and st.session_state.view != "shop":
-        st.session_state.view = "shop"
-        st.session_state.selected_product = None
-        st.rerun()
+        # Clamp stored price to current product range
+        stored_price = (
+            max(price_min, st.session_state.filter_price[0]),
+            min(price_max, st.session_state.filter_price[1]),
+        )
+
+        all_colors = sorted({c for p in _all for c in p.get("colors", [])})
+        color_options = ["All"] + all_colors
+
+        cat_idx = categories.index(st.session_state.filter_cat) if st.session_state.filter_cat in categories else 0
+        color_idx = color_options.index(st.session_state.filter_color) if st.session_state.filter_color in color_options else 0
+        sort_options = ["Featured", "Price: Low to High", "Price: High to Low", "Top Rated"]
+        sort_idx = sort_options.index(st.session_state.filter_sort) if st.session_state.filter_sort in sort_options else 0
+
+        selected_cat = st.selectbox("Category", categories, index=cat_idx)
+        selected_color = st.selectbox("Color", color_options, index=color_idx)
+        price_range = st.slider(
+            "Price Range ($)",
+            min_value=price_min,
+            max_value=price_max,
+            value=stored_price,
+            step=1.0,
+        )
+        sort_by = st.selectbox("Sort By", sort_options, index=sort_idx)
+
+        # Detect any filter change vs. last run
+        filters_changed = (
+            selected_cat != st.session_state.filter_cat
+            or selected_color != st.session_state.filter_color
+            or price_range != st.session_state.filter_price
+            or sort_by != st.session_state.filter_sort
+        )
+
+        # Persist filter selections
+        st.session_state.filter_cat = selected_cat
+        st.session_state.filter_color = selected_color
+        st.session_state.filter_price = price_range
+        st.session_state.filter_sort = sort_by
+
+        # Active-filter badge + clear button
+        active_count = sum([
+            selected_cat != "All",
+            selected_color != "All",
+            price_range != (price_min, price_max),
+            sort_by != "Featured",
+        ])
+        if active_count:
+            st.markdown(
+                f"<div style='background:#fce4ec;border-radius:8px;padding:6px 10px;"
+                f"color:#c2185b;font-size:.85em;margin-bottom:6px'>"
+                f"<b>{active_count} filter{'s' if active_count > 1 else ''} active</b></div>",
+                unsafe_allow_html=True,
+            )
+            if st.button("✖ Clear All Filters", use_container_width=True):
+                st.session_state.filter_cat = "All"
+                st.session_state.filter_color = "All"
+                st.session_state.filter_price = (price_min, price_max)
+                st.session_state.filter_sort = "Featured"
+                st.toast("Filters cleared!")
+                st.rerun()
+
+        # Auto-navigate to shop when a filter changes
+        if filters_changed and st.session_state.view != "shop":
+            st.session_state.view = "shop"
+            st.session_state.selected_product = None
+            st.rerun()
 
 
 # ── Filter & sort helper ──────────────────────────────────────────────────────
