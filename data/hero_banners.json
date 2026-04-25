@@ -1,0 +1,32 @@
+[
+  {
+    "id": "hb1",
+    "title": "Discover Handcrafted Earrings",
+    "subtitle": "Made for every moment of your life",
+    "button_text": "Shop Now",
+    "image": "https://images.unsplash.com/photo-1630018548696-e6f716289c97?w=1400&h=600&fit=crop",
+    "redirect_to": "shop",
+    "sequence": 1,
+    "enabled": true
+  },
+  {
+    "id": "hb2",
+    "title": "Featured Collection",
+    "subtitle": "Handpicked favourites loved by thousands",
+    "button_text": "Explore Now",
+    "image": "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=1400&h=600&fit=crop",
+    "redirect_to": "category:Hoops",
+    "sequence": 2,
+    "enabled": true
+  },
+  {
+    "id": "hb3",
+    "title": "New Season Arrivals",
+    "subtitle": "Fresh styles \u2014 just landed",
+    "button_text": "Shop New",
+    "image": "https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?w=1400&h=600&fit=crop",
+    "redirect_to": "category:Studs",
+    "sequence": 3,
+    "enabled": true
+  }
+]

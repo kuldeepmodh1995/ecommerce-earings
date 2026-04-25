@@ -16,6 +16,16 @@ from utils.data_manager import (
     load_orders,
     update_order_status,
     get_stats,
+    load_nav_categories,
+    save_nav_categories,
+    add_nav_category,
+    update_nav_category,
+    delete_nav_category,
+    load_hero_banners,
+    save_hero_banners,
+    add_hero_banner,
+    update_hero_banner,
+    delete_hero_banner,
 )
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "images")
@@ -25,12 +35,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
 def resolve_image(img_path: str) -> str:
-    """Convert 'app/static/images/foo.jpg' to an absolute local path for st.image().
-    Leaves external URLs unchanged.
-    """
     if img_path and img_path.startswith("app/static/"):
         return os.path.join(BASE_DIR, img_path[len("app/"):])
     return img_path
+
 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -107,6 +115,16 @@ st.markdown(
     border: 1px solid #f5c6d0; text-align: center;
   }
   .login-card h2 { font-family: 'Playfair Display', serif; color: #1a1a2e; }
+
+  .banner-card {
+    background: #fdf6f9; border-radius: 12px; padding: 16px;
+    border: 1px solid #f0e4ec; margin-bottom: 12px;
+  }
+
+  .nav-cat-row {
+    background: #fdf6f9; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 10px; border: 1px solid #f0e4ec;
+  }
 </style>
 """,
     unsafe_allow_html=True,
@@ -166,7 +184,14 @@ with st.sidebar:
     st.markdown("---")
     section = st.radio(
         "Navigation",
-        ["📊 Dashboard", "🛍️ Products", "📦 Orders", "🖼️ Media Library"],
+        [
+            "📊 Dashboard",
+            "🛍️ Products",
+            "📦 Orders",
+            "🖼️ Media Library",
+            "🗂️ Nav Categories",
+            "🎠 Hero Banners",
+        ],
         label_visibility="collapsed",
     )
     st.markdown("---")
@@ -247,7 +272,6 @@ if section == "📊 Dashboard":
             st.success("All products are well stocked!")
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # Recent orders
     orders = load_orders()
     if orders:
         st.markdown('<div class="section-card">', unsafe_allow_html=True)
@@ -276,7 +300,6 @@ if section == "📊 Dashboard":
 elif section == "🛍️ Products":
     tab1, tab2 = st.tabs(["📋 All Products", "➕ Add New Product"])
 
-    # ── All Products tab ──
     with tab1:
         all_products = load_products()
         search = st.text_input("🔍 Search products...", placeholder="Name, category, color...")
@@ -286,7 +309,6 @@ elif section == "🛍️ Products":
 
         st.caption(f"{len(all_products)} products total")
 
-        # ── Featured Collection section ──────────────────────────────────────
         featured_products = [p for p in all_products if p.get("featured")]
         more_products = [p for p in all_products if not p.get("featured")]
 
@@ -303,8 +325,6 @@ elif section == "🛍️ Products":
 
                 with col_img:
                     st.image(resolve_image(p["image"]), use_container_width=True)
-
-                    # Quick image upload (saves immediately on upload)
                     st.markdown("**Upload New Image**")
                     uploaded = st.file_uploader(
                         "Upload new image",
@@ -343,20 +363,10 @@ elif section == "🛍️ Products":
                                 else 0,
                             )
 
-                        colors_raw = st.text_input(
-                            "Colors (comma-separated)", value=", ".join(p.get("colors", []))
-                        )
-                        tags_raw = st.text_input(
-                            "Tags (comma-separated)", value=", ".join(p.get("tags", []))
-                        )
+                        colors_raw = st.text_input("Colors (comma-separated)", value=", ".join(p.get("colors", [])))
+                        tags_raw = st.text_input("Tags (comma-separated)", value=", ".join(p.get("tags", [])))
                         featured = st.checkbox("Featured Product", value=p.get("featured", False))
-
-                        # Image URL field is INSIDE the form so it is captured
-                        # atomically with the rest of the fields on submit
-                        new_url = st.text_input(
-                            "🔗 Image URL (paste to change)",
-                            value=p.get("image", ""),
-                        )
+                        new_url = st.text_input("🔗 Image URL (paste to change)", value=p.get("image", ""))
 
                         sc1, sc2 = st.columns(2)
                         with sc1:
@@ -365,21 +375,13 @@ elif section == "🛍️ Products":
                             del_btn = st.form_submit_button("🗑️ Delete Product", use_container_width=True)
 
                         if save_btn:
-                            update_product(
-                                p["id"],
-                                {
-                                    "name": name,
-                                    "description": desc,
-                                    "price": price,
-                                    "original_price": orig_price,
-                                    "category": category,
-                                    "stock": stock,
-                                    "colors": [c.strip() for c in colors_raw.split(",") if c.strip()],
-                                    "tags": [t.strip() for t in tags_raw.split(",") if t.strip()],
-                                    "featured": featured,
-                                    "image": new_url,
-                                },
-                            )
+                            update_product(p["id"], {
+                                "name": name, "description": desc, "price": price,
+                                "original_price": orig_price, "category": category, "stock": stock,
+                                "colors": [c.strip() for c in colors_raw.split(",") if c.strip()],
+                                "tags": [t.strip() for t in tags_raw.split(",") if t.strip()],
+                                "featured": featured, "image": new_url,
+                            })
                             st.success(f"✅ '{name}' updated successfully!")
 
                         if del_btn:
@@ -387,13 +389,9 @@ elif section == "🛍️ Products":
                             st.warning(f"🗑️ '{p['name']}' deleted.")
                             st.rerun()
 
-        # ── More Earrings section ────────────────────────────────────────────
         if more_products:
             st.markdown("<hr style='border-color:#f5c6d0;margin:20px 0'>", unsafe_allow_html=True)
-            st.markdown(
-                '<div class="section-title">🛍️ More Earrings</div>',
-                unsafe_allow_html=True,
-            )
+            st.markdown('<div class="section-title">🛍️ More Earrings</div>', unsafe_allow_html=True)
             st.caption(f"{len(more_products)} non-featured products")
 
         for p in more_products:
@@ -402,7 +400,6 @@ elif section == "🛍️ Products":
 
                 with col_img:
                     st.image(resolve_image(p["image"]), use_container_width=True)
-
                     st.markdown("**Upload New Image**")
                     uploaded = st.file_uploader(
                         "Upload new image",
@@ -441,18 +438,10 @@ elif section == "🛍️ Products":
                                 else 0,
                             )
 
-                        colors_raw = st.text_input(
-                            "Colors (comma-separated)", value=", ".join(p.get("colors", []))
-                        )
-                        tags_raw = st.text_input(
-                            "Tags (comma-separated)", value=", ".join(p.get("tags", []))
-                        )
+                        colors_raw = st.text_input("Colors (comma-separated)", value=", ".join(p.get("colors", [])))
+                        tags_raw = st.text_input("Tags (comma-separated)", value=", ".join(p.get("tags", [])))
                         featured = st.checkbox("Featured Product", value=p.get("featured", False))
-
-                        new_url = st.text_input(
-                            "🔗 Image URL (paste to change)",
-                            value=p.get("image", ""),
-                        )
+                        new_url = st.text_input("🔗 Image URL (paste to change)", value=p.get("image", ""))
 
                         sc1, sc2 = st.columns(2)
                         with sc1:
@@ -461,21 +450,13 @@ elif section == "🛍️ Products":
                             del_btn = st.form_submit_button("🗑️ Delete Product", use_container_width=True)
 
                         if save_btn:
-                            update_product(
-                                p["id"],
-                                {
-                                    "name": name,
-                                    "description": desc,
-                                    "price": price,
-                                    "original_price": orig_price,
-                                    "category": category,
-                                    "stock": stock,
-                                    "colors": [c.strip() for c in colors_raw.split(",") if c.strip()],
-                                    "tags": [t.strip() for t in tags_raw.split(",") if t.strip()],
-                                    "featured": featured,
-                                    "image": new_url,
-                                },
-                            )
+                            update_product(p["id"], {
+                                "name": name, "description": desc, "price": price,
+                                "original_price": orig_price, "category": category, "stock": stock,
+                                "colors": [c.strip() for c in colors_raw.split(",") if c.strip()],
+                                "tags": [t.strip() for t in tags_raw.split(",") if t.strip()],
+                                "featured": featured, "image": new_url,
+                            })
                             st.success(f"✅ '{name}' updated successfully!")
 
                         if del_btn:
@@ -483,7 +464,6 @@ elif section == "🛍️ Products":
                             st.warning(f"🗑️ '{p['name']}' deleted.")
                             st.rerun()
 
-    # ── Add New Product tab ──
     with tab2:
         st.markdown("### Add New Earring Product")
         with st.form("add_product_form"):
@@ -511,18 +491,13 @@ elif section == "🛍️ Products":
                 else:
                     img_path = new_img_url or "https://images.unsplash.com/photo-1630018548696-e6f716289c97?w=400&h=400&fit=crop"
                     prod_id = add_product({
-                        "name": new_name,
-                        "description": new_desc,
-                        "price": new_price,
-                        "original_price": new_orig,
-                        "category": new_cat,
-                        "stock": new_stock,
+                        "name": new_name, "description": new_desc,
+                        "price": new_price, "original_price": new_orig,
+                        "category": new_cat, "stock": new_stock,
                         "colors": [c.strip() for c in new_colors.split(",") if c.strip()],
                         "tags": [t.strip() for t in new_tags.split(",") if t.strip()],
-                        "featured": new_featured,
-                        "image": img_path,
-                        "rating": 0.0,
-                        "reviews": 0,
+                        "featured": new_featured, "image": img_path,
+                        "rating": 0.0, "reviews": 0,
                     })
 
                     if new_img_file:
@@ -556,15 +531,6 @@ elif section == "📦 Orders":
 
         for o in display_orders:
             status = o.get("status", "Pending")
-            status_colors = {
-                "Pending": "#856404",
-                "Processing": "#084298",
-                "Shipped": "#0c5460",
-                "Delivered": "#155724",
-                "Cancelled": "#721c24",
-            }
-            sc = status_colors.get(status, "#555")
-
             with st.expander(f"🧾 {o['id']} — {o.get('customer_name','N/A')} — ${o.get('total',0):.2f} — {status}"):
                 oc1, oc2 = st.columns([2, 1])
                 with oc1:
@@ -578,7 +544,6 @@ elif section == "📦 Orders":
                     for item in o.get("items", []):
                         st.markdown(f"- {item['name']} × {item['qty']} — ${item['price'] * item['qty']:.2f}")
 
-                    total_items = sum(i["qty"] for i in o.get("items", []))
                     subtotal = sum(i["price"] * i["qty"] for i in o.get("items", []))
                     st.markdown(f"**Subtotal:** ${subtotal:.2f} | **Total:** ${o.get('total', 0):.2f}")
 
@@ -603,7 +568,6 @@ elif section == "🖼️ Media Library":
     st.markdown("### 🖼️ Media Library")
     st.caption("Manage product images stored on the server")
 
-    # Upload new image
     with st.expander("📤 Upload New Image", expanded=True):
         up_file = st.file_uploader(
             "Choose image file",
@@ -620,7 +584,6 @@ elif section == "🖼️ Media Library":
             st.success(f"✅ Uploaded: `app/static/images/{fname}`")
             st.rerun()
 
-    # Gallery of uploaded images
     st.markdown("---")
     st.markdown("**Uploaded Images:**")
 
@@ -644,9 +607,304 @@ elif section == "🖼️ Media Library":
                     st.success(f"Deleted {fname}")
                     st.rerun()
 
-    # Show all current product images
     st.markdown("---")
     st.markdown("**Current Product Image URLs:**")
     products = load_products()
     for p in products:
         st.markdown(f"- **{p['name']}**: `{p.get('image', '')}`")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NAV CATEGORIES
+# ─────────────────────────────────────────────────────────────────────────────
+elif section == "🗂️ Nav Categories":
+    st.markdown("### 🗂️ Navigation Categories")
+    st.caption(
+        "These appear as a horizontal nav bar on the storefront. "
+        "Control the label, emoji, optional badge, display order, and where each item links."
+    )
+
+    st.info(
+        "**Redirect values:** `shop` → all products · `home` → homepage · "
+        "`category:Hoops` → filter by category · `https://...` → external link"
+    )
+
+    tab_list, tab_add = st.tabs(["📋 Manage Categories", "➕ Add New Category"])
+
+    with tab_list:
+        cats = load_nav_categories()
+        cats_sorted = sorted(cats, key=lambda x: x.get("sequence", 999))
+
+        if not cats_sorted:
+            st.info("No nav categories yet. Add one using the tab above.")
+        else:
+            st.caption(f"{len(cats_sorted)} categories · Reorder by changing the Sequence number and saving")
+
+            for c in cats_sorted:
+                enabled_icon = "🟢" if c.get("enabled", True) else "🔴"
+                badge_text = f" [{c.get('badge','')}]" if c.get("badge") else ""
+                with st.expander(
+                    f"{enabled_icon} {c.get('sequence','?')}. {c.get('emoji','')} {c['label']}{badge_text} → {c.get('redirect_to','')}",
+                    expanded=False,
+                ):
+                    with st.form(key=f"nc_edit_{c['id']}"):
+                        r1c1, r1c2, r1c3 = st.columns([2, 1, 1])
+                        with r1c1:
+                            nc_label = st.text_input("Label *", value=c.get("label", ""))
+                        with r1c2:
+                            nc_emoji = st.text_input("Emoji", value=c.get("emoji", ""), max_chars=4)
+                        with r1c3:
+                            nc_badge = st.text_input("Badge (optional)", value=c.get("badge", ""),
+                                                     placeholder="e.g. New, Hot, Sale", max_chars=12)
+
+                        r2c1, r2c2 = st.columns([3, 1])
+                        with r2c1:
+                            nc_redirect = st.text_input(
+                                "Redirect To *",
+                                value=c.get("redirect_to", "shop"),
+                                help="shop · home · category:Hoops · https://...",
+                            )
+                        with r2c2:
+                            nc_seq = st.number_input("Sequence", value=int(c.get("sequence", 1)),
+                                                     min_value=1, step=1)
+
+                        nc_enabled = st.checkbox("Show in storefront", value=c.get("enabled", True))
+
+                        btn1, btn2 = st.columns(2)
+                        with btn1:
+                            nc_save = st.form_submit_button("💾 Save", use_container_width=True, type="primary")
+                        with btn2:
+                            nc_del = st.form_submit_button("🗑️ Delete", use_container_width=True)
+
+                        if nc_save:
+                            if not nc_label or not nc_redirect:
+                                st.error("Label and Redirect To are required.")
+                            else:
+                                update_nav_category(c["id"], {
+                                    "label": nc_label,
+                                    "emoji": nc_emoji,
+                                    "badge": nc_badge,
+                                    "redirect_to": nc_redirect,
+                                    "sequence": nc_seq,
+                                    "enabled": nc_enabled,
+                                })
+                                st.success(f"✅ '{nc_label}' saved!")
+                                st.rerun()
+
+                        if nc_del:
+                            delete_nav_category(c["id"])
+                            st.warning(f"🗑️ '{c['label']}' deleted.")
+                            st.rerun()
+
+    with tab_add:
+        st.markdown("### Add New Nav Category")
+        with st.form("add_nav_cat_form"):
+            a1, a2, a3 = st.columns([2, 1, 1])
+            with a1:
+                an_label = st.text_input("Label *", placeholder="e.g. Fine Silver")
+            with a2:
+                an_emoji = st.text_input("Emoji", placeholder="🥈", max_chars=4)
+            with a3:
+                an_badge = st.text_input("Badge", placeholder="New", max_chars=12)
+
+            b1, b2 = st.columns([3, 1])
+            with b1:
+                an_redirect = st.text_input(
+                    "Redirect To *",
+                    placeholder="shop  or  category:Studs  or  https://...",
+                    help="shop · home · category:Hoops · https://...",
+                )
+            with b2:
+                cats_for_seq = load_nav_categories()
+                an_seq = st.number_input(
+                    "Sequence",
+                    value=max((c.get("sequence", 0) for c in cats_for_seq), default=0) + 1,
+                    min_value=1, step=1,
+                )
+
+            an_enabled = st.checkbox("Show in storefront", value=True)
+            an_submit = st.form_submit_button("➕ Add Category", use_container_width=True, type="primary")
+
+            if an_submit:
+                if not an_label or not an_redirect:
+                    st.error("Label and Redirect To are required.")
+                else:
+                    new_id = add_nav_category({
+                        "label": an_label,
+                        "emoji": an_emoji,
+                        "badge": an_badge,
+                        "redirect_to": an_redirect,
+                        "sequence": an_seq,
+                        "enabled": an_enabled,
+                    })
+                    st.success(f"✅ '{an_label}' added!")
+                    st.rerun()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HERO BANNERS
+# ─────────────────────────────────────────────────────────────────────────────
+elif section == "🎠 Hero Banners":
+    st.markdown("### 🎠 Hero Banners")
+    st.caption(
+        "Auto-rotating carousel banners shown at the top of the homepage. "
+        "Clicking a banner redirects shoppers to the configured destination."
+    )
+
+    st.info(
+        "**Redirect values:** `shop` → all products · `category:Hoops` → filter by category · `https://...` → external link"
+    )
+
+    tab_banners, tab_add_banner = st.tabs(["📋 Manage Banners", "➕ Add New Banner"])
+
+    with tab_banners:
+        banners = load_hero_banners()
+        banners_sorted = sorted(banners, key=lambda x: x.get("sequence", 999))
+
+        if not banners_sorted:
+            st.info("No hero banners yet. Add one using the tab above.")
+        else:
+            st.caption(f"{len(banners_sorted)} banners · Reorder by changing the Sequence number and saving")
+
+            for b in banners_sorted:
+                enabled_icon = "🟢" if b.get("enabled", True) else "🔴"
+                with st.expander(
+                    f"{enabled_icon} {b.get('sequence','?')}. {b.get('title','Untitled')} → {b.get('redirect_to','')}",
+                    expanded=False,
+                ):
+                    img_col, form_col = st.columns([1, 2])
+
+                    with img_col:
+                        img_src = b.get("image", "")
+                        if img_src:
+                            if img_src.startswith("app/static/"):
+                                local = resolve_image(img_src)
+                                if os.path.exists(local):
+                                    st.image(local, use_container_width=True)
+                                else:
+                                    st.markdown(f"`{img_src}`")
+                            else:
+                                st.image(img_src, use_container_width=True)
+                        else:
+                            st.markdown("_No image set_")
+
+                        st.markdown("**Upload Banner Image**")
+                        banner_upload = st.file_uploader(
+                            "Upload banner image",
+                            type=["jpg", "jpeg", "png", "webp"],
+                            key=f"banner_up_{b['id']}",
+                            label_visibility="collapsed",
+                        )
+                        if banner_upload:
+                            ext = banner_upload.name.split(".")[-1]
+                            filename = f"banner_{b['id']}.{ext}"
+                            filepath = os.path.join(STATIC_DIR, filename)
+                            with open(filepath, "wb") as f:
+                                f.write(banner_upload.read())
+                            update_hero_banner(b["id"], {"image": f"app/static/images/{filename}"})
+                            st.success("✅ Banner image saved!")
+                            st.rerun()
+
+                    with form_col:
+                        with st.form(key=f"banner_edit_{b['id']}"):
+                            hb_title = st.text_input("Title *", value=b.get("title", ""))
+                            hb_subtitle = st.text_input("Subtitle", value=b.get("subtitle", ""))
+                            hb_btn_text = st.text_input("Button Text", value=b.get("button_text", "Shop Now"))
+                            hb_img_url = st.text_input(
+                                "🔗 Image URL (or upload left)",
+                                value=b.get("image", ""),
+                                placeholder="https://...",
+                            )
+                            hb_redirect = st.text_input(
+                                "Redirect To *",
+                                value=b.get("redirect_to", "shop"),
+                                help="shop · category:Hoops · https://...",
+                            )
+
+                            seq_col, en_col = st.columns([1, 1])
+                            with seq_col:
+                                hb_seq = st.number_input("Sequence", value=int(b.get("sequence", 1)),
+                                                         min_value=1, step=1)
+                            with en_col:
+                                hb_enabled = st.checkbox("Show on homepage", value=b.get("enabled", True))
+
+                            sb1, sb2 = st.columns(2)
+                            with sb1:
+                                hb_save = st.form_submit_button("💾 Save", use_container_width=True, type="primary")
+                            with sb2:
+                                hb_del = st.form_submit_button("🗑️ Delete", use_container_width=True)
+
+                            if hb_save:
+                                if not hb_title or not hb_redirect:
+                                    st.error("Title and Redirect To are required.")
+                                else:
+                                    update_hero_banner(b["id"], {
+                                        "title": hb_title,
+                                        "subtitle": hb_subtitle,
+                                        "button_text": hb_btn_text,
+                                        "image": hb_img_url,
+                                        "redirect_to": hb_redirect,
+                                        "sequence": hb_seq,
+                                        "enabled": hb_enabled,
+                                    })
+                                    st.success(f"✅ Banner '{hb_title}' saved!")
+                                    st.rerun()
+
+                            if hb_del:
+                                delete_hero_banner(b["id"])
+                                st.warning("🗑️ Banner deleted.")
+                                st.rerun()
+
+    with tab_add_banner:
+        st.markdown("### Add New Hero Banner")
+        with st.form("add_banner_form"):
+            ab_title = st.text_input("Title *", placeholder="e.g. New Arrivals")
+            ab_subtitle = st.text_input("Subtitle", placeholder="e.g. Fresh styles — just landed")
+            ab_btn = st.text_input("Button Text", value="Shop Now")
+
+            img_url_col, img_up_col = st.columns([1, 1])
+            with img_url_col:
+                ab_img_url = st.text_input("Image URL", placeholder="https://...")
+            with img_up_col:
+                ab_img_file = st.file_uploader("Or upload image", type=["jpg", "jpeg", "png", "webp"], key="add_banner_img")
+
+            ab_redirect = st.text_input(
+                "Redirect To *",
+                placeholder="shop  or  category:Hoops  or  https://...",
+            )
+
+            existing_banners = load_hero_banners()
+            ab_seq = st.number_input(
+                "Sequence",
+                value=max((b.get("sequence", 0) for b in existing_banners), default=0) + 1,
+                min_value=1, step=1,
+            )
+            ab_enabled = st.checkbox("Show on homepage immediately", value=True)
+
+            ab_submit = st.form_submit_button("➕ Add Banner", use_container_width=True, type="primary")
+
+            if ab_submit:
+                if not ab_title or not ab_redirect:
+                    st.error("Title and Redirect To are required.")
+                else:
+                    img_path = ab_img_url or "https://images.unsplash.com/photo-1630018548696-e6f716289c97?w=1400&h=600&fit=crop"
+                    new_id = add_hero_banner({
+                        "title": ab_title,
+                        "subtitle": ab_subtitle,
+                        "button_text": ab_btn,
+                        "image": img_path,
+                        "redirect_to": ab_redirect,
+                        "sequence": ab_seq,
+                        "enabled": ab_enabled,
+                    })
+
+                    if ab_img_file:
+                        ext = ab_img_file.name.split(".")[-1]
+                        filename = f"banner_{new_id}.{ext}"
+                        filepath = os.path.join(STATIC_DIR, filename)
+                        with open(filepath, "wb") as f:
+                            f.write(ab_img_file.read())
+                        update_hero_banner(new_id, {"image": f"app/static/images/{filename}"})
+
+                    st.success(f"✅ Banner '{ab_title}' added!")
+                    st.rerun()

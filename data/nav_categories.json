@@ -1,0 +1,83 @@
+[
+  {
+    "id": "nc1",
+    "label": "New Arrivals",
+    "emoji": "\u2728",
+    "badge": "",
+    "redirect_to": "shop",
+    "sequence": 1,
+    "enabled": true
+  },
+  {
+    "id": "nc2",
+    "label": "Best Sellers",
+    "emoji": "\ud83c\udfc6",
+    "badge": "",
+    "redirect_to": "shop",
+    "sequence": 2,
+    "enabled": true
+  },
+  {
+    "id": "nc3",
+    "label": "Studs",
+    "emoji": "\ud83d\udc9b",
+    "badge": "",
+    "redirect_to": "category:Studs",
+    "sequence": 3,
+    "enabled": true
+  },
+  {
+    "id": "nc4",
+    "label": "Hoops",
+    "emoji": "\u2b55",
+    "badge": "",
+    "redirect_to": "category:Hoops",
+    "sequence": 4,
+    "enabled": true
+  },
+  {
+    "id": "nc5",
+    "label": "Drops",
+    "emoji": "\ud83c\udf0a",
+    "badge": "",
+    "redirect_to": "category:Drops",
+    "sequence": 5,
+    "enabled": true
+  },
+  {
+    "id": "nc6",
+    "label": "Chandeliers",
+    "emoji": "\u2728",
+    "badge": "New",
+    "redirect_to": "category:Chandeliers",
+    "sequence": 6,
+    "enabled": true
+  },
+  {
+    "id": "nc7",
+    "label": "Dangles",
+    "emoji": "\ud83c\udf00",
+    "badge": "",
+    "redirect_to": "category:Dangles",
+    "sequence": 7,
+    "enabled": true
+  },
+  {
+    "id": "nc8",
+    "label": "Gifting",
+    "emoji": "\ud83c\udf81",
+    "badge": "",
+    "redirect_to": "shop",
+    "sequence": 8,
+    "enabled": true
+  },
+  {
+    "id": "nc9",
+    "label": "About Us",
+    "emoji": "\ud83d\udc8e",
+    "badge": "",
+    "redirect_to": "home",
+    "sequence": 9,
+    "enabled": true
+  }
+]
