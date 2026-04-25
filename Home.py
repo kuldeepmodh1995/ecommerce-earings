@@ -1,10 +1,17 @@
+import json
 import streamlit as st
+import streamlit.components.v1 as components
 import sys
 import os
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-from utils.data_manager import load_products, save_order
+from utils.data_manager import (
+    load_products,
+    save_order,
+    load_nav_categories,
+    load_hero_banners,
+)
 
 BASE_DIR = os.path.dirname(__file__)
 
@@ -12,6 +19,13 @@ BASE_DIR = os.path.dirname(__file__)
 def resolve_image(img_path: str) -> str:
     if img_path and img_path.startswith("app/static/"):
         return os.path.join(BASE_DIR, img_path[len("app/"):])
+    return img_path
+
+
+def resolve_banner_image_url(img_path: str) -> str:
+    """Return a URL-safe path for use in HTML img src."""
+    if img_path and img_path.startswith("app/static/"):
+        return "/" + img_path
     return img_path
 
 
@@ -31,7 +45,6 @@ st.markdown(
 
   html, body, [class*="css"] { font-family: 'Lato', sans-serif; }
 
-  /* Remove top padding so navbar sits flush */
   .block-container { padding-top: 0 !important; }
   header[data-testid="stHeader"] { display: none !important; }
 
@@ -40,7 +53,7 @@ st.markdown(
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     padding: 12px 28px;
     border-radius: 0 0 18px 18px;
-    margin-bottom: 24px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
   }
@@ -51,31 +64,6 @@ st.markdown(
     font-weight: 700;
     letter-spacing: 1px;
     white-space: nowrap;
-  }
-
-  /* ── Hero ── */
-  .hero {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    padding: 70px 40px;
-    text-align: center;
-    border-radius: 20px;
-    margin-bottom: 32px;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: "💎 ✨ 💗 ✨ 💎";
-    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
-    font-size: 22px; opacity: 0.35; letter-spacing: 8px;
-  }
-  .hero h1 {
-    font-family: 'Playfair Display', serif;
-    color: #f5c6d0; font-size: 3.6em;
-    margin: 0 0 10px; letter-spacing: 3px;
-  }
-  .hero p {
-    color: #d4a5b5; font-size: 1.15em;
-    margin: 0 0 28px; font-weight: 300; letter-spacing: 1px;
   }
 
   /* ── Product card ── */
@@ -126,14 +114,6 @@ st.markdown(
   }
   .divider { border: none; border-top: 2px solid #f5c6d0; margin: 30px auto; width: 80px; }
 
-  /* ── Category pills ── */
-  .cat-strip { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; justify-content: center; }
-  .cat-pill {
-    background: #f9f0f4; color: #c2185b; border: 1.5px solid #f5c6d0;
-    border-radius: 50px; padding: 6px 20px; font-size: .88em; font-weight: 600; cursor: pointer;
-  }
-  .cat-pill:hover { background: #c2185b; color: #fff; border-color: #c2185b; }
-
   /* ── Footer ── */
   .footer {
     background: #1a1a2e; color: #d4a5b5;
@@ -142,11 +122,11 @@ st.markdown(
   .footer h3 { font-family: 'Playfair Display', serif; color: #f5c6d0; margin-bottom: 8px; }
   .footer a { color: #f5c6d0; text-decoration: none; margin: 0 12px; }
 
-  /* ── Sidebar filters only ── */
+  /* ── Sidebar ── */
   [data-testid="stSidebar"] { background: #fdf6f9 !important; }
   [data-testid="stSidebar"] h2 { font-family: 'Playfair Display', serif; color: #c2185b; }
 
-  /* ── Cart dialog items ── */
+  /* ── Cart dialog ── */
   .cart-dialog-item {
     background: #fdf6f9; border-radius: 10px;
     padding: 12px 14px; margin-bottom: 10px; border: 1px solid #f0e4ec;
@@ -165,6 +145,26 @@ if "selected_product" not in st.session_state:
     st.session_state.selected_product = None
 if "checkout_done" not in st.session_state:
     st.session_state.checkout_done = False
+if "shop_category_filter" not in st.session_state:
+    st.session_state.shop_category_filter = "All"
+
+# ── Query-param redirect handler (hero banners + nav categories) ───────────────
+_nav_redirect = st.query_params.get("nav_redirect", "")
+if _nav_redirect:
+    st.query_params.clear()
+    if _nav_redirect == "shop":
+        st.session_state.view = "shop"
+        st.session_state.shop_category_filter = "All"
+        st.session_state.selected_product = None
+    elif _nav_redirect.startswith("category:"):
+        _cat = _nav_redirect[len("category:"):]
+        st.session_state.view = "shop"
+        st.session_state.shop_category_filter = _cat
+        st.session_state.selected_product = None
+    elif _nav_redirect == "home":
+        st.session_state.view = "home"
+        st.session_state.selected_product = None
+    st.rerun()
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -200,7 +200,6 @@ def cart_popup():
             st.rerun()
         return
 
-    # Cart items
     for idx, item in enumerate(st.session_state.cart):
         st.markdown(
             f"""<div class="cart-dialog-item">
@@ -270,6 +269,358 @@ def cart_popup():
         st.rerun()
 
 
+# ── Hero banner carousel renderer ─────────────────────────────────────────────
+def render_hero_carousel():
+    banners = load_hero_banners()
+    active = sorted(
+        [b for b in banners if b.get("enabled", True)],
+        key=lambda x: x.get("sequence", 999),
+    )
+    if not active:
+        return
+
+    slides_html = ""
+    redirects = []
+    for i, b in enumerate(active):
+        img_url = resolve_banner_image_url(b.get("image", ""))
+        active_class = "active" if i == 0 else ""
+        redirect = b.get("redirect_to", "shop")
+        redirects.append(redirect)
+        slides_html += f"""
+        <div class="slide {active_class}" data-idx="{i}">
+          <img class="slide-bg" src="{img_url}" alt="{b.get('title', '')}">
+          <div class="slide-overlay">
+            <div class="slide-content">
+              <h2>{b.get('subtitle', '')}</h2>
+              <h1>{b.get('title', '')}</h1>
+              <button class="shop-btn" onclick="handleClick(event,{i})">{b.get('button_text', 'Shop Now')}</button>
+            </div>
+          </div>
+        </div>"""
+
+    dots_html = "".join([
+        f'<button class="dot {"active" if i == 0 else ""}" onclick="dotClick(event,{i})"></button>'
+        for i in range(len(active))
+    ])
+
+    redirects_json = json.dumps(redirects)
+
+    html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* {{ box-sizing: border-box; margin: 0; padding: 0; }}
+body {{ font-family: 'Lato', sans-serif; overflow: hidden; background: #1a1a2e; }}
+
+.carousel-container {{
+  position: relative;
+  width: 100%;
+  height: 470px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #1a1a2e;
+}}
+
+.slide {{
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.7s ease-in-out;
+  cursor: pointer;
+}}
+.slide.active {{ opacity: 1; }}
+
+.slide-bg {{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}}
+
+.slide-overlay {{
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(26,26,46,0.88) 0%, rgba(26,26,46,0.55) 50%, transparent 80%);
+  display: flex;
+  align-items: center;
+  padding: 0 64px;
+}}
+
+.slide-content {{
+  max-width: 52%;
+  color: white;
+}}
+
+.slide-content h2 {{
+  font-size: 1.05em;
+  font-weight: 400;
+  opacity: 0.85;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-family: 'Lato', sans-serif;
+}}
+
+.slide-content h1 {{
+  font-size: 2.8em;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 18px;
+  color: #f5c6d0;
+  font-family: Georgia, serif;
+  letter-spacing: 1px;
+}}
+
+.shop-btn {{
+  background: white;
+  color: #1a1a2e;
+  border: none;
+  padding: 13px 38px;
+  border-radius: 40px;
+  font-size: 0.92em;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+  font-family: 'Lato', sans-serif;
+}}
+.shop-btn:hover {{
+  background: #f5c6d0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}}
+
+.nav-btn {{
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  font-size: 1.8em;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background 0.2s;
+  line-height: 1;
+}}
+.nav-btn:hover {{ background: rgba(255,255,255,0.3); }}
+.nav-btn.prev {{ left: 16px; }}
+.nav-btn.next {{ right: 16px; }}
+
+.dots {{
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}}
+
+.dot {{
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  padding: 0;
+}}
+.dot.active {{
+  background: white;
+  width: 26px;
+  border-radius: 4px;
+}}
+</style>
+</head>
+<body>
+<div class="carousel-container" id="carousel">
+  {slides_html}
+  <button class="nav-btn prev" id="prevBtn">&#8249;</button>
+  <button class="nav-btn next" id="nextBtn">&#8250;</button>
+  <div class="dots">{dots_html}</div>
+</div>
+<script>
+const redirects = {redirects_json};
+const slides = document.querySelectorAll('.slide');
+const dots = document.querySelectorAll('.dot');
+let current = parseInt(localStorage.getItem('hero_slide') || '0');
+if (current >= slides.length) current = 0;
+let timer;
+
+function goTo(n) {{
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = ((n % slides.length) + slides.length) % slides.length;
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+  localStorage.setItem('hero_slide', current);
+}}
+
+function resetTimer() {{
+  clearInterval(timer);
+  timer = setInterval(() => goTo(current + 1), 5000);
+}}
+
+goTo(current);
+resetTimer();
+
+document.getElementById('prevBtn').addEventListener('click', (e) => {{
+  e.stopPropagation();
+  goTo(current - 1);
+  resetTimer();
+}});
+
+document.getElementById('nextBtn').addEventListener('click', (e) => {{
+  e.stopPropagation();
+  goTo(current + 1);
+  resetTimer();
+}});
+
+document.querySelectorAll('.dot').forEach((dot, i) => {{
+  dot.addEventListener('click', (e) => {{
+    e.stopPropagation();
+    goTo(i);
+    resetTimer();
+  }});
+}});
+
+function handleClick(e, idx) {{
+  e.stopPropagation();
+  navigateTo(redirects[idx]);
+}}
+
+function dotClick(e, idx) {{
+  e.stopPropagation();
+  goTo(idx);
+  resetTimer();
+}}
+
+document.querySelectorAll('.slide').forEach((slide, i) => {{
+  slide.addEventListener('click', () => navigateTo(redirects[i]));
+}});
+
+function navigateTo(redirect) {{
+  if (!redirect) return;
+  if (redirect.startsWith('http://') || redirect.startsWith('https://')) {{
+    window.open(redirect, '_blank');
+  }} else {{
+    window.parent.location.href = window.parent.location.pathname + '?nav_redirect=' + encodeURIComponent(redirect);
+  }}
+}}
+</script>
+</body>
+</html>
+"""
+    components.html(html, height=480, scrolling=False)
+
+
+# ── Category nav bar renderer ─────────────────────────────────────────────────
+def render_category_nav():
+    cats = load_nav_categories()
+    active = sorted(
+        [c for c in cats if c.get("enabled", True)],
+        key=lambda x: x.get("sequence", 999),
+    )
+    if not active:
+        return
+
+    items_html = ""
+    for c in active:
+        label = f"{c.get('emoji', '')} {c['label']}".strip()
+        badge = c.get("badge", "")
+        badge_html = f'<span class="nav-badge">{badge}</span>' if badge else ""
+        redirect = c.get("redirect_to", "shop")
+        items_html += f"""
+        <button class="nav-item" onclick="navigate('{redirect}')">
+          {label}{badge_html}
+        </button>"""
+
+    html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* {{ box-sizing: border-box; margin: 0; padding: 0; }}
+body {{ font-family: 'Lato', sans-serif; background: white; overflow-x: hidden; }}
+
+.nav-bar {{
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: white;
+  border-bottom: 1.5px solid #f0e8ed;
+}}
+.nav-bar::-webkit-scrollbar {{ display: none; }}
+
+.nav-item {{
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  border: none;
+  background: none;
+  color: #1a1a2e;
+  font-size: 0.83em;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  position: relative;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  font-family: 'Lato', sans-serif;
+}}
+.nav-item:hover {{
+  color: #e91e8c;
+  border-bottom-color: #e91e8c;
+}}
+
+.nav-badge {{
+  background: #e91e8c;
+  color: white;
+  font-size: 0.6em;
+  padding: 1px 5px;
+  border-radius: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-left: 2px;
+  vertical-align: middle;
+}}
+</style>
+</head>
+<body>
+<div class="nav-bar">
+  {items_html}
+</div>
+<script>
+function navigate(redirect) {{
+  if (redirect.startsWith('http://') || redirect.startsWith('https://')) {{
+    window.open(redirect, '_blank');
+  }} else {{
+    window.parent.location.href = window.parent.location.pathname + '?nav_redirect=' + encodeURIComponent(redirect);
+  }}
+}}
+</script>
+</body>
+</html>
+"""
+    components.html(html, height=52, scrolling=False)
+
+
 # ── Top Navigation Bar ────────────────────────────────────────────────────────
 st.markdown(
     '<div class="navbar-wrap"><span class="navbar-brand">💎 Love Earrings</span></div>',
@@ -282,11 +633,13 @@ with nb1:
     if st.button("🏠 Home", use_container_width=True, key="nav_home"):
         st.session_state.view = "home"
         st.session_state.selected_product = None
+        st.session_state.shop_category_filter = "All"
         st.rerun()
 with nb2:
     if st.button("🛍️ Shop", use_container_width=True, key="nav_shop"):
         st.session_state.view = "shop"
         st.session_state.selected_product = None
+        st.session_state.shop_category_filter = "All"
         st.rerun()
 with nb3:
     if st.button("⚙️ Manage", use_container_width=True, key="nav_manage"):
@@ -298,7 +651,10 @@ with nb_cart:
                  type="primary" if cart_n > 0 else "secondary"):
         cart_popup()
 
-st.markdown("<hr style='margin:0 0 20px;border-color:#f0e8ed'>", unsafe_allow_html=True)
+# ── Category nav bar (dynamic, always visible) ────────────────────────────────
+render_category_nav()
+
+st.markdown("<div style='margin-bottom:16px'></div>", unsafe_allow_html=True)
 
 
 # ── Sidebar — filters ONLY ────────────────────────────────────────────────────
@@ -308,7 +664,15 @@ with st.sidebar:
 
     _all = load_products()
     categories = ["All"] + sorted({p["category"] for p in _all})
-    selected_cat = st.selectbox("Category", categories)
+
+    # Pre-select category if set via nav redirect
+    _init_cat_idx = 0
+    if st.session_state.shop_category_filter != "All":
+        if st.session_state.shop_category_filter in categories:
+            _init_cat_idx = categories.index(st.session_state.shop_category_filter)
+        st.session_state.shop_category_filter = "All"  # consume the filter
+
+    selected_cat = st.selectbox("Category", categories, index=_init_cat_idx)
 
     all_colors = sorted({c for p in _all for c in p.get("colors", [])})
     selected_color = st.selectbox("Color", ["All"] + all_colors)
@@ -400,26 +764,10 @@ def render_product_card(p, col):
 # VIEW: HOME
 # ─────────────────────────────────────────────────────────────────────────────
 if st.session_state.view == "home":
-    st.markdown(
-        """
-<div class="hero">
-  <h1>Love Earrings</h1>
-  <p>Discover handcrafted earrings made for every moment of your life</p>
-</div>""",
-        unsafe_allow_html=True,
-    )
 
-    st.markdown(
-        """
-<div class="cat-strip">
-  <span class="cat-pill">💛 Studs</span>
-  <span class="cat-pill">⭕ Hoops</span>
-  <span class="cat-pill">🌊 Drops</span>
-  <span class="cat-pill">✨ Chandeliers</span>
-  <span class="cat-pill">🌀 Dangles</span>
-</div>""",
-        unsafe_allow_html=True,
-    )
+    # Hero carousel
+    render_hero_carousel()
+    st.markdown("<div style='margin-bottom:28px'></div>", unsafe_allow_html=True)
 
     all_products = load_products()
 
