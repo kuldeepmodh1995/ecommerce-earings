@@ -45,15 +45,34 @@ st.markdown(
 
   html, body, [class*="css"] { font-family: 'Lato', sans-serif; }
 
-  .block-container { padding-top: 0 !important; }
+  /* ── Full screen layout ── */
+  .block-container {
+    padding-top: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-bottom: 2rem !important;
+    max-width: 100% !important;
+  }
+  section[data-testid="stMain"] > div { padding-left: 0 !important; padding-right: 0 !important; }
   header[data-testid="stHeader"] { display: none !important; }
+
+  /* ── Sidebar expand button always visible ── */
+  [data-testid="collapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: #1e0a3c !important;
+    color: #f5c6d0 !important;
+    border-radius: 0 8px 8px 0 !important;
+  }
+  [data-testid="collapsedControl"] svg { fill: #f5c6d0 !important; }
 
   /* ── Top Navbar ── */
   .navbar-wrap {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: linear-gradient(135deg, #1e0a3c 0%, #0f0520 100%);
     padding: 12px 28px;
-    border-radius: 0 0 18px 18px;
-    margin-bottom: 8px;
+    border-radius: 0;
+    margin-bottom: 0;
     display: flex;
     align-items: center;
   }
@@ -87,14 +106,14 @@ st.markdown(
   }
   .badge-featured {
     position: absolute; top: 10px; right: 10px;
-    background: #0f3460; color: #f5c6d0;
+    background: #3d0c78; color: #f5c6d0;
     padding: 3px 10px; border-radius: 20px; font-size: .72em; font-weight: 600;
   }
 
   .product-info { padding: 14px 16px 18px; }
   .product-name {
     font-family: 'Playfair Display', serif;
-    font-size: 1.02em; font-weight: 600; color: #1a1a2e;
+    font-size: 1.02em; font-weight: 600; color: #1e0a3c;
     margin: 0 0 6px; line-height: 1.35;
   }
   .stars { color: #f4a423; font-size: .85em; margin-bottom: 6px; }
@@ -106,7 +125,8 @@ st.markdown(
   /* ── Section headers ── */
   .section-title {
     font-family: 'Playfair Display', serif;
-    font-size: 2em; color: #1a1a2e; text-align: center; margin-bottom: 6px;
+    font-size: 2em; color: #1e0a3c; text-align: center; margin-bottom: 6px;
+    padding: 0 1rem;
   }
   .section-sub {
     text-align: center; color: #888; margin-bottom: 30px;
@@ -116,8 +136,8 @@ st.markdown(
 
   /* ── Footer ── */
   .footer {
-    background: #1a1a2e; color: #d4a5b5;
-    text-align: center; padding: 32px 20px; margin-top: 50px; border-radius: 16px 16px 0 0;
+    background: #1e0a3c; color: #d4a5b5;
+    text-align: center; padding: 32px 20px; margin-top: 50px; border-radius: 0;
   }
   .footer h3 { font-family: 'Playfair Display', serif; color: #f5c6d0; margin-bottom: 8px; }
   .footer a { color: #f5c6d0; text-decoration: none; margin: 0 12px; }
@@ -125,6 +145,36 @@ st.markdown(
   /* ── Sidebar ── */
   [data-testid="stSidebar"] { background: #fdf6f9 !important; }
   [data-testid="stSidebar"] h2 { font-family: 'Playfair Display', serif; color: #c2185b; }
+
+  /* ── Category nav native buttons ── */
+  .cat-nav-container {
+    border-bottom: 1.5px solid #f0e8ed;
+    background: white;
+    padding: 2px 0;
+    margin-bottom: 4px;
+  }
+  .cat-nav-container div[data-testid="stHorizontalBlock"] { gap: 0 !important; flex-wrap: nowrap; overflow-x: auto; }
+  .cat-nav-container .stButton > button {
+    background: none !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    border-radius: 0 !important;
+    color: #1e0a3c !important;
+    font-weight: 600 !important;
+    font-size: 0.83em !important;
+    padding: 8px 10px !important;
+    white-space: nowrap !important;
+    box-shadow: none !important;
+    letter-spacing: 0.3px !important;
+  }
+  .cat-nav-container .stButton > button:hover {
+    color: #e91e8c !important;
+    border-bottom: 2px solid #e91e8c !important;
+    background: none !important;
+  }
+
+  /* ── Content padding wrapper ── */
+  .content-pad { padding: 0 1.5rem; }
 
   /* ── Cart dialog ── */
   .cart-dialog-item {
@@ -197,7 +247,7 @@ def cart_popup():
         st.markdown(
             "<div style='text-align:center;padding:20px 0'>"
             "<div style='font-size:3em'>🛒</div>"
-            "<h3 style='color:#1a1a2e'>Your cart is empty</h3>"
+            "<h3 style='color:#1e0a3c'>Your cart is empty</h3>"
             "<p style='color:#888'>Add some earrings to get started!</p>"
             "</div>",
             unsafe_allow_html=True,
@@ -209,7 +259,7 @@ def cart_popup():
     for idx, item in enumerate(st.session_state.cart):
         st.markdown(
             f"""<div class="cart-dialog-item">
-              <div style="font-weight:600;color:#1a1a2e;margin-bottom:4px">{item['name']}</div>
+              <div style="font-weight:600;color:#1e0a3c;margin-bottom:4px">{item['name']}</div>
               <div style="color:#c2185b;font-size:.9em">${item['price']:.2f} each</div>
             </div>""",
             unsafe_allow_html=True,
@@ -317,15 +367,15 @@ def render_hero_carousel():
 <head>
 <style>
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-body {{ font-family: 'Lato', sans-serif; overflow: hidden; background: #1a1a2e; }}
+body {{ font-family: 'Lato', sans-serif; overflow: hidden; background: #1e0a3c; }}
 
 .carousel-container {{
   position: relative;
   width: 100%;
   height: 470px;
-  border-radius: 16px;
+  border-radius: 0;
   overflow: hidden;
-  background: #1a1a2e;
+  background: #1e0a3c;
 }}
 
 .slide {{
@@ -347,7 +397,7 @@ body {{ font-family: 'Lato', sans-serif; overflow: hidden; background: #1a1a2e; 
 .slide-overlay {{
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(26,26,46,0.88) 0%, rgba(26,26,46,0.55) 50%, transparent 80%);
+  background: linear-gradient(90deg, rgba(30,10,60,0.88) 0%, rgba(30,10,60,0.55) 50%, transparent 80%);
   display: flex;
   align-items: center;
   padding: 0 64px;
@@ -380,7 +430,7 @@ body {{ font-family: 'Lato', sans-serif; overflow: hidden; background: #1a1a2e; 
 
 .shop-btn {{
   background: white;
-  color: #1a1a2e;
+  color: #1e0a3c;
   border: none;
   padding: 13px 38px;
   border-radius: 40px;
@@ -520,7 +570,7 @@ function navigateTo(redirect) {{
   if (redirect.startsWith('http://') || redirect.startsWith('https://')) {{
     window.open(redirect, '_blank');
   }} else {{
-    window.parent.location.href = window.parent.location.pathname + '?nav_redirect=' + encodeURIComponent(redirect);
+    window.top.location.href = window.top.location.pathname + '?nav_redirect=' + encodeURIComponent(redirect);
   }}
 }}
 </script>
@@ -540,91 +590,28 @@ def render_category_nav():
     if not active:
         return
 
-    items_html = ""
-    for c in active:
-        label = f"{c.get('emoji', '')} {c['label']}".strip()
+    st.markdown('<div class="cat-nav-container">', unsafe_allow_html=True)
+    cols = st.columns(len(active))
+    for i, c in enumerate(active):
+        emoji = c.get("emoji", "")
+        label = c["label"]
         badge = c.get("badge", "")
-        badge_html = f'<span class="nav-badge">{badge}</span>' if badge else ""
+        display = f"{emoji} {label}" + (f" [{badge}]" if badge else "")
         redirect = c.get("redirect_to", "shop")
-        items_html += f"""
-        <button class="nav-item" onclick="navigate('{redirect}')">
-          {label}{badge_html}
-        </button>"""
 
-    html = f"""
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-* {{ box-sizing: border-box; margin: 0; padding: 0; }}
-body {{ font-family: 'Lato', sans-serif; background: white; overflow-x: hidden; }}
-
-.nav-bar {{
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px 4px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  background: white;
-  border-bottom: 1.5px solid #f0e8ed;
-}}
-.nav-bar::-webkit-scrollbar {{ display: none; }}
-
-.nav-item {{
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 16px;
-  cursor: pointer;
-  white-space: nowrap;
-  border: none;
-  background: none;
-  color: #1a1a2e;
-  font-size: 0.83em;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  position: relative;
-  border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
-  font-family: 'Lato', sans-serif;
-}}
-.nav-item:hover {{
-  color: #e91e8c;
-  border-bottom-color: #e91e8c;
-}}
-
-.nav-badge {{
-  background: #e91e8c;
-  color: white;
-  font-size: 0.6em;
-  padding: 1px 5px;
-  border-radius: 8px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  margin-left: 2px;
-  vertical-align: middle;
-}}
-</style>
-</head>
-<body>
-<div class="nav-bar">
-  {items_html}
-</div>
-<script>
-function navigate(redirect) {{
-  if (redirect.startsWith('http://') || redirect.startsWith('https://')) {{
-    window.open(redirect, '_blank');
-  }} else {{
-    window.parent.location.href = window.parent.location.pathname + '?nav_redirect=' + encodeURIComponent(redirect);
-  }}
-}}
-</script>
-</body>
-</html>
-"""
-    components.html(html, height=52, scrolling=False)
+        with cols[i]:
+            if st.button(display, key=f"navcat_{c['id']}", use_container_width=True):
+                if redirect == "shop":
+                    st.session_state.view = "shop"
+                    st.session_state.filter_cat = "All"
+                elif redirect.startswith("category:"):
+                    st.session_state.view = "shop"
+                    st.session_state.filter_cat = redirect[len("category:"):]
+                elif redirect == "home":
+                    st.session_state.view = "home"
+                st.session_state.selected_product = None
+                st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # ── Top Navigation Bar ────────────────────────────────────────────────────────
@@ -633,6 +620,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+st.markdown('<div style="padding: 4px 1rem 0;">', unsafe_allow_html=True)
 nb1, nb2, nb3, nb4, nb_space, nb_cart = st.columns([1.2, 1, 1, 1.2, 4, 1.8])
 
 with nb1:
@@ -656,11 +644,12 @@ with nb_cart:
     if st.button(cart_label, use_container_width=True, key="nav_cart",
                  type="primary" if cart_n > 0 else "secondary"):
         cart_popup()
+st.markdown('</div>', unsafe_allow_html=True)
 
 # ── Category nav bar (dynamic, always visible) ────────────────────────────────
 render_category_nav()
 
-st.markdown("<div style='margin-bottom:16px'></div>", unsafe_allow_html=True)
+st.markdown("<div style='margin-bottom:8px'></div>", unsafe_allow_html=True)
 
 
 # ── Sidebar — filters ONLY ────────────────────────────────────────────────────
@@ -831,6 +820,7 @@ if st.session_state.view == "home":
     # Hero carousel
     render_hero_carousel()
     st.markdown("<div style='margin-bottom:28px'></div>", unsafe_allow_html=True)
+    st.markdown('<div class="content-pad">', unsafe_allow_html=True)
 
     all_products = load_products()
 
@@ -872,7 +862,7 @@ if st.session_state.view == "home":
             st.markdown(
                 f"""<div style="text-align:center;padding:20px;background:#fdf6f9;border-radius:14px;border:1px solid #f5c6d0">
                 <div style="font-size:2em">{icon}</div>
-                <div style="font-family:'Playfair Display',serif;font-weight:600;color:#1a1a2e;margin:8px 0 4px">{title}</div>
+                <div style="font-family:'Playfair Display',serif;font-weight:600;color:#1e0a3c;margin:8px 0 4px">{title}</div>
                 <div style="color:#888;font-size:.88em">{desc}</div>
             </div>""",
                 unsafe_allow_html=True,
@@ -884,6 +874,8 @@ if st.session_state.view == "home":
         if st.button("🛍️ Shop All Earrings", use_container_width=True):
             st.session_state.view = "shop"
             st.rerun()
+
+    st.markdown('</div>', unsafe_allow_html=True)  # close content-pad
 
     st.markdown(
         """
@@ -906,6 +898,8 @@ if st.session_state.view == "home":
 # VIEW: SHOP
 # ─────────────────────────────────────────────────────────────────────────────
 elif st.session_state.view == "shop":
+    render_hero_carousel()
+    st.markdown('<div class="content-pad">', unsafe_allow_html=True)
     st.markdown('<h2 class="section-title">🛍️ All Earrings</h2>', unsafe_allow_html=True)
 
     search = st.text_input("🔍 Search earrings...", placeholder="e.g. gold hoop, pearl stud...")
@@ -933,12 +927,14 @@ elif st.session_state.view == "shop":
         cols = st.columns(3)
         for i, p in enumerate(products):
             render_product_card(p, cols[i % 3])
+    st.markdown('</div>', unsafe_allow_html=True)  # close content-pad
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # VIEW: PRODUCT DETAIL
 # ─────────────────────────────────────────────────────────────────────────────
 elif st.session_state.view == "detail":
+    st.markdown('<div class="content-pad">', unsafe_allow_html=True)
     p = st.session_state.selected_product
     if not p:
         st.session_state.view = "shop"
@@ -963,7 +959,7 @@ elif st.session_state.view == "detail":
 
         st.markdown(
             f"""
-<h1 style="font-family:'Playfair Display',serif;color:#1a1a2e;font-size:2em">{p['name']}</h1>
+<h1 style="font-family:'Playfair Display',serif;color:#1e0a3c;font-size:2em">{p['name']}</h1>
 <div style="color:#f4a423;font-size:1.1em">{stars}
   <span style="color:#999;font-size:.85em">({p.get('reviews',0)} reviews)</span>
 </div><br>
@@ -1011,12 +1007,14 @@ elif st.session_state.view == "detail":
         cols = st.columns(3)
         for i, rp in enumerate(related):
             render_product_card(rp, cols[i])
+    st.markdown('</div>', unsafe_allow_html=True)  # close content-pad
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # VIEW: CART  (full checkout page)
 # ─────────────────────────────────────────────────────────────────────────────
 elif st.session_state.view == "cart":
+    st.markdown('<div class="content-pad">', unsafe_allow_html=True)
     st.markdown('<h2 class="section-title">🛒 Your Cart</h2>', unsafe_allow_html=True)
 
     if st.session_state.checkout_done:
@@ -1066,7 +1064,7 @@ elif st.session_state.view == "cart":
             st.markdown(
                 f"""
 <div style="background:#fdf6f9;border-radius:16px;padding:24px;border:1px solid #f5c6d0">
-  <h3 style="font-family:'Playfair Display',serif;color:#1a1a2e;margin-bottom:18px">Order Summary</h3>
+  <h3 style="font-family:'Playfair Display',serif;color:#1e0a3c;margin-bottom:18px">Order Summary</h3>
   <div style="display:flex;justify-content:space-between;margin-bottom:10px">
     <span>Subtotal</span><strong>${subtotal:.2f}</strong>
   </div>
@@ -1105,3 +1103,4 @@ elif st.session_state.view == "cart":
                     })
                     st.session_state.checkout_done = True
                     st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)  # close content-pad
