@@ -3,6 +3,8 @@ import os
 import uuid
 from datetime import datetime
 
+import streamlit as st
+
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 PRODUCTS_FILE = os.path.join(DATA_DIR, "products.json")
 ORDERS_FILE = os.path.join(DATA_DIR, "orders.json")
@@ -57,6 +59,7 @@ _DEFAULT_HERO_BANNERS = [
 
 # ── Products ──────────────────────────────────────────────────────────────────
 
+@st.cache_data(ttl=2)
 def load_products():
     if not os.path.exists(PRODUCTS_FILE):
         return []
@@ -68,6 +71,7 @@ def save_products(products):
     os.makedirs(DATA_DIR, exist_ok=True)
     with open(PRODUCTS_FILE, "w") as f:
         json.dump(products, f, indent=2)
+    load_products.clear()
 
 
 def get_product_by_id(product_id):
