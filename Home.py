@@ -39,7 +39,7 @@ st.set_page_config(
 
 # ── Viewport meta (critical for mobile scaling) ───────────────────────────────
 st.markdown(
-    '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">',
+    '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
     unsafe_allow_html=True,
 )
 
@@ -304,6 +304,16 @@ st.markdown(
 
     /* Sidebar */
     [data-testid="stSidebar"] { min-width: 260px !important; max-width: 80vw !important; }
+
+    /* CTA row (Shop All button) — full width, centered on mobile */
+    .cta-row div[data-testid="stHorizontalBlock"] {
+      flex-wrap: nowrap !important;
+    }
+    .cta-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+      min-width: unset !important;
+      flex: 1 1 auto !important;
+      width: auto !important;
+    }
   }
 
   /* Small phones: ≤ 400px */
@@ -721,11 +731,19 @@ function navigateTo(redirect) {{
     window.top.location.href = window.top.location.pathname + '?nav_redirect=' + encodeURIComponent(redirect);
   }}
 }}
+
+// Report actual carousel height to parent so iframe fits with no gap
+function reportHeight() {{
+  const h = document.getElementById('carousel').offsetHeight;
+  window.parent.postMessage({{type: 'streamlit:setFrameHeight', height: h + 10}}, '*');
+}}
+reportHeight();
+window.addEventListener('resize', reportHeight);
 </script>
 </body>
 </html>
 """
-    components.html(html, height=490, scrolling=False)
+    components.html(html, height=480, scrolling=False)
 
 
 # ── Category nav bar renderer ─────────────────────────────────────────────────
@@ -1019,11 +1037,13 @@ if st.session_state.view == "home":
 
     st.markdown('</div>', unsafe_allow_html=True)  # close value-props-row
     st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown('<div class="cta-row">', unsafe_allow_html=True)
     _, mid, _ = st.columns([2, 1, 2])
     with mid:
         if st.button("🛍️ Shop All Earrings", use_container_width=True):
             st.session_state.view = "shop"
             st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)  # close content-pad
 

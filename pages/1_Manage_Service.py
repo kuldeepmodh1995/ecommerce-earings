@@ -49,7 +49,7 @@ st.set_page_config(
 
 # ── Viewport meta ─────────────────────────────────────────────────────────────
 st.markdown(
-    '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">',
+    '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
     unsafe_allow_html=True,
 )
 
@@ -161,13 +161,22 @@ st.markdown(
 
     .login-card { margin: 30px auto; padding: 24px 16px; }
 
-    /* Stats grid: 2 columns on mobile */
-    div[data-testid="stHorizontalBlock"] {
+    /* Stats grid: 2 columns on tablet */
+    .stat-cards-row div[data-testid="stHorizontalBlock"] {
       flex-wrap: wrap !important;
     }
-    div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+    .stat-cards-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
       min-width: 48% !important;
       flex: 0 0 48% !important;
+    }
+
+    /* Dashboard left/right panels: stack vertically */
+    .dash-cols-row div[data-testid="stHorizontalBlock"] {
+      flex-wrap: wrap !important;
+    }
+    .dash-cols-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+      min-width: 100% !important;
+      flex: 0 0 100% !important;
     }
   }
 
@@ -175,8 +184,8 @@ st.markdown(
     .admin-header h1 { font-size: 1.1em; }
     .stat-number { font-size: 1.4em; }
 
-    /* Single column on very small screens */
-    div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+    /* Stat cards: single column on very small screens */
+    .stat-cards-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
       min-width: 100% !important;
       flex: 0 0 100% !important;
     }
@@ -267,6 +276,7 @@ with st.sidebar:
 if section == "📊 Dashboard":
     stats = get_stats()
 
+    st.markdown('<div class="stat-cards-row">', unsafe_allow_html=True)
     c1, c2, c3, c4 = st.columns(4)
     for col, icon, number, label in [
         (c1, "🛍️", stats["total_products"], "Total Products"),
@@ -283,9 +293,11 @@ if section == "📊 Dashboard":
             </div>""",
                 unsafe_allow_html=True,
             )
+    st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
+    st.markdown('<div class="dash-cols-row">', unsafe_allow_html=True)
     dash_left, dash_right = st.columns([1, 1])
 
     with dash_left:
@@ -327,6 +339,8 @@ if section == "📊 Dashboard":
         else:
             st.success("All products are well stocked!")
         st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)  # close dash-cols-row
 
     orders = load_orders()
     if orders:
