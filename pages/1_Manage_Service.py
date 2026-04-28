@@ -47,6 +47,12 @@ st.set_page_config(
     layout="wide",
 )
 
+# ── Viewport meta ─────────────────────────────────────────────────────────────
+st.markdown(
+    '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">',
+    unsafe_allow_html=True,
+)
+
 # ── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown(
     """
@@ -124,6 +130,56 @@ st.markdown(
   .nav-cat-row {
     background: #fdf6f9; border-radius: 10px;
     padding: 14px 18px; margin-bottom: 10px; border: 1px solid #f0e4ec;
+  }
+
+  /* ─────────────────────────────────────────────
+     MANAGE SERVICE — MOBILE RESPONSIVE
+     ───────────────────────────────────────────── */
+
+  @media (max-width: 768px) {
+    .block-container { padding: 0.5rem 0.5rem 2rem !important; }
+
+    .admin-header {
+      padding: 16px 16px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+    .admin-header h1 { font-size: 1.3em; }
+    .admin-header p { font-size: .82em; }
+
+    .stat-card { padding: 14px 12px; }
+    .stat-number { font-size: 1.7em; }
+    .stat-label { font-size: .78em; }
+
+    .section-card { padding: 14px 12px; }
+    .section-title { font-size: 1.1em; }
+
+    .product-row { flex-wrap: wrap; gap: 8px; padding: 10px 12px; }
+
+    .login-card { margin: 30px auto; padding: 24px 16px; }
+
+    /* Stats grid: 2 columns on mobile */
+    div[data-testid="stHorizontalBlock"] {
+      flex-wrap: wrap !important;
+    }
+    div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+      min-width: 48% !important;
+      flex: 0 0 48% !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .admin-header h1 { font-size: 1.1em; }
+    .stat-number { font-size: 1.4em; }
+
+    /* Single column on very small screens */
+    div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+      min-width: 100% !important;
+      flex: 0 0 100% !important;
+    }
   }
 </style>
 """,

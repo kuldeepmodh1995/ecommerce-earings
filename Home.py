@@ -37,6 +37,12 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# ── Viewport meta (critical for mobile scaling) ───────────────────────────────
+st.markdown(
+    '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">',
+    unsafe_allow_html=True,
+)
+
 # ── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown(
     """
@@ -117,7 +123,7 @@ st.markdown(
     margin: 0 0 6px; line-height: 1.35;
   }
   .stars { color: #f4a423; font-size: .85em; margin-bottom: 6px; }
-  .price-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .price-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
   .price-now { font-size: 1.15em; font-weight: 700; color: #c2185b; }
   .price-was { font-size: .88em; color: #aaa; text-decoration: line-through; }
   .discount { font-size: .8em; color: #e91e8c; font-weight: 600; }
@@ -152,8 +158,10 @@ st.markdown(
     background: white;
     padding: 2px 0;
     margin-bottom: 4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  .cat-nav-container div[data-testid="stHorizontalBlock"] { gap: 0 !important; flex-wrap: nowrap; overflow-x: auto; }
+  .cat-nav-container div[data-testid="stHorizontalBlock"] { gap: 0 !important; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .cat-nav-container .stButton > button {
     background: none !important;
     border: none !important;
@@ -180,6 +188,131 @@ st.markdown(
   .cart-dialog-item {
     background: #fdf6f9; border-radius: 10px;
     padding: 12px 14px; margin-bottom: 10px; border: 1px solid #f0e4ec;
+  }
+
+  /* ─────────────────────────────────────────────────────────
+     MOBILE RESPONSIVE STYLES
+     ───────────────────────────────────────────────────────── */
+
+  /* Tablet: ≤ 900px */
+  @media (max-width: 900px) {
+    .navbar-brand { font-size: 1.3em; }
+    .navbar-wrap { padding: 10px 16px; }
+    .section-title { font-size: 1.6em; }
+    .content-pad { padding: 0 1rem; }
+    .product-img-wrap img { height: 190px; }
+  }
+
+  /* Mobile: ≤ 640px */
+  @media (max-width: 640px) {
+
+    /* Navbar compact */
+    .navbar-wrap { padding: 8px 12px; }
+    .navbar-brand { font-size: 1.1em; letter-spacing: 0.5px; }
+
+    /* Nav button bar: compact, scrollable */
+    .nav-btn-bar {
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      padding: 2px 8px !important;
+    }
+    .nav-btn-bar div[data-testid="stHorizontalBlock"] {
+      flex-wrap: nowrap !important;
+      gap: 2px !important;
+      overflow-x: auto !important;
+    }
+    .nav-btn-bar .stButton > button {
+      font-size: 0.78em !important;
+      padding: 6px 8px !important;
+      white-space: nowrap !important;
+    }
+
+    /* Category nav: smaller text, touch-scroll */
+    .cat-nav-container .stButton > button {
+      font-size: 0.74em !important;
+      padding: 6px 8px !important;
+    }
+
+    /* Product grid: 2 columns on mobile */
+    .content-pad div[data-testid="stHorizontalBlock"] {
+      flex-wrap: wrap !important;
+    }
+    .content-pad div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+      min-width: 48% !important;
+      flex: 0 0 48% !important;
+      width: 48% !important;
+    }
+
+    /* Product card adjustments */
+    .product-img-wrap img { height: 150px; }
+    .product-info { padding: 10px 10px 12px; }
+    .product-name { font-size: 0.88em; }
+    .price-now { font-size: 1em; }
+    .price-was { font-size: .78em; }
+    .discount { font-size: .72em; }
+    .stars { font-size: .75em; }
+    .badge { font-size: .65em; padding: 2px 7px; top: 6px; left: 6px; }
+    .badge-featured { font-size: .62em; padding: 2px 7px; top: 6px; right: 6px; }
+
+    /* Smaller Add to Cart / View Details buttons inside cards */
+    .content-pad .stButton > button {
+      font-size: 0.75em !important;
+      padding: 6px 4px !important;
+    }
+
+    /* Section titles */
+    .section-title { font-size: 1.35em; padding: 0 0.5rem; }
+    .section-sub { font-size: .85em; margin-bottom: 18px; }
+
+    /* Content padding */
+    .content-pad { padding: 0 0.5rem; }
+
+    /* Value props: 2×2 grid */
+    .value-props-row div[data-testid="stHorizontalBlock"] {
+      flex-wrap: wrap !important;
+    }
+    .value-props-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+      min-width: 48% !important;
+      flex: 0 0 48% !important;
+      width: 48% !important;
+      margin-bottom: 8px !important;
+    }
+
+    /* Footer */
+    .footer { padding: 24px 12px; margin-top: 30px; }
+    .footer a { margin: 0 6px; font-size: .85em; }
+
+    /* Cart page: stack columns */
+    .cart-page div[data-testid="stHorizontalBlock"] {
+      flex-wrap: wrap !important;
+    }
+    .cart-page div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+      min-width: 100% !important;
+      flex: 0 0 100% !important;
+      width: 100% !important;
+    }
+
+    /* Detail page: stack image + info */
+    .detail-page div[data-testid="stHorizontalBlock"] {
+      flex-wrap: wrap !important;
+    }
+    .detail-page div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+      min-width: 100% !important;
+      flex: 0 0 100% !important;
+      width: 100% !important;
+    }
+
+    /* Sidebar */
+    [data-testid="stSidebar"] { min-width: 260px !important; max-width: 80vw !important; }
+  }
+
+  /* Small phones: ≤ 400px */
+  @media (max-width: 400px) {
+    .navbar-brand { font-size: 0.95em; }
+    .product-img-wrap img { height: 130px; }
+    .product-name { font-size: 0.80em; }
+    .section-title { font-size: 1.15em; }
+    .content-pad { padding: 0 0.3rem; }
   }
 </style>
 """,
@@ -376,6 +509,21 @@ body {{ font-family: 'Lato', sans-serif; overflow: hidden; background: #1e0a3c; 
   border-radius: 0;
   overflow: hidden;
   background: #1e0a3c;
+}}
+
+@media (max-width: 640px) {{
+  .carousel-container {{ height: 300px; }}
+  .slide-overlay {{ padding: 0 20px; background: linear-gradient(0deg, rgba(30,10,60,0.92) 0%, rgba(30,10,60,0.5) 60%, transparent 100%); align-items: flex-end; padding-bottom: 36px; }}
+  .slide-content {{ max-width: 100%; text-align: center; }}
+  .slide-content h1 {{ font-size: 1.7em; margin-bottom: 12px; }}
+  .slide-content h2 {{ font-size: 0.82em; }}
+  .shop-btn {{ padding: 10px 28px; font-size: 0.82em; }}
+  .nav-btn {{ width: 36px; height: 36px; font-size: 1.3em; }}
+}}
+
+@media (max-width: 400px) {{
+  .carousel-container {{ height: 240px; }}
+  .slide-content h1 {{ font-size: 1.35em; }}
 }}
 
 .slide {{
@@ -577,7 +725,7 @@ function navigateTo(redirect) {{
 </body>
 </html>
 """
-    components.html(html, height=480, scrolling=False)
+    components.html(html, height=490, scrolling=False)
 
 
 # ── Category nav bar renderer ─────────────────────────────────────────────────
@@ -620,7 +768,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.markdown('<div style="padding: 4px 1rem 0;">', unsafe_allow_html=True)
+st.markdown('<div class="nav-btn-bar" style="padding: 4px 1rem 0;">', unsafe_allow_html=True)
 nb1, nb2, nb3, nb4, nb_space, nb_cart = st.columns([1.2, 1, 1, 1.2, 4, 1.8])
 
 with nb1:
@@ -851,6 +999,7 @@ if st.session_state.view == "home":
 
     # Value props
     st.markdown('<h2 class="section-title">Why Love Earrings?</h2>', unsafe_allow_html=True)
+    st.markdown('<div class="value-props-row">', unsafe_allow_html=True)
     v1, v2, v3, v4 = st.columns(4)
     for col, icon, title, desc in [
         (v1, "🚚", "Free Shipping", "On all orders over $35"),
@@ -868,6 +1017,7 @@ if st.session_state.view == "home":
                 unsafe_allow_html=True,
             )
 
+    st.markdown('</div>', unsafe_allow_html=True)  # close value-props-row
     st.markdown("<br>", unsafe_allow_html=True)
     _, mid, _ = st.columns([2, 1, 2])
     with mid:
@@ -934,7 +1084,7 @@ elif st.session_state.view == "shop":
 # VIEW: PRODUCT DETAIL
 # ─────────────────────────────────────────────────────────────────────────────
 elif st.session_state.view == "detail":
-    st.markdown('<div class="content-pad">', unsafe_allow_html=True)
+    st.markdown('<div class="content-pad detail-page">', unsafe_allow_html=True)
     p = st.session_state.selected_product
     if not p:
         st.session_state.view = "shop"
@@ -1014,7 +1164,7 @@ elif st.session_state.view == "detail":
 # VIEW: CART  (full checkout page)
 # ─────────────────────────────────────────────────────────────────────────────
 elif st.session_state.view == "cart":
-    st.markdown('<div class="content-pad">', unsafe_allow_html=True)
+    st.markdown('<div class="content-pad cart-page">', unsafe_allow_html=True)
     st.markdown('<h2 class="section-title">🛒 Your Cart</h2>', unsafe_allow_html=True)
 
     if st.session_state.checkout_done:
