@@ -122,7 +122,7 @@ st.markdown(
     border-bottom: 2px solid transparent !important; border-radius: 0 !important;
     color: #1e0a3c !important; font-weight: 600 !important;
     font-size: 0.70em !important; padding: 6px 7px !important;
-    white-space: nowrap !important; box-shadow: none !important;
+    white-space: nowrap !important; box-shadow: none !important; letter-spacing: 0.3px !important;
   }
   .cat-nav-container .stButton > button:hover {
     color: #e91e8c !important; border-bottom: 2px solid #e91e8c !important;
@@ -292,14 +292,14 @@ st.markdown(
       min-width: unset !important; flex: 1 1 0 !important; width: auto !important;
     }
 
-    /* Cart: 2-column [2,1] layout on desktop */
+    /* Cart: restore Streamlit's [2,1] ratio — revert lets the inline flex value win */
     .cart-page div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-      min-width: unset !important; flex: 1 1 0 !important; width: auto !important;
+      min-width: 0 !important; width: auto !important; flex: revert !important;
     }
 
-    /* Detail: side-by-side on desktop */
+    /* Detail: restore Streamlit's [1,1] side-by-side layout */
     .detail-page div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-      min-width: unset !important; flex: 1 1 0 !important; width: auto !important;
+      min-width: 0 !important; width: auto !important; flex: revert !important;
     }
 
     /* CTA: restore centered [2,1,2] layout */
