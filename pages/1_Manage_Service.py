@@ -47,6 +47,12 @@ st.set_page_config(
     layout="wide",
 )
 
+# ── Viewport meta ─────────────────────────────────────────────────────────────
+st.markdown(
+    '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
+    unsafe_allow_html=True,
+)
+
 # ── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown(
     """
@@ -124,6 +130,65 @@ st.markdown(
   .nav-cat-row {
     background: #fdf6f9; border-radius: 10px;
     padding: 14px 18px; margin-bottom: 10px; border: 1px solid #f0e4ec;
+  }
+
+  /* ─────────────────────────────────────────────
+     MANAGE SERVICE — MOBILE RESPONSIVE
+     ───────────────────────────────────────────── */
+
+  @media (max-width: 768px) {
+    .block-container { padding: 0.5rem 0.5rem 2rem !important; }
+
+    .admin-header {
+      padding: 16px 16px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+    .admin-header h1 { font-size: 1.3em; }
+    .admin-header p { font-size: .82em; }
+
+    .stat-card { padding: 14px 12px; }
+    .stat-number { font-size: 1.7em; }
+    .stat-label { font-size: .78em; }
+
+    .section-card { padding: 14px 12px; }
+    .section-title { font-size: 1.1em; }
+
+    .product-row { flex-wrap: wrap; gap: 8px; padding: 10px 12px; }
+
+    .login-card { margin: 30px auto; padding: 24px 16px; }
+
+    /* Stats grid: 2 columns on tablet */
+    .stat-cards-row div[data-testid="stHorizontalBlock"] {
+      flex-wrap: wrap !important;
+    }
+    .stat-cards-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+      min-width: 48% !important;
+      flex: 0 0 48% !important;
+    }
+
+    /* Dashboard left/right panels: stack vertically */
+    .dash-cols-row div[data-testid="stHorizontalBlock"] {
+      flex-wrap: wrap !important;
+    }
+    .dash-cols-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+      min-width: 100% !important;
+      flex: 0 0 100% !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .admin-header h1 { font-size: 1.1em; }
+    .stat-number { font-size: 1.4em; }
+
+    /* Stat cards: single column on very small screens */
+    .stat-cards-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+      min-width: 100% !important;
+      flex: 0 0 100% !important;
+    }
   }
 </style>
 """,
@@ -211,6 +276,7 @@ with st.sidebar:
 if section == "📊 Dashboard":
     stats = get_stats()
 
+    st.markdown('<div class="stat-cards-row">', unsafe_allow_html=True)
     c1, c2, c3, c4 = st.columns(4)
     for col, icon, number, label in [
         (c1, "🛍️", stats["total_products"], "Total Products"),
@@ -227,9 +293,11 @@ if section == "📊 Dashboard":
             </div>""",
                 unsafe_allow_html=True,
             )
+    st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
+    st.markdown('<div class="dash-cols-row">', unsafe_allow_html=True)
     dash_left, dash_right = st.columns([1, 1])
 
     with dash_left:
@@ -271,6 +339,8 @@ if section == "📊 Dashboard":
         else:
             st.success("All products are well stocked!")
         st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)  # close dash-cols-row
 
     orders = load_orders()
     if orders:
