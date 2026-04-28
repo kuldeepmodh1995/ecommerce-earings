@@ -53,58 +53,71 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ── CSS ───────────────────────────────────────────────────────────────────────
+# ── CSS — MOBILE FIRST ────────────────────────────────────────────────────────
 st.markdown(
     """
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;600&display=swap');
-  html, body, [class*="css"] { font-family: 'Lato', sans-serif; }
-  .block-container { padding-top: 1rem !important; }
+  html, body, [class*="css"] { font-family: 'Lato', sans-serif; box-sizing: border-box; }
+  *, *::before, *::after { box-sizing: inherit; }
+
+  /* ══════════════════════════════════════════════
+     BASE = mobile 360px
+     ══════════════════════════════════════════════ */
+  .block-container { padding: 0.4rem 0.4rem 2rem !important; max-width: 100% !important; }
 
   .admin-header {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    padding: 24px 32px; border-radius: 14px; margin-bottom: 28px;
-    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 14px; border-radius: 10px; margin-bottom: 14px;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
   }
   .admin-header h1 {
-    font-family: 'Playfair Display', serif; color: #f5c6d0;
-    font-size: 1.8em; margin: 0;
+    font-family: 'Playfair Display', serif; color: #f5c6d0; font-size: 1.15em; margin: 0;
   }
-  .admin-header p { color: #d4a5b5; margin: 4px 0 0; font-size: .9em; }
+  .admin-header p { color: #d4a5b5; margin: 0; font-size: .80em; }
   .admin-badge {
-    background: #e91e8c; color: #fff; padding: 4px 14px;
-    border-radius: 20px; font-size: .78em; font-weight: 700; letter-spacing: 1px;
+    background: #e91e8c; color: #fff; padding: 3px 11px;
+    border-radius: 20px; font-size: .72em; font-weight: 700; letter-spacing: 1px;
   }
 
   .stat-card {
-    background: #fff; border-radius: 14px; padding: 20px 24px;
+    background: #fff; border-radius: 12px; padding: 14px 12px;
     border: 1px solid #f0e8ed; text-align: center;
-    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
   }
-  .stat-number { font-size: 2.2em; font-weight: 700; color: #c2185b; }
-  .stat-label { color: #888; font-size: .88em; margin-top: 4px; }
+  .stat-number { font-size: 1.7em; font-weight: 700; color: #c2185b; }
+  .stat-label { color: #888; font-size: .78em; margin-top: 3px; }
+
+  /* Stat cards: 2×2 on mobile */
+  .stat-cards-row div[data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
+  .stat-cards-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+    min-width: 48% !important; flex: 0 0 48% !important;
+  }
+
+  /* Dashboard panels: stacked on mobile */
+  .dash-cols-row div[data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
+  .dash-cols-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+    min-width: 100% !important; flex: 0 0 100% !important;
+  }
 
   .section-card {
-    background: #fff; border-radius: 14px; padding: 24px;
-    border: 1px solid #f0e8ed; margin-bottom: 24px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    background: #fff; border-radius: 12px; padding: 14px 12px;
+    border: 1px solid #f0e8ed; margin-bottom: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.04);
   }
   .section-title {
     font-family: 'Playfair Display', serif; color: #1a1a2e;
-    font-size: 1.35em; margin-bottom: 18px; padding-bottom: 10px;
+    font-size: 1.05em; margin-bottom: 12px; padding-bottom: 8px;
     border-bottom: 2px solid #f5c6d0;
   }
 
   .product-row {
-    background: #fdf6f9; border-radius: 10px;
-    padding: 12px 16px; margin-bottom: 8px;
-    border: 1px solid #f0e4ec; display: flex; align-items: center; gap: 16px;
+    background: #fdf6f9; border-radius: 10px; flex-wrap: wrap;
+    padding: 10px 12px; margin-bottom: 8px;
+    border: 1px solid #f0e4ec; display: flex; align-items: center; gap: 10px;
   }
 
-  .status-badge {
-    display: inline-block; padding: 3px 12px; border-radius: 20px;
-    font-size: .78em; font-weight: 700;
-  }
+  .status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: .74em; font-weight: 700; }
   .status-pending { background: #fff3cd; color: #856404; }
   .status-processing { background: #cfe2ff; color: #084298; }
   .status-shipped { background: #d1ecf1; color: #0c5460; }
@@ -116,79 +129,64 @@ st.markdown(
   [data-testid="stSidebar"] .stRadio label { color: #f5c6d0 !important; }
 
   .login-card {
-    max-width: 400px; margin: 80px auto; background: #fff;
-    border-radius: 20px; padding: 40px; box-shadow: 0 8px 40px rgba(0,0,0,.12);
+    max-width: 100%; margin: 20px auto; background: #fff;
+    border-radius: 16px; padding: 24px 16px; box-shadow: 0 6px 30px rgba(0,0,0,.10);
     border: 1px solid #f5c6d0; text-align: center;
   }
-  .login-card h2 { font-family: 'Playfair Display', serif; color: #1a1a2e; }
+  .login-card h2 { font-family: 'Playfair Display', serif; color: #1a1a2e; font-size: 1.3em; }
 
   .banner-card {
-    background: #fdf6f9; border-radius: 12px; padding: 16px;
-    border: 1px solid #f0e4ec; margin-bottom: 12px;
+    background: #fdf6f9; border-radius: 12px; padding: 12px;
+    border: 1px solid #f0e4ec; margin-bottom: 10px;
   }
 
   .nav-cat-row {
     background: #fdf6f9; border-radius: 10px;
-    padding: 14px 18px; margin-bottom: 10px; border: 1px solid #f0e4ec;
+    padding: 12px 14px; margin-bottom: 10px; border: 1px solid #f0e4ec;
   }
 
-  /* ─────────────────────────────────────────────
-     MANAGE SERVICE — MOBILE RESPONSIVE
-     ───────────────────────────────────────────── */
+  /* ══════════════════════════════════════════════
+     TABLET — min-width: 600px
+     ══════════════════════════════════════════════ */
+  @media (min-width: 600px) {
+    .block-container { padding: 0.6rem 0.75rem 2rem !important; }
+    .admin-header { padding: 18px 22px; flex-direction: row; align-items: center; margin-bottom: 20px; }
+    .admin-header h1 { font-size: 1.4em; }
+    .stat-card { padding: 16px 16px; }
+    .stat-number { font-size: 1.9em; }
+    .stat-label { font-size: .82em; }
+    .section-card { padding: 18px 16px; margin-bottom: 18px; }
+    .section-title { font-size: 1.2em; }
+    .login-card { max-width: 420px; margin: 40px auto; padding: 32px 24px; }
+  }
 
-  @media (max-width: 768px) {
-    .block-container { padding: 0.5rem 0.5rem 2rem !important; }
+  /* ══════════════════════════════════════════════
+     DESKTOP — min-width: 960px
+     ══════════════════════════════════════════════ */
+  @media (min-width: 960px) {
+    .block-container { padding: 1rem 1rem 2rem !important; }
+    .admin-header { padding: 24px 32px; border-radius: 14px; margin-bottom: 28px; }
+    .admin-header h1 { font-size: 1.8em; }
+    .admin-header p { font-size: .9em; }
 
-    .admin-header {
-      padding: 16px 16px;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-      border-radius: 10px;
-      margin-bottom: 16px;
-    }
-    .admin-header h1 { font-size: 1.3em; }
-    .admin-header p { font-size: .82em; }
-
-    .stat-card { padding: 14px 12px; }
-    .stat-number { font-size: 1.7em; }
-    .stat-label { font-size: .78em; }
-
-    .section-card { padding: 14px 12px; }
-    .section-title { font-size: 1.1em; }
-
-    .product-row { flex-wrap: wrap; gap: 8px; padding: 10px 12px; }
-
-    .login-card { margin: 30px auto; padding: 24px 16px; }
-
-    /* Stats grid: 2 columns on tablet */
-    .stat-cards-row div[data-testid="stHorizontalBlock"] {
-      flex-wrap: wrap !important;
-    }
+    /* Stat cards: 4 columns on desktop */
     .stat-cards-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-      min-width: 48% !important;
-      flex: 0 0 48% !important;
+      min-width: unset !important; flex: 1 1 0 !important;
     }
 
-    /* Dashboard left/right panels: stack vertically */
-    .dash-cols-row div[data-testid="stHorizontalBlock"] {
-      flex-wrap: wrap !important;
-    }
+    /* Dashboard panels: side-by-side on desktop */
     .dash-cols-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-      min-width: 100% !important;
-      flex: 0 0 100% !important;
+      min-width: unset !important; flex: 1 1 0 !important;
     }
-  }
 
-  @media (max-width: 480px) {
-    .admin-header h1 { font-size: 1.1em; }
-    .stat-number { font-size: 1.4em; }
-
-    /* Stat cards: single column on very small screens */
-    .stat-cards-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-      min-width: 100% !important;
-      flex: 0 0 100% !important;
-    }
+    .stat-card { padding: 20px 24px; border-radius: 14px; }
+    .stat-number { font-size: 2.2em; }
+    .stat-label { font-size: .88em; }
+    .section-card { padding: 24px; border-radius: 14px; margin-bottom: 24px; }
+    .section-title { font-size: 1.35em; margin-bottom: 18px; padding-bottom: 10px; }
+    .product-row { padding: 12px 16px; gap: 16px; }
+    .login-card { max-width: 400px; margin: 80px auto; padding: 40px; border-radius: 20px; }
+    .status-badge { padding: 3px 12px; font-size: .78em; }
   }
 </style>
 """,
