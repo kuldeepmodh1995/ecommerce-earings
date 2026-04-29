@@ -4,7 +4,7 @@
     "title": "Discover Handcrafted Earrings",
     "subtitle": "Made for every moment of your life",
     "button_text": "Shop Now",
-    "image": "app/static/images/banner_hb1.png",
+    "image": "app/static/images/banner_hb1.webp",
     "redirect_to": "shop",
     "sequence": 1,
     "enabled": true

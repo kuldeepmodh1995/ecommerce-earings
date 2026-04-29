@@ -10,6 +10,7 @@ PRODUCTS_FILE = os.path.join(DATA_DIR, "products.json")
 ORDERS_FILE = os.path.join(DATA_DIR, "orders.json")
 NAV_CATEGORIES_FILE = os.path.join(DATA_DIR, "nav_categories.json")
 HERO_BANNERS_FILE = os.path.join(DATA_DIR, "hero_banners.json")
+SHOP_CATEGORIES_FILE = os.path.join(DATA_DIR, "shop_categories.json")
 
 _DEFAULT_NAV_CATEGORIES = [
     {"id": "nc1", "label": "New Arrivals", "emoji": "✨", "badge": "", "redirect_to": "shop", "sequence": 1, "enabled": True},
@@ -21,6 +22,15 @@ _DEFAULT_NAV_CATEGORIES = [
     {"id": "nc7", "label": "Dangles", "emoji": "🌀", "badge": "", "redirect_to": "category:Dangles", "sequence": 7, "enabled": True},
     {"id": "nc8", "label": "Gifting", "emoji": "🎁", "badge": "", "redirect_to": "shop", "sequence": 8, "enabled": True},
     {"id": "nc9", "label": "About Us", "emoji": "💎", "badge": "", "redirect_to": "home", "sequence": 9, "enabled": True},
+]
+
+_DEFAULT_SHOP_CATEGORIES = [
+    {"id": "sc1", "name": "Studs",       "emoji": "💛", "image": "", "redirect_to": "category:Studs",       "sequence": 1, "enabled": True},
+    {"id": "sc2", "name": "Hoops",       "emoji": "⭕", "image": "", "redirect_to": "category:Hoops",       "sequence": 2, "enabled": True},
+    {"id": "sc3", "name": "Drops",       "emoji": "🌊", "image": "", "redirect_to": "category:Drops",       "sequence": 3, "enabled": True},
+    {"id": "sc4", "name": "Chandeliers", "emoji": "✨", "image": "", "redirect_to": "category:Chandeliers", "sequence": 4, "enabled": True},
+    {"id": "sc5", "name": "Dangles",     "emoji": "🌀", "image": "", "redirect_to": "category:Dangles",     "sequence": 5, "enabled": True},
+    {"id": "sc6", "name": "Gifting",     "emoji": "🎁", "image": "", "redirect_to": "shop",                 "sequence": 6, "enabled": True},
 ]
 
 _DEFAULT_HERO_BANNERS = [
@@ -231,3 +241,45 @@ def delete_hero_banner(banner_id):
     banners = load_hero_banners()
     banners = [b for b in banners if b["id"] != banner_id]
     save_hero_banners(banners)
+
+
+# ── Shop Categories (Homepage "Shop by Category" tiles) ───────────────────────
+
+@st.cache_data(ttl=2)
+def load_shop_categories():
+    if not os.path.exists(SHOP_CATEGORIES_FILE):
+        save_shop_categories(_DEFAULT_SHOP_CATEGORIES)
+        return list(_DEFAULT_SHOP_CATEGORIES)
+    with open(SHOP_CATEGORIES_FILE, "r") as f:
+        return json.load(f)
+
+
+def save_shop_categories(categories):
+    os.makedirs(DATA_DIR, exist_ok=True)
+    with open(SHOP_CATEGORIES_FILE, "w") as f:
+        json.dump(categories, f, indent=2)
+    load_shop_categories.clear()
+
+
+def add_shop_category(cat_data):
+    cats = load_shop_categories()
+    cat_data["id"] = "sc" + str(uuid.uuid4())[:6]
+    cats.append(cat_data)
+    save_shop_categories(cats)
+    return cat_data["id"]
+
+
+def update_shop_category(cat_id, updated):
+    cats = load_shop_categories()
+    for i, c in enumerate(cats):
+        if c["id"] == cat_id:
+            cats[i].update(updated)
+            save_shop_categories(cats)
+            return True
+    return False
+
+
+def delete_shop_category(cat_id):
+    cats = load_shop_categories()
+    cats = [c for c in cats if c["id"] != cat_id]
+    save_shop_categories(cats)

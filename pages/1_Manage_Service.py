@@ -21,6 +21,10 @@ from utils.data_manager import (
     add_hero_banner,
     update_hero_banner,
     delete_hero_banner,
+    load_shop_categories,
+    add_shop_category,
+    update_shop_category,
+    delete_shop_category,
 )
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "images")
@@ -243,6 +247,7 @@ with st.sidebar:
             "📦 Orders",
             "🖼️ Media Library",
             "🎠 Hero Banners",
+            "🏷️ Shop Categories",
         ],
         label_visibility="collapsed",
     )
@@ -837,4 +842,251 @@ elif section == "🎠 Hero Banners":
                         update_hero_banner(new_id, {"image": f"app/static/images/{filename}"})
 
                     st.success(f"✅ Banner '{ab_title}' added!")
+                    st.rerun()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHOP CATEGORIES
+# ─────────────────────────────────────────────────────────────────────────────
+elif section == "🏷️ Shop Categories":
+    st.markdown("### 🏷️ Shop Categories")
+    st.caption(
+        "Manage the 'Shop by Category' tiles shown on the homepage. "
+        "Add, remove, reorder, rename, change icons/images, and set redirect destinations."
+    )
+
+    st.info(
+        "**Redirect values:** `shop` → all products · `category:Hoops` → filter by category · "
+        "`https://...` → external link · `wishlist` → wishlist page"
+    )
+
+    tab_cats, tab_add_cat = st.tabs(["📋 Manage Categories", "➕ Add New Category"])
+
+    # ── Manage existing ───────────────────────────────────────────────────────
+    with tab_cats:
+        shop_cats = load_shop_categories()
+        shop_cats_sorted = sorted(shop_cats, key=lambda x: x.get("sequence", 999))
+
+        if not shop_cats_sorted:
+            st.info("No categories yet. Add one using the tab above.")
+        else:
+            enabled_count = sum(1 for c in shop_cats_sorted if c.get("enabled", True))
+            st.caption(
+                f"{len(shop_cats_sorted)} categories total · "
+                f"{enabled_count} visible on homepage · "
+                "Reorder by changing the Sequence number and saving"
+            )
+
+            # Live preview strip
+            with st.expander("👁️ Live Preview (enabled categories only)", expanded=False):
+                enabled_preview = [c for c in shop_cats_sorted if c.get("enabled", True)]
+                if enabled_preview:
+                    cols_per_row = min(len(enabled_preview), 6)
+                    preview_cols = st.columns(cols_per_row)
+                    for idx, cat in enumerate(enabled_preview):
+                        with preview_cols[idx % cols_per_row]:
+                            if cat.get("image"):
+                                st.image(cat["image"], width=60)
+                            else:
+                                st.markdown(
+                                    f'<div style="font-size:2em;text-align:center">'
+                                    f'{cat.get("emoji", "🏷️")}</div>',
+                                    unsafe_allow_html=True,
+                                )
+                            st.markdown(
+                                f'<div style="text-align:center;font-size:.70em;font-weight:700;'
+                                f'text-transform:uppercase;letter-spacing:.6px">{cat["name"]}</div>',
+                                unsafe_allow_html=True,
+                            )
+                else:
+                    st.warning("All categories are hidden. Enable at least one to show on homepage.")
+
+            st.markdown("---")
+
+            for cat in shop_cats_sorted:
+                enabled_icon = "🟢" if cat.get("enabled", True) else "🔴"
+                icon_preview = cat.get("emoji", "🏷️") if not cat.get("image") else "🖼️"
+                with st.expander(
+                    f"{enabled_icon} {cat.get('sequence', '?')}. "
+                    f"{icon_preview} {cat['name']} → {cat.get('redirect_to', '')}",
+                    expanded=False,
+                ):
+                    img_col, form_col = st.columns([1, 2])
+
+                    with img_col:
+                        st.markdown("**Current Icon / Image**")
+                        if cat.get("image"):
+                            img_src = cat["image"]
+                            if img_src.startswith("app/static/"):
+                                local = os.path.join(BASE_DIR, img_src[len("app/"):])
+                                if os.path.exists(local):
+                                    st.image(local, width=100)
+                                else:
+                                    st.markdown(f"`{img_src}`")
+                            else:
+                                st.image(img_src, width=100)
+                        else:
+                            st.markdown(
+                                f'<div style="font-size:3em;text-align:center;padding:12px 0">'
+                                f'{cat.get("emoji", "🏷️")}</div>',
+                                unsafe_allow_html=True,
+                            )
+
+                        st.markdown("**Upload Image (optional)**")
+                        cat_upload = st.file_uploader(
+                            "Upload category image",
+                            type=["jpg", "jpeg", "png", "webp"],
+                            key=f"catup_{cat['id']}",
+                            label_visibility="collapsed",
+                        )
+                        if cat_upload:
+                            ext = cat_upload.name.split(".")[-1]
+                            filename = f"cat_{cat['id']}.{ext}"
+                            filepath = os.path.join(STATIC_DIR, filename)
+                            with open(filepath, "wb") as fh:
+                                fh.write(cat_upload.read())
+                            update_shop_category(cat["id"], {"image": f"app/static/images/{filename}"})
+                            st.success("✅ Image saved!")
+                            st.rerun()
+
+                        if cat.get("image"):
+                            if st.button("🗑️ Remove image (use emoji instead)", key=f"rmimg_{cat['id']}"):
+                                update_shop_category(cat["id"], {"image": ""})
+                                st.success("Image removed — emoji will show instead.")
+                                st.rerun()
+
+                    with form_col:
+                        with st.form(key=f"cat_edit_{cat['id']}"):
+                            sc_name = st.text_input("Category Name *", value=cat.get("name", ""))
+
+                            ec1, ec2 = st.columns(2)
+                            with ec1:
+                                sc_emoji = st.text_input(
+                                    "Emoji (used when no image)",
+                                    value=cat.get("emoji", ""),
+                                    help="Paste any emoji, e.g. 💛 ⭕ 🌊",
+                                )
+                            with ec2:
+                                sc_img_url = st.text_input(
+                                    "🔗 Image URL (overrides emoji)",
+                                    value=cat.get("image", ""),
+                                    placeholder="https://...",
+                                )
+
+                            sc_redirect = st.text_input(
+                                "Redirect To *",
+                                value=cat.get("redirect_to", "shop"),
+                                help="shop · category:Hoops · https://... · wishlist",
+                            )
+
+                            seq_col, en_col = st.columns([1, 1])
+                            with seq_col:
+                                sc_seq = st.number_input(
+                                    "Sequence (display order)",
+                                    value=int(cat.get("sequence", 1)),
+                                    min_value=1, step=1,
+                                )
+                            with en_col:
+                                sc_enabled = st.checkbox(
+                                    "Show on homepage",
+                                    value=cat.get("enabled", True),
+                                )
+
+                            sb1, sb2 = st.columns(2)
+                            with sb1:
+                                sc_save = st.form_submit_button(
+                                    "💾 Save", use_container_width=True, type="primary"
+                                )
+                            with sb2:
+                                sc_del = st.form_submit_button(
+                                    "🗑️ Delete", use_container_width=True
+                                )
+
+                            if sc_save:
+                                if not sc_name or not sc_redirect:
+                                    st.error("Category Name and Redirect To are required.")
+                                else:
+                                    update_shop_category(cat["id"], {
+                                        "name": sc_name,
+                                        "emoji": sc_emoji,
+                                        "image": sc_img_url,
+                                        "redirect_to": sc_redirect,
+                                        "sequence": sc_seq,
+                                        "enabled": sc_enabled,
+                                    })
+                                    st.success(f"✅ '{sc_name}' saved!")
+                                    st.rerun()
+
+                            if sc_del:
+                                delete_shop_category(cat["id"])
+                                st.warning(f"🗑️ '{cat['name']}' deleted.")
+                                st.rerun()
+
+    # ── Add new category ──────────────────────────────────────────────────────
+    with tab_add_cat:
+        st.markdown("### Add New Shop Category")
+        with st.form("add_shop_cat_form"):
+            nc_name = st.text_input("Category Name *", placeholder="e.g. Ear Cuffs")
+
+            ncc1, ncc2 = st.columns(2)
+            with ncc1:
+                nc_emoji = st.text_input(
+                    "Emoji *",
+                    placeholder="e.g. 🌸",
+                    help="Used as the icon when no image is set",
+                )
+            with ncc2:
+                nc_img_url = st.text_input(
+                    "Image URL (optional — overrides emoji)",
+                    placeholder="https://...",
+                )
+
+            nc_redirect = st.text_input(
+                "Redirect To *",
+                placeholder="shop  or  category:EarCuffs  or  https://...",
+                help="shop · category:<CategoryName> · https://... · wishlist",
+            )
+
+            existing_cats = load_shop_categories()
+            nc_seq = st.number_input(
+                "Sequence (display order)",
+                value=max((c.get("sequence", 0) for c in existing_cats), default=0) + 1,
+                min_value=1, step=1,
+            )
+            nc_enabled = st.checkbox("Show on homepage immediately", value=True)
+
+            nc_img_file = st.file_uploader(
+                "Or upload image file (optional)",
+                type=["jpg", "jpeg", "png", "webp"],
+                key="add_cat_img",
+            )
+
+            nc_submit = st.form_submit_button(
+                "➕ Add Category", use_container_width=True, type="primary"
+            )
+
+            if nc_submit:
+                if not nc_name or not nc_redirect:
+                    st.error("Category Name and Redirect To are required.")
+                elif not nc_emoji and not nc_img_url and not nc_img_file:
+                    st.error("Please provide an emoji, image URL, or upload an image.")
+                else:
+                    new_cat_id = add_shop_category({
+                        "name": nc_name,
+                        "emoji": nc_emoji,
+                        "image": nc_img_url,
+                        "redirect_to": nc_redirect,
+                        "sequence": nc_seq,
+                        "enabled": nc_enabled,
+                    })
+
+                    if nc_img_file:
+                        ext = nc_img_file.name.split(".")[-1]
+                        filename = f"cat_{new_cat_id}.{ext}"
+                        filepath = os.path.join(STATIC_DIR, filename)
+                        with open(filepath, "wb") as fh:
+                            fh.write(nc_img_file.read())
+                        update_shop_category(new_cat_id, {"image": f"app/static/images/{filename}"})
+
+                    st.success(f"✅ Category '{nc_name}' added!")
                     st.rerun()
