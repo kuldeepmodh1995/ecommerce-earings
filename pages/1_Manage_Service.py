@@ -16,11 +16,6 @@ from utils.data_manager import (
     load_orders,
     update_order_status,
     get_stats,
-    load_nav_categories,
-    save_nav_categories,
-    add_nav_category,
-    update_nav_category,
-    delete_nav_category,
     load_hero_banners,
     save_hero_banners,
     add_hero_banner,
@@ -140,11 +135,6 @@ st.markdown(
     border: 1px solid #f0e4ec; margin-bottom: 10px;
   }
 
-  .nav-cat-row {
-    background: #fdf6f9; border-radius: 10px;
-    padding: 12px 14px; margin-bottom: 10px; border: 1px solid #f0e4ec;
-  }
-
   /* ══════════════════════════════════════════════
      TABLET — min-width: 600px
      ══════════════════════════════════════════════ */
@@ -252,7 +242,6 @@ with st.sidebar:
             "🛍️ Products",
             "📦 Orders",
             "🖼️ Media Library",
-            "🗂️ Nav Categories",
             "🎠 Hero Banners",
         ],
         label_visibility="collapsed",
@@ -680,133 +669,6 @@ elif section == "🖼️ Media Library":
     products = load_products()
     for p in products:
         st.markdown(f"- **{p['name']}**: `{p.get('image', '')}`")
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# NAV CATEGORIES
-# ─────────────────────────────────────────────────────────────────────────────
-elif section == "🗂️ Nav Categories":
-    st.markdown("### 🗂️ Navigation Categories")
-    st.caption(
-        "These appear as a horizontal nav bar on the storefront. "
-        "Control the label, emoji, optional badge, display order, and where each item links."
-    )
-
-    st.info(
-        "**Redirect values:** `shop` → all products · `home` → homepage · "
-        "`category:Hoops` → filter by category · `https://...` → external link"
-    )
-
-    tab_list, tab_add = st.tabs(["📋 Manage Categories", "➕ Add New Category"])
-
-    with tab_list:
-        cats = load_nav_categories()
-        cats_sorted = sorted(cats, key=lambda x: x.get("sequence", 999))
-
-        if not cats_sorted:
-            st.info("No nav categories yet. Add one using the tab above.")
-        else:
-            st.caption(f"{len(cats_sorted)} categories · Reorder by changing the Sequence number and saving")
-
-            for c in cats_sorted:
-                enabled_icon = "🟢" if c.get("enabled", True) else "🔴"
-                badge_text = f" [{c.get('badge','')}]" if c.get("badge") else ""
-                with st.expander(
-                    f"{enabled_icon} {c.get('sequence','?')}. {c.get('emoji','')} {c['label']}{badge_text} → {c.get('redirect_to','')}",
-                    expanded=False,
-                ):
-                    with st.form(key=f"nc_edit_{c['id']}"):
-                        r1c1, r1c2, r1c3 = st.columns([2, 1, 1])
-                        with r1c1:
-                            nc_label = st.text_input("Label *", value=c.get("label", ""))
-                        with r1c2:
-                            nc_emoji = st.text_input("Emoji", value=c.get("emoji", ""), max_chars=4)
-                        with r1c3:
-                            nc_badge = st.text_input("Badge (optional)", value=c.get("badge", ""),
-                                                     placeholder="e.g. New, Hot, Sale", max_chars=12)
-
-                        r2c1, r2c2 = st.columns([3, 1])
-                        with r2c1:
-                            nc_redirect = st.text_input(
-                                "Redirect To *",
-                                value=c.get("redirect_to", "shop"),
-                                help="shop · home · category:Hoops · https://...",
-                            )
-                        with r2c2:
-                            nc_seq = st.number_input("Sequence", value=int(c.get("sequence", 1)),
-                                                     min_value=1, step=1)
-
-                        nc_enabled = st.checkbox("Show in storefront", value=c.get("enabled", True))
-
-                        btn1, btn2 = st.columns(2)
-                        with btn1:
-                            nc_save = st.form_submit_button("💾 Save", use_container_width=True, type="primary")
-                        with btn2:
-                            nc_del = st.form_submit_button("🗑️ Delete", use_container_width=True)
-
-                        if nc_save:
-                            if not nc_label or not nc_redirect:
-                                st.error("Label and Redirect To are required.")
-                            else:
-                                update_nav_category(c["id"], {
-                                    "label": nc_label,
-                                    "emoji": nc_emoji,
-                                    "badge": nc_badge,
-                                    "redirect_to": nc_redirect,
-                                    "sequence": nc_seq,
-                                    "enabled": nc_enabled,
-                                })
-                                st.success(f"✅ '{nc_label}' saved!")
-                                st.rerun()
-
-                        if nc_del:
-                            delete_nav_category(c["id"])
-                            st.warning(f"🗑️ '{c['label']}' deleted.")
-                            st.rerun()
-
-    with tab_add:
-        st.markdown("### Add New Nav Category")
-        with st.form("add_nav_cat_form"):
-            a1, a2, a3 = st.columns([2, 1, 1])
-            with a1:
-                an_label = st.text_input("Label *", placeholder="e.g. Fine Silver")
-            with a2:
-                an_emoji = st.text_input("Emoji", placeholder="🥈", max_chars=4)
-            with a3:
-                an_badge = st.text_input("Badge", placeholder="New", max_chars=12)
-
-            b1, b2 = st.columns([3, 1])
-            with b1:
-                an_redirect = st.text_input(
-                    "Redirect To *",
-                    placeholder="shop  or  category:Studs  or  https://...",
-                    help="shop · home · category:Hoops · https://...",
-                )
-            with b2:
-                cats_for_seq = load_nav_categories()
-                an_seq = st.number_input(
-                    "Sequence",
-                    value=max((c.get("sequence", 0) for c in cats_for_seq), default=0) + 1,
-                    min_value=1, step=1,
-                )
-
-            an_enabled = st.checkbox("Show in storefront", value=True)
-            an_submit = st.form_submit_button("➕ Add Category", use_container_width=True, type="primary")
-
-            if an_submit:
-                if not an_label or not an_redirect:
-                    st.error("Label and Redirect To are required.")
-                else:
-                    new_id = add_nav_category({
-                        "label": an_label,
-                        "emoji": an_emoji,
-                        "badge": an_badge,
-                        "redirect_to": an_redirect,
-                        "sequence": an_seq,
-                        "enabled": an_enabled,
-                    })
-                    st.success(f"✅ '{an_label}' added!")
-                    st.rerun()
 
 
 # ─────────────────────────────────────────────────────────────────────────────

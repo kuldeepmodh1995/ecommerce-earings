@@ -9,7 +9,6 @@ sys.path.insert(0, os.path.dirname(__file__))
 from utils.data_manager import (
     load_products,
     save_order,
-    load_nav_categories,
     load_hero_banners,
 )
 
@@ -51,13 +50,31 @@ st.markdown(
   *, *::before, *::after { box-sizing: inherit; }
   body { background: #fff; }
 
+  /* ── Remove Streamlit's default top whitespace ── */
   .block-container {
     padding-top: 0 !important; padding-left: 0 !important;
     padding-right: 0 !important; padding-bottom: 2rem !important;
     max-width: 100% !important;
   }
-  section[data-testid="stMain"] > div { padding-left: 0 !important; padding-right: 0 !important; }
+  section[data-testid="stMain"] > div { padding-left: 0 !important; padding-right: 0 !important; padding-top: 0 !important; }
+  [data-testid="stMainBlockContainer"] { padding-top: 0 !important; }
+  .stMainBlockContainer { padding-top: 0 !important; }
   header[data-testid="stHeader"] { display: none !important; }
+  #stDecoration { display: none !important; }
+
+  /* ── Allow sticky positioning to work in Streamlit ── */
+  section[data-testid="stMain"] { overflow: visible !important; }
+  [data-testid="stMainBlockContainer"] { overflow: visible !important; }
+
+  /* ── Collapse zero-height component iframe wrappers ── */
+  [data-testid="stCustomComponentV1"] {
+    min-height: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: 0 !important;
+  }
 
   /* ── Hide sidebar completely ── */
   [data-testid="collapsedControl"] { display: none !important; }
@@ -84,6 +101,7 @@ st.markdown(
     padding: 0 14px; height: 54px;
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 999;
+    width: 100%; box-sizing: border-box;
   }
   .navbar-left { display: flex; align-items: center; }
   .navbar-brand {
@@ -184,30 +202,6 @@ st.markdown(
   }
 
   /* ══════════════════════════════════════════════
-     CATEGORY NAV
-     ══════════════════════════════════════════════ */
-  .cat-nav-container {
-    background: white; padding: 0 8px;
-    overflow-x: auto; -webkit-overflow-scrolling: touch;
-    border-bottom: 1px solid #F0EDE8;
-  }
-  .cat-nav-container div[data-testid="stHorizontalBlock"] {
-    gap: 0 !important; flex-wrap: nowrap !important; overflow-x: auto !important;
-  }
-  .cat-nav-container .stButton > button {
-    background: none !important; border: none !important; box-shadow: none !important;
-    border-bottom: 2px solid transparent !important; border-radius: 0 !important;
-    color: #888 !important; font-weight: 500 !important;
-    font-size: 0.66em !important; padding: 11px 9px !important;
-    white-space: nowrap !important; letter-spacing: 0.8px !important;
-    text-transform: uppercase !important;
-  }
-  .cat-nav-container .stButton > button:hover {
-    color: #1A1A1A !important; border-bottom: 2px solid #1A1A1A !important;
-    background: none !important;
-  }
-
-  /* ══════════════════════════════════════════════
      CONTENT PADDING
      ══════════════════════════════════════════════ */
   .content-pad { padding: 0 8px; }
@@ -215,10 +209,24 @@ st.markdown(
   /* ══════════════════════════════════════════════
      PRODUCT GRID — 2 cols mobile, 4 cols tablet+
      ══════════════════════════════════════════════ */
-  .content-pad div[data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
-  .content-pad div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-    min-width: 50% !important; flex: 0 0 50% !important; width: 50% !important;
+  .content-pad div[data-testid="stHorizontalBlock"],
+  .content-pad [data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
+  .content-pad div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
+  .content-pad [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+    min-width: 50% !important; flex: 0 0 50% !important;
+    width: 50% !important; max-width: 50% !important;
     padding-left: 4px !important; padding-right: 4px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ── Compact product card on mobile ── */
+  @media (max-width: 599px) {
+    .product-img-link img { aspect-ratio: 1/1 !important; }
+    .product-info { padding: 5px 2px 2px !important; }
+    .product-name { font-size: 0.65em !important; }
+    .price-now { font-size: 0.72em !important; }
+    .card-btn-wrap { padding: 0 2px 6px !important; }
+    .card-btn-wrap .stButton > button { padding: 6px 4px !important; font-size: 0.58em !important; }
   }
 
   /* ══════════════════════════════════════════════
@@ -496,8 +504,9 @@ st.markdown(
     .navbar-wrap { padding: 0 24px; height: 60px; }
     .navbar-brand { font-size: 1.4em; }
     .content-pad { padding: 0 14px; }
-    .content-pad div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-      min-width: 25% !important; flex: 0 0 25% !important; width: 25% !important;
+    .content-pad div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
+    .content-pad [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+      min-width: 25% !important; flex: 0 0 25% !important; width: 25% !important; max-width: 25% !important;
     }
     .cat-tiles-grid { grid-template-columns: repeat(6, 1fr); }
     .product-name { font-size: 0.74em; }
@@ -763,11 +772,11 @@ def render_hero_carousel():
 <head>
 <style>
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-body {{ font-family: 'Inter', sans-serif; overflow: hidden; background: #1A1A1A; }}
+body {{ font-family: 'Inter', sans-serif; overflow: hidden; background: transparent; }}
 
 .carousel-container {{
   position: relative; width: 100%; height: 260px;
-  overflow: hidden; background: #1A1A1A;
+  overflow: hidden; background: #111;
 }}
 .slide {{
   position: absolute; inset: 0; opacity: 0;
@@ -913,47 +922,17 @@ function navigateTo(redirect) {{
 
 function reportHeight() {{
   const h = document.getElementById('carousel').offsetHeight;
-  window.parent.postMessage({{type: 'streamlit:setFrameHeight', height: h + 10}}, '*');
+  if (h > 0) {{
+    window.parent.postMessage({{type: 'streamlit:setFrameHeight', height: h}}, '*');
+  }}
 }}
 reportHeight();
-window.addEventListener('resize', reportHeight);
+window.addEventListener('resize', function() {{ setTimeout(reportHeight, 50); }});
 </script>
 </body>
 </html>
 """
-    components.html(html, height=520, scrolling=False)
-
-
-# ── Category nav bar renderer ─────────────────────────────────────────────────
-def render_category_nav():
-    cats = load_nav_categories()
-    active = sorted(
-        [c for c in cats if c.get("enabled", True)],
-        key=lambda x: x.get("sequence", 999),
-    )
-    if not active:
-        return
-
-    st.markdown('<div class="cat-nav-container">', unsafe_allow_html=True)
-    cols = st.columns(len(active))
-    for i, c in enumerate(active):
-        emoji = c.get("emoji", "")
-        label = c["label"]
-        redirect = c.get("redirect_to", "shop")
-
-        with cols[i]:
-            if st.button(f"{emoji} {label}" if emoji else label, key=f"navcat_{c['id']}", use_container_width=True):
-                if redirect == "shop":
-                    st.session_state.view = "shop"
-                    st.session_state.filter_cat = "All"
-                elif redirect.startswith("category:"):
-                    st.session_state.view = "shop"
-                    st.session_state.filter_cat = redirect[len("category:"):]
-                elif redirect == "home":
-                    st.session_state.view = "home"
-                st.session_state.selected_product = None
-                st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+    components.html(html, height=270, scrolling=False)
 
 
 # ── Promo ticker ──────────────────────────────────────────────────────────────
@@ -1044,27 +1023,58 @@ def render_navbar():
 <script>
 (function() {
   var p = window.parent;
-  p.openNavMenu = function() {
+
+  function openMenu() {
     var overlay = p.document.getElementById('navOverlay');
     var bg = p.document.getElementById('navBg');
     if (overlay) overlay.classList.add('open');
     if (bg) bg.classList.add('open');
     p.document.body.style.overflow = 'hidden';
-  };
-  p.closeNavMenu = function() {
+  }
+
+  function closeMenu() {
     var overlay = p.document.getElementById('navOverlay');
     var bg = p.document.getElementById('navBg');
     if (overlay) overlay.classList.remove('open');
     if (bg) bg.classList.remove('open');
     p.document.body.style.overflow = '';
-  };
+  }
+
+  // Also expose on parent window for onclick="" fallback
+  p.openNavMenu = openMenu;
+  p.closeNavMenu = closeMenu;
+
+  function attachHandlers() {
+    var hambtn = p.document.querySelector('.hamburger-btn');
+    var closebtn = p.document.querySelector('.nav-close-btn');
+    var bg = p.document.getElementById('navBg');
+
+    if (hambtn && !hambtn._navAttached) {
+      hambtn.addEventListener('click', openMenu);
+      hambtn._navAttached = true;
+    }
+    if (closebtn && !closebtn._navAttached) {
+      closebtn.addEventListener('click', closeMenu);
+      closebtn._navAttached = true;
+    }
+    if (bg && !bg._navAttached) {
+      bg.addEventListener('click', closeMenu);
+      bg._navAttached = true;
+    }
+  }
+
+  attachHandlers();
+  setTimeout(attachHandlers, 150);
+  setTimeout(attachHandlers, 600);
+  setTimeout(attachHandlers, 1500);
+
   p.document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && p.closeNavMenu) p.closeNavMenu();
+    if (e.key === 'Escape') closeMenu();
   });
 })();
 </script>
 """,
-        height=0,
+        height=1,
     )
 
 
@@ -1390,8 +1400,6 @@ def render_wishlist_page():
 render_promo_ticker()
 render_navbar()
 render_free_shipping_bar()
-render_category_nav()
-st.markdown("<div style='margin-bottom:4px'></div>", unsafe_allow_html=True)
 
 
 # ═════════════════════════════════════════════════════════════════════════════
