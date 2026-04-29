@@ -1089,7 +1089,6 @@ def render_navbar():
     if (!nav || nav._stickyInit) return;
     nav._stickyInit = true;
 
-    var scrollEl = p.document;           // listen on document scroll
     var getScrollY = function() {
       return p.window.pageYOffset || p.document.documentElement.scrollTop || 0;
     };
@@ -1097,34 +1096,37 @@ def render_navbar():
     // Measure where the navbar sits in the initial layout
     var navTop = nav.getBoundingClientRect().top + getScrollY();
     var navH   = nav.offsetHeight;
+    var isFixed = false;
+
+    function applyFixed() {
+      if (isFixed) return;
+      isFixed = true;
+      nav.style.setProperty('position', 'fixed',  'important');
+      nav.style.setProperty('top',      '0',      'important');
+      nav.style.setProperty('left',     '0',      'important');
+      nav.style.setProperty('right',    '0',      'important');
+      nav.style.setProperty('width',    '100%',   'important');
+      nav.style.setProperty('z-index',  '9999',   'important');
+      if (!p.document.getElementById('__navbar_spacer__')) {
+        var sp = p.document.createElement('div');
+        sp.id = '__navbar_spacer__';
+        sp.style.height = navH + 'px';
+        nav.parentNode.insertBefore(sp, nav.nextSibling);
+      }
+    }
+
+    function removeFixed() {
+      if (!isFixed) return;
+      isFixed = false;
+      ['position','top','left','right','width','z-index'].forEach(function(prop) {
+        nav.style.removeProperty(prop);
+      });
+      var sp = p.document.getElementById('__navbar_spacer__');
+      if (sp) sp.remove();
+    }
 
     function onScroll() {
-      var scrollY = getScrollY();
-      var spacer  = p.document.getElementById('__navbar_spacer__');
-
-      if (scrollY >= navTop) {
-        // Stick it
-        if (nav.style.position !== 'fixed') {
-          nav.style.cssText += ';position:fixed!important;top:0!important;' +
-                               'left:0!important;right:0!important;z-index:9999!important;' +
-                               'width:100%!important;';
-          if (!spacer) {
-            spacer = p.document.createElement('div');
-            spacer.id = '__navbar_spacer__';
-            spacer.style.height = navH + 'px';
-            nav.parentNode.insertBefore(spacer, nav.nextSibling);
-          }
-        }
-      } else {
-        // Un-stick it
-        nav.style.position = '';
-        nav.style.top      = '';
-        nav.style.left     = '';
-        nav.style.right    = '';
-        nav.style.width    = '';
-        nav.style.zIndex   = '';
-        if (spacer) spacer.remove();
-      }
+      if (getScrollY() >= navTop) { applyFixed(); } else { removeFixed(); }
     }
 
     p.window.addEventListener('scroll', onScroll, { passive: true });
