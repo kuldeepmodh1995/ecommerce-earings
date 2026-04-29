@@ -1513,8 +1513,7 @@ elif st.session_state.view == "shop":
     with f2:
         sort_by = st.selectbox("Sort By", sort_options, index=sort_idx, key="shop_sort_filter")
     with f3:
-        search = st.text_input("Search", placeholder="Search earrings...", key="shop_search", label_visibility="collapsed")
-        st.markdown('<div style="font-size:0.64em;color:#aaa;text-transform:uppercase;letter-spacing:0.6px;margin-top:2px">Search</div>', unsafe_allow_html=True)
+        search = st.text_input("Search", placeholder="Search earrings...", key="shop_search")
     st.markdown('</div>', unsafe_allow_html=True)
 
     st.session_state.filter_cat = selected_cat
@@ -1695,22 +1694,23 @@ elif st.session_state.view == "cart":
             )
             for idx, item in enumerate(st.session_state.cart):
                 st.markdown(
-                    f"""<div style="display:flex;gap:14px;padding:14px;background:#F9F7F4;margin-bottom:8px;border-left:3px solid #C9A84C">
-                      <div style="flex:1">
-                        <div style="font-weight:600;font-size:0.88em;color:#1A1A1A;margin-bottom:3px">{item['name']}</div>
-                        <div style="font-size:0.76em;color:#aaa">{item.get('category','')}</div>
-                        <div style="font-size:0.84em;font-weight:700;color:#C9A84C;margin-top:4px">${item['price']:.2f} each</div>
+                    f"""<div style="display:flex;gap:12px;padding:12px;background:#F9F7F4;margin-bottom:8px;border-left:3px solid #C9A84C;align-items:center">
+                      <img src="{item['image']}" style="width:56px;height:56px;object-fit:cover;flex-shrink:0">
+                      <div style="flex:1;min-width:0">
+                        <div style="font-weight:600;font-size:0.86em;color:#1A1A1A;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{item['name']}</div>
+                        <div style="font-size:0.74em;color:#aaa">{item.get('category','')}</div>
+                        <div style="font-size:0.82em;font-weight:700;color:#C9A84C;margin-top:3px">${item['price']:.2f} each</div>
                       </div>
                     </div>""",
                     unsafe_allow_html=True,
                 )
-                qc1, qc2, qc3, qc4 = st.columns([1, 2, 2, 1])
+                qc1, qc2, qc3 = st.columns([1, 3, 1])
                 with qc1:
                     new_qty = st.number_input("Qty", min_value=1, max_value=10, value=item["qty"], key=f"qty_{idx}", label_visibility="collapsed")
                     st.session_state.cart[idx]["qty"] = new_qty
                 with qc2:
                     st.markdown(f"<div style='padding-top:6px;font-weight:700;font-size:0.9em'>${item['price'] * new_qty:.2f}</div>", unsafe_allow_html=True)
-                with qc4:
+                with qc3:
                     if st.button("✕", key=f"del_{idx}", use_container_width=True):
                         st.session_state.cart.pop(idx)
                         st.rerun()
