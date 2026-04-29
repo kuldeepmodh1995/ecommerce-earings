@@ -62,10 +62,6 @@ st.markdown(
   header[data-testid="stHeader"] { display: none !important; }
   #stDecoration { display: none !important; }
 
-  /* ── Allow sticky positioning to work in Streamlit ── */
-  section[data-testid="stMain"] { overflow: visible !important; }
-  [data-testid="stMainBlockContainer"] { overflow: visible !important; }
-
   /* ── Collapse zero-height component iframe wrappers ── */
   [data-testid="stCustomComponentV1"] {
     min-height: 0 !important;
@@ -953,12 +949,14 @@ function reportHeight() {{
   }}
 }}
 reportHeight();
+setTimeout(reportHeight, 100);
+setTimeout(reportHeight, 400);
 window.addEventListener('resize', function() {{ setTimeout(reportHeight, 50); }});
 </script>
 </body>
 </html>
 """
-    components.html(html, height=270, scrolling=False)
+    components.html(html, height=520, scrolling=False)
 
 
 # ── Promo ticker ──────────────────────────────────────────────────────────────
@@ -1002,7 +1000,7 @@ def render_navbar():
         f"""
 <div class="navbar-wrap" id="main-navbar">
   <div class="navbar-left">
-    <button class="hamburger-btn" onclick="openNavMenu()" aria-label="Open menu">
+    <button class="hamburger-btn" onclick="if(typeof openNavMenu==='function')openNavMenu();" aria-label="Open menu">
       <span></span>
       <span></span>
       <span></span>
@@ -1016,13 +1014,13 @@ def render_navbar():
 </div>
 
 <!-- Backdrop -->
-<div class="nav-overlay-bg" id="navBg" onclick="closeNavMenu()"></div>
+<div class="nav-overlay-bg" id="navBg" onclick="if(typeof closeNavMenu==='function')closeNavMenu();"></div>
 
 <!-- Slide-in menu -->
 <div class="nav-overlay" id="navOverlay">
   <div class="nav-overlay-header">
     <span class="nav-overlay-brand">💎 Love Earrings</span>
-    <button class="nav-close-btn" onclick="closeNavMenu()">✕</button>
+    <button class="nav-close-btn" onclick="if(typeof closeNavMenu==='function')closeNavMenu();">✕</button>
   </div>
   <div class="nav-overlay-links">
     <a href="?nav_redirect=home">Home</a>
