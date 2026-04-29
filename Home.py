@@ -73,7 +73,6 @@ st.markdown(
     margin-bottom: 0 !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
-    line-height: 0 !important;
   }
 
   /* ── Hide sidebar completely ── */
@@ -288,25 +287,38 @@ st.markdown(
   /* ══════════════════════════════════════════════
      CART / DETAIL PAGE
      ══════════════════════════════════════════════ */
-  .cart-page div[data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
-  .cart-page div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-    min-width: 100% !important; flex: 0 0 100% !important; width: 100% !important;
+  .cart-page div[data-testid="stHorizontalBlock"],
+  .cart-page [data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
+  .cart-page div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
+  .cart-page [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+    min-width: 100% !important; flex: 0 0 100% !important;
+    width: 100% !important; max-width: 100% !important;
   }
-  .detail-page div[data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
-  .detail-page div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-    min-width: 100% !important; flex: 0 0 100% !important; width: 100% !important;
+  .detail-page div[data-testid="stHorizontalBlock"],
+  .detail-page [data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
+  .detail-page div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
+  .detail-page [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+    min-width: 100% !important; flex: 0 0 100% !important;
+    width: 100% !important; max-width: 100% !important;
   }
-  .value-props-row div[data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
-  .value-props-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-    min-width: 50% !important; flex: 0 0 50% !important; width: 50% !important;
+  .value-props-row div[data-testid="stHorizontalBlock"],
+  .value-props-row [data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
+  .value-props-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
+  .value-props-row [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+    min-width: 50% !important; flex: 0 0 50% !important;
+    width: 50% !important; max-width: 50% !important;
     margin-bottom: 8px !important;
   }
   .cta-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(1),
-  .cta-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(3) {
+  .cta-row [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(1),
+  .cta-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(3),
+  .cta-row [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(3) {
     display: none !important;
   }
-  .cta-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(2) {
-    min-width: 100% !important; flex: 0 0 100% !important; width: 100% !important;
+  .cta-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(2),
+  .cta-row [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(2) {
+    min-width: 100% !important; flex: 0 0 100% !important;
+    width: 100% !important; max-width: 100% !important;
   }
 
   /* Filter bar */
@@ -314,8 +326,10 @@ st.markdown(
     padding: 10px 8px; background: #F9F7F4;
     border-bottom: 1px solid #E8E4DE; margin-bottom: 14px;
   }
-  .filter-bar-wrap div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-    min-width: 33% !important; flex: 0 0 33% !important; width: 33% !important;
+  .filter-bar-wrap div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
+  .filter-bar-wrap [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+    min-width: 33% !important; flex: 0 0 33% !important;
+    width: 33% !important; max-width: 33% !important;
     padding-left: 3px !important; padding-right: 3px !important;
   }
   .filter-bar-wrap .stSelectbox label {
@@ -470,14 +484,19 @@ st.markdown(
   .wishlist-empty p { color: #999; font-size: 0.82em; }
 
   /* Wishlist product columns — same as content-pad grid */
-  .wishlist-products div[data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
-  .wishlist-products div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-    min-width: 50% !important; flex: 0 0 50% !important; width: 50% !important;
+  .wishlist-products div[data-testid="stHorizontalBlock"],
+  .wishlist-products [data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
+  .wishlist-products div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
+  .wishlist-products [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+    min-width: 50% !important; flex: 0 0 50% !important;
+    width: 50% !important; max-width: 50% !important;
     padding-left: 4px !important; padding-right: 4px !important;
+    box-sizing: border-box !important;
   }
   @media (min-width: 600px) {
-    .wishlist-products div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-      min-width: 25% !important; flex: 0 0 25% !important; width: 25% !important;
+    .wishlist-products div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
+    .wishlist-products [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+      min-width: 25% !important; flex: 0 0 25% !important; width: 25% !important; max-width: 25% !important;
     }
   }
   .wishlist-card-name { font-size: 0.76em; color: #1A1A1A; font-weight: 500; margin-bottom: 4px; }
@@ -536,24 +555,31 @@ st.markdown(
     .navbar-wrap { padding: 0 44px; height: 66px; }
     .navbar-brand { font-size: 1.6em; }
     .content-pad { padding: 0 44px; }
-    .content-pad div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-      min-width: unset !important; flex: 1 1 0 !important; width: auto !important;
+    .content-pad div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
+    .content-pad [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+      min-width: unset !important; max-width: unset !important; flex: 1 1 0 !important; width: auto !important;
     }
-    .value-props-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-      min-width: unset !important; flex: 1 1 0 !important; width: auto !important;
+    .value-props-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
+    .value-props-row [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+      min-width: unset !important; max-width: unset !important; flex: 1 1 0 !important; width: auto !important;
     }
-    .cart-page div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-      min-width: 0 !important; width: auto !important; flex: revert !important;
+    .cart-page div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
+    .cart-page [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+      min-width: 0 !important; max-width: unset !important; width: auto !important; flex: revert !important;
     }
-    .detail-page div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-      min-width: 0 !important; width: auto !important; flex: revert !important;
+    .detail-page div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
+    .detail-page [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+      min-width: 0 !important; max-width: unset !important; width: auto !important; flex: revert !important;
     }
     .cta-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(1),
-    .cta-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(3) {
+    .cta-row [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(1),
+    .cta-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(3),
+    .cta-row [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(3) {
       display: block !important; min-width: unset !important; flex: 1 1 0 !important;
     }
-    .cta-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(2) {
-      min-width: unset !important; flex: 1 1 0 !important; width: auto !important;
+    .cta-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(2),
+    .cta-row [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(2) {
+      min-width: unset !important; flex: 1 1 0 !important; width: auto !important; max-width: unset !important;
     }
     .product-name { font-size: 0.82em; }
     .section-title { font-size: 2.1em; }
