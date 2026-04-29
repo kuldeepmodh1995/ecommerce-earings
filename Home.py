@@ -1165,6 +1165,69 @@ def render_navbar():
     }, true); // capture phase so it fires before any other handlers
   }
 
+  /* ── Product grid: force 2-col on mobile, 4-col on tablet ──────────────────
+     Streamlit injects inline flex/width styles on stColumn elements via Python
+     (e.g. style="flex:1 1 0px"). CSS !important from a stylesheet cannot beat
+     inline !important, so we use JS setProperty(...,'important') which creates
+     an inline !important declaration — the highest possible cascade priority.
+     We re-run on every DOM mutation so it survives Streamlit re-renders.
+  ──────────────────────────────────────────────────────────────────────────── */
+  function applyProductGrid() {
+    var vw = p.window.innerWidth;
+    var colW;
+    if      (vw < 600)  { colW = '50%'; }   // mobile  → 2 cols
+    else if (vw < 960)  { colW = '25%'; }   // tablet  → 4 cols
+    else                { colW = null;  }   // desktop → let Streamlit decide
+
+    var blocks = p.document.querySelectorAll('[data-testid="stHorizontalBlock"]');
+    blocks.forEach(function(block) {
+      if (!block.querySelector('.product-card')) return;   // not a product grid
+
+      // Force wrap so columns flow onto multiple rows
+      block.style.setProperty('flex-wrap', 'wrap', 'important');
+      block.style.setProperty('display',   'flex', 'important');
+
+      var cols = block.querySelectorAll(':scope > [data-testid="stColumn"]');
+      cols.forEach(function(col) {
+        if (colW) {
+          col.style.setProperty('min-width',   colW,           'important');
+          col.style.setProperty('max-width',   colW,           'important');
+          col.style.setProperty('flex',        '0 0 ' + colW,  'important');
+          col.style.setProperty('width',       colW,           'important');
+          col.style.setProperty('box-sizing',  'border-box',   'important');
+          col.style.setProperty('padding-left',  '4px',        'important');
+          col.style.setProperty('padding-right', '4px',        'important');
+        } else {
+          // Desktop: clear any leftover overrides
+          ['min-width','max-width','flex','width','box-sizing',
+           'padding-left','padding-right'].forEach(function(pr) {
+            col.style.removeProperty(pr);
+          });
+        }
+      });
+    });
+  }
+
+  // Run now and after Streamlit finishes rendering
+  applyProductGrid();
+  setTimeout(applyProductGrid, 300);
+  setTimeout(applyProductGrid, 800);
+  setTimeout(applyProductGrid, 2000);
+
+  // Re-apply whenever the DOM changes (Streamlit re-renders on every rerun)
+  if (!p._gridObserver) {
+    p._gridObserver = new MutationObserver(function() {
+      applyProductGrid();
+    });
+    p._gridObserver.observe(p.document.body, { childList: true, subtree: true });
+  }
+
+  // Re-apply on window resize
+  if (!p._gridResizeInstalled) {
+    p._gridResizeInstalled = true;
+    p.window.addEventListener('resize', applyProductGrid, { passive: true });
+  }
+
 })();
 </script>
 """,
