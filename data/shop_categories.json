@@ -1,0 +1,56 @@
+[
+  {
+    "id": "sc1",
+    "name": "Studs",
+    "emoji": "💛",
+    "image": "",
+    "redirect_to": "category:Studs",
+    "sequence": 1,
+    "enabled": true
+  },
+  {
+    "id": "sc2",
+    "name": "Hoops",
+    "emoji": "⭕",
+    "image": "",
+    "redirect_to": "category:Hoops",
+    "sequence": 2,
+    "enabled": true
+  },
+  {
+    "id": "sc3",
+    "name": "Drops",
+    "emoji": "🌊",
+    "image": "",
+    "redirect_to": "category:Drops",
+    "sequence": 3,
+    "enabled": true
+  },
+  {
+    "id": "sc4",
+    "name": "Chandeliers",
+    "emoji": "✨",
+    "image": "",
+    "redirect_to": "category:Chandeliers",
+    "sequence": 4,
+    "enabled": true
+  },
+  {
+    "id": "sc5",
+    "name": "Dangles",
+    "emoji": "🌀",
+    "image": "",
+    "redirect_to": "category:Dangles",
+    "sequence": 5,
+    "enabled": true
+  },
+  {
+    "id": "sc6",
+    "name": "Gifting",
+    "emoji": "🎁",
+    "image": "",
+    "redirect_to": "shop",
+    "sequence": 6,
+    "enabled": true
+  }
+]

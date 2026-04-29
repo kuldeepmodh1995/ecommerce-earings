@@ -10,6 +10,7 @@ from utils.data_manager import (
     load_products,
     save_order,
     load_hero_banners,
+    load_shop_categories,
 )
 
 BASE_DIR = os.path.dirname(__file__)
@@ -355,7 +356,11 @@ st.markdown(
      CATEGORY TILES
      ══════════════════════════════════════════════ */
   .cat-tiles-section { padding: 20px 10px 12px; background: #fff; }
-  .cat-tiles-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .cat-tiles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+    gap: 8px; margin-top: 10px;
+  }
   .cat-tile {
     background: #F9F7F4; padding: 14px 4px 10px; text-align: center;
     cursor: pointer; transition: background 0.2s;
@@ -363,6 +368,10 @@ st.markdown(
   }
   .cat-tile:hover { background: #F0EDE8; }
   .cat-tile-emoji { font-size: 1.5em; display: block; margin-bottom: 5px; }
+  .cat-tile-img {
+    width: 44px; height: 44px; object-fit: cover; border-radius: 50%;
+    display: block; margin: 0 auto 5px;
+  }
   .cat-tile-label {
     font-family: 'Inter', sans-serif; font-size: 0.60em;
     font-weight: 600; color: #1A1A1A; display: block;
@@ -506,7 +515,6 @@ st.markdown(
     [data-testid="stHorizontalBlock"]:has(.product-card) > [data-testid="stColumn"] {
       min-width: 25% !important; flex: 0 0 25% !important; width: 25% !important; max-width: 25% !important;
     }
-    .cat-tiles-grid { grid-template-columns: repeat(6, 1fr); }
     .product-name { font-size: 0.74em; }
     .section-title { font-size: 1.75em; }
     .footer-links-grid { grid-template-columns: repeat(4, 1fr); }
@@ -1166,21 +1174,27 @@ def render_navbar():
 
 # ── Section renderers ─────────────────────────────────────────────────────────
 def render_category_tiles():
-    tiles = [
-        ("💛", "Studs", "category:Studs"),
-        ("⭕", "Hoops", "category:Hoops"),
-        ("🌊", "Drops", "category:Drops"),
-        ("✨", "Chandeliers", "category:Chandeliers"),
-        ("🌀", "Dangles", "category:Dangles"),
-        ("🎁", "Gifting", "shop"),
-    ]
-    tiles_html = "".join(
-        f'<a href="?nav_redirect={redirect}" class="cat-tile" target="_self">'
-        f'<span class="cat-tile-emoji">{emoji}</span>'
-        f'<span class="cat-tile-label">{label}</span>'
-        f'</a>'
-        for emoji, label, redirect in tiles
+    cats = load_shop_categories()
+    cats = sorted(
+        [c for c in cats if c.get("enabled", True)],
+        key=lambda x: x.get("sequence", 999),
     )
+
+    tiles_html = ""
+    for cat in cats:
+        if cat.get("image"):
+            icon = (
+                f'<img src="{cat["image"]}" class="cat-tile-img" alt="{cat["name"]}">'
+            )
+        else:
+            icon = f'<span class="cat-tile-emoji">{cat.get("emoji", "🏷️")}</span>'
+        tiles_html += (
+            f'<a href="?nav_redirect={cat["redirect_to"]}" class="cat-tile" target="_self">'
+            f'{icon}'
+            f'<span class="cat-tile-label">{cat["name"]}</span>'
+            f'</a>'
+        )
+
     st.markdown(
         f"""<div class="cat-tiles-section">
           <h2 class="section-title" style="margin-bottom:2px">Shop by Category</h2>
