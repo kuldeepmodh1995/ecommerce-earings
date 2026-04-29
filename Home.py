@@ -165,29 +165,14 @@ st.markdown(
   .nav-overlay-section a:last-child { border-bottom: none; }
   .nav-overlay-section a:hover { color: #C9A84C; }
 
-  /* Cart icon fixed top-right */
-  .navbar-cart-btn {
-    position: fixed; top: 9px; right: 14px; z-index: 1001;
+  /* Navbar icon links (cart / wishlist) */
+  .navbar-right { display: flex; align-items: center; gap: 10px; }
+  .navbar-icon-link {
+    text-decoration: none; color: #1A1A1A; font-size: 0.95em;
+    font-weight: 500; padding: 6px 4px; transition: color 0.2s;
+    white-space: nowrap; line-height: 1;
   }
-  .navbar-cart-btn .stButton > button {
-    background: none !important; border: none !important; box-shadow: none !important;
-    font-size: 1.1em !important; color: #1A1A1A !important;
-    padding: 6px 2px !important; min-height: 0 !important;
-    line-height: 1 !important; font-weight: 400 !important;
-  }
-  .navbar-cart-btn .stButton > button:hover { color: #C9A84C !important; background: none !important; }
-
-  /* Wishlist icon fixed top-right */
-  .navbar-wishlist-btn {
-    position: fixed; top: 9px; right: 54px; z-index: 1001;
-  }
-  .navbar-wishlist-btn .stButton > button {
-    background: none !important; border: none !important; box-shadow: none !important;
-    font-size: 1.1em !important; color: #1A1A1A !important;
-    padding: 6px 2px !important; min-height: 0 !important;
-    line-height: 1 !important; font-weight: 400 !important;
-  }
-  .navbar-wishlist-btn .stButton > button:hover { color: #C9A84C !important; background: none !important; }
+  .navbar-icon-link:hover { color: #C9A84C; }
 
   /* ══════════════════════════════════════════════
      FREE SHIPPING BAR
@@ -521,8 +506,6 @@ st.markdown(
     .trust-section { padding: 28px 14px 24px; }
     .cat-tiles-section { padding: 22px 14px 12px; }
     .filter-bar-wrap { padding: 10px 14px; }
-    .navbar-cart-btn { right: 24px; }
-    .navbar-wishlist-btn { right: 64px; }
     .wishlist-grid { grid-template-columns: repeat(3, 1fr); }
   }
 
@@ -570,8 +553,6 @@ st.markdown(
     .brand-story { padding: 56px 44px; }
     .brand-story h2 { font-size: 1.75em; }
     .footer-enhanced { padding: 48px 44px 20px; }
-    .navbar-cart-btn { right: 44px; top: 14px; }
-    .navbar-wishlist-btn { right: 88px; top: 14px; }
     .filter-bar-wrap { padding: 12px 44px; }
     .wishlist-page { padding: 24px 44px 48px; }
   }
@@ -628,6 +609,9 @@ if _nav_redirect:
         st.session_state.selected_product = None
     elif _nav_redirect == "wishlist":
         st.session_state.view = "wishlist"
+        st.session_state.selected_product = None
+    elif _nav_redirect == "cart":
+        st.session_state.view = "cart"
         st.session_state.selected_product = None
     elif _nav_redirect == "manage":
         st.switch_page("pages/1_Manage_Service.py")
@@ -1006,8 +990,8 @@ def render_free_shipping_bar():
 def render_navbar():
     cart_n = cart_count()
     wl_n = len(st.session_state.wishlist)
-    cart_icon = f"🛒 {cart_n}" if cart_n > 0 else "🛒"
-    wl_icon = f"♡ {wl_n}" if wl_n > 0 else "♡"
+    cart_label = f"🛒 {cart_n}" if cart_n > 0 else "🛒"
+    wl_label = f"♡ {wl_n}" if wl_n > 0 else "♡"
 
     st.markdown(
         f"""
@@ -1020,7 +1004,10 @@ def render_navbar():
     </button>
   </div>
   <a href="?nav_redirect=home" class="navbar-brand">💎 Love Earrings</a>
-  <div class="navbar-right" style="width:72px"></div>
+  <div class="navbar-right">
+    <a href="?nav_redirect=wishlist" class="navbar-icon-link">{wl_label}</a>
+    <a href="?nav_redirect=cart" class="navbar-icon-link">{cart_label}</a>
+  </div>
 </div>
 
 <!-- Backdrop -->
@@ -1033,53 +1020,52 @@ def render_navbar():
     <button class="nav-close-btn" onclick="closeNavMenu()">✕</button>
   </div>
   <div class="nav-overlay-links">
-    <a href="?nav_redirect=home" onclick="closeNavMenu()">Home</a>
-    <a href="?nav_redirect=shop" onclick="closeNavMenu()">Shop All</a>
-    <a href="?nav_redirect=wishlist" onclick="closeNavMenu()">Wishlist</a>
-    <a href="?nav_redirect=manage" onclick="closeNavMenu()">Manage</a>
+    <a href="?nav_redirect=home">Home</a>
+    <a href="?nav_redirect=shop">Shop All</a>
+    <a href="?nav_redirect=wishlist">Wishlist</a>
+    <a href="?nav_redirect=manage">Manage</a>
   </div>
   <div class="nav-overlay-section">
     <h4>Shop by Category</h4>
-    <a href="?nav_redirect=category:Studs" onclick="closeNavMenu()">Studs</a>
-    <a href="?nav_redirect=category:Hoops" onclick="closeNavMenu()">Hoops</a>
-    <a href="?nav_redirect=category:Drops" onclick="closeNavMenu()">Drops</a>
-    <a href="?nav_redirect=category:Chandeliers" onclick="closeNavMenu()">Chandeliers</a>
-    <a href="?nav_redirect=category:Dangles" onclick="closeNavMenu()">Dangles</a>
+    <a href="?nav_redirect=category:Studs">Studs</a>
+    <a href="?nav_redirect=category:Hoops">Hoops</a>
+    <a href="?nav_redirect=category:Drops">Drops</a>
+    <a href="?nav_redirect=category:Chandeliers">Chandeliers</a>
+    <a href="?nav_redirect=category:Dangles">Dangles</a>
   </div>
 </div>
-
-<script>
-function openNavMenu() {{
-  document.getElementById('navOverlay').classList.add('open');
-  document.getElementById('navBg').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}}
-function closeNavMenu() {{
-  document.getElementById('navOverlay').classList.remove('open');
-  document.getElementById('navBg').classList.remove('open');
-  document.body.style.overflow = '';
-}}
-document.addEventListener('keydown', function(e) {{
-  if (e.key === 'Escape') closeNavMenu();
-}});
-</script>
 """,
         unsafe_allow_html=True,
     )
 
-    # Cart button — fixed top-right
-    st.markdown('<div class="navbar-cart-btn">', unsafe_allow_html=True)
-    if st.button(cart_icon, key="nav_cart", use_container_width=False):
-        cart_popup()
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    # Wishlist button — fixed top-right (next to cart)
-    st.markdown('<div class="navbar-wishlist-btn">', unsafe_allow_html=True)
-    if st.button(wl_icon, key="nav_wishlist_btn", use_container_width=False):
-        st.session_state.view = "wishlist"
-        st.session_state.selected_product = None
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Inject hamburger JS via components.html (same-origin iframe can access parent DOM)
+    components.html(
+        """
+<script>
+(function() {
+  var p = window.parent;
+  p.openNavMenu = function() {
+    var overlay = p.document.getElementById('navOverlay');
+    var bg = p.document.getElementById('navBg');
+    if (overlay) overlay.classList.add('open');
+    if (bg) bg.classList.add('open');
+    p.document.body.style.overflow = 'hidden';
+  };
+  p.closeNavMenu = function() {
+    var overlay = p.document.getElementById('navOverlay');
+    var bg = p.document.getElementById('navBg');
+    if (overlay) overlay.classList.remove('open');
+    if (bg) bg.classList.remove('open');
+    p.document.body.style.overflow = '';
+  };
+  p.document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && p.closeNavMenu) p.closeNavMenu();
+  });
+})();
+</script>
+""",
+        height=0,
+    )
 
 
 # ── Section renderers ─────────────────────────────────────────────────────────
