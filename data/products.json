@@ -24,14 +24,14 @@
     "id": "002",
     "name": "Pearl Drop Earrings",
     "description": "Classic freshwater pearl drop earrings set in sterling silver. Timeless elegance that complements any outfit from casual to formal.",
-    "price": 34.99,
-    "original_price": 49.99,
+    "price": 50.0,
+    "original_price": 60.0,
     "category": "Drops",
     "colors": [
       "Silver",
       "White"
     ],
-    "image": "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop",
+    "image": "app/static/images/002.jpg",
     "stock": 30,
     "featured": true,
     "rating": 4.9,
@@ -121,7 +121,7 @@
       "Gold",
       "Silver"
     ],
-    "image": "https://images.unsplash.com/photo-1573408301185-9519f94815b1?w=400&h=400&fit=crop",
+    "image": "app/static/images/006.webp",
     "stock": 55,
     "featured": false,
     "rating": 4.4,
@@ -211,7 +211,7 @@
     "colors": [
       "Silver"
     ],
-    "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
+    "image": "app/static/images/010.webp",
     "stock": 60,
     "featured": false,
     "rating": 4.5,

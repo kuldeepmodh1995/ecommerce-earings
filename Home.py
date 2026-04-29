@@ -23,7 +23,6 @@ def resolve_image(img_path: str) -> str:
 
 
 def resolve_banner_image_url(img_path: str) -> str:
-    """Return a URL-safe path for use in HTML img src."""
     if img_path and img_path.startswith("app/static/"):
         return "/" + img_path
     return img_path
@@ -37,7 +36,7 @@ st.set_page_config(
     initial_sidebar_state="auto",
 )
 
-# ── Viewport meta (critical for mobile scaling) ───────────────────────────────
+# ── Viewport meta ─────────────────────────────────────────────────────────────
 st.markdown(
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
     unsafe_allow_html=True,
@@ -54,10 +53,8 @@ st.markdown(
 
   /* ── Full-bleed layout ── */
   .block-container {
-    padding-top: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    padding-bottom: 2rem !important;
+    padding-top: 0 !important; padding-left: 0 !important;
+    padding-right: 0 !important; padding-bottom: 2rem !important;
     max-width: 100% !important;
   }
   section[data-testid="stMain"] > div { padding-left: 0 !important; padding-right: 0 !important; }
@@ -74,34 +71,55 @@ st.markdown(
   [data-testid="stSidebar"] h2 { font-family: 'Playfair Display', serif; color: #c2185b; }
 
   /* ══════════════════════════════════════════════
+     PROMO TICKER BAR
+     ══════════════════════════════════════════════ */
+  .promo-ticker {
+    background: #1e0a3c; color: #f5c6d0;
+    padding: 7px 0; overflow: hidden; white-space: nowrap;
+    font-size: 0.74em; font-weight: 600; letter-spacing: 0.4px;
+  }
+  .promo-ticker-inner {
+    display: inline-block;
+    animation: ticker-scroll 28s linear infinite;
+  }
+  .promo-ticker-inner span { margin: 0 24px; opacity: 0.9; }
+  .promo-ticker-inner span::before { content: '✦'; margin-right: 10px; color: #e91e8c; }
+  @keyframes ticker-scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ══════════════════════════════════════════════
+     FREE SHIPPING BAR
+     ══════════════════════════════════════════════ */
+  .free-shipping-bar {
+    background: linear-gradient(90deg, #e91e8c 0%, #c2185b 100%);
+    color: #fff; text-align: center; padding: 7px 12px;
+    font-size: 0.76em; font-weight: 700; letter-spacing: 0.3px;
+  }
+
+  /* ══════════════════════════════════════════════
      BASE STYLES — mobile 360px
      ══════════════════════════════════════════════ */
 
   /* Navbar */
   .navbar-wrap {
     background: linear-gradient(135deg, #1e0a3c 0%, #0f0520 100%);
-    padding: 8px 10px;
-    display: flex; align-items: center;
+    padding: 8px 10px; display: flex; align-items: center;
   }
   .navbar-brand {
-    font-family: 'Playfair Display', serif;
-    color: #f5c6d0; font-size: 1.0em; font-weight: 700;
-    letter-spacing: 0.5px; white-space: nowrap;
+    font-family: 'Playfair Display', serif; color: #f5c6d0;
+    font-size: 1.0em; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap;
   }
 
   /* Nav button bar */
-  .nav-btn-bar {
-    padding: 2px 4px;
-    overflow-x: auto; -webkit-overflow-scrolling: touch;
-  }
+  .nav-btn-bar { padding: 2px 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .nav-btn-bar div[data-testid="stHorizontalBlock"] {
     flex-wrap: nowrap !important; gap: 1px !important; overflow-x: auto !important;
   }
   .nav-btn-bar .stButton > button {
-    font-size: 0.73em !important; padding: 5px 6px !important;
-    white-space: nowrap !important;
+    font-size: 0.73em !important; padding: 5px 6px !important; white-space: nowrap !important;
   }
-  /* Hide empty spacer columns (4th and 5th in the 6-column nav row) */
   .nav-btn-bar div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(4),
   .nav-btn-bar div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(5) {
     display: none !important;
@@ -143,16 +161,42 @@ st.markdown(
   .product-img-wrap { position: relative; overflow: hidden; }
   .product-img-wrap img { width: 100%; height: 155px; object-fit: cover; transition: transform .4s; }
   .product-card:hover .product-img-wrap img { transform: scale(1.06); }
+
+  /* Badges */
   .badge {
     position: absolute; top: 5px; left: 5px;
     background: #e91e8c; color: #fff;
     padding: 2px 7px; border-radius: 20px; font-size: .62em; font-weight: 700;
   }
+  .badge-new {
+    position: absolute; top: 5px; left: 5px;
+    background: #00897b; color: #fff;
+    padding: 2px 7px; border-radius: 20px; font-size: .62em; font-weight: 700;
+  }
   .badge-featured {
-    position: absolute; top: 5px; right: 5px;
+    position: absolute; top: 5px; right: 38px;
     background: #3d0c78; color: #f5c6d0;
     padding: 2px 7px; border-radius: 20px; font-size: .60em; font-weight: 600;
   }
+  .badge-stock {
+    position: absolute; bottom: 6px; left: 6px;
+    background: rgba(30,10,60,0.85); color: #ffcdd2;
+    padding: 2px 8px; border-radius: 4px; font-size: .58em; font-weight: 700; letter-spacing: 0.3px;
+  }
+
+  /* Wishlist heart button (pure HTML, decorative) */
+  .wishlist-heart {
+    position: absolute; top: 5px; right: 5px;
+    background: rgba(255,255,255,0.92); border: none;
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85em; box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    cursor: pointer; transition: transform 0.2s, background 0.2s;
+    text-decoration: none; line-height: 1;
+  }
+  .wishlist-heart:hover { transform: scale(1.15); }
+  .wishlist-heart.wishlisted { background: #fce4ec; }
+
   .product-info { padding: 8px 9px 12px; }
   .product-name {
     font-family: 'Playfair Display', serif; font-size: 0.84em; font-weight: 600;
@@ -164,13 +208,13 @@ st.markdown(
   .price-was { font-size: .78em; color: #aaa; text-decoration: line-through; }
   .discount { font-size: .70em; color: #e91e8c; font-weight: 600; }
 
-  /* Product grid: 2 columns on mobile (default) */
+  /* Product grid: 2 columns on mobile */
   .content-pad div[data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
   .content-pad div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
     min-width: 48% !important; flex: 0 0 48% !important; width: 48% !important;
   }
 
-  /* Cart & detail pages: single column on mobile */
+  /* Cart & detail: single column on mobile */
   .cart-page div[data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
   .cart-page div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
     min-width: 100% !important; flex: 0 0 100% !important; width: 100% !important;
@@ -187,7 +231,7 @@ st.markdown(
     width: 48% !important; margin-bottom: 8px !important;
   }
 
-  /* CTA (Shop All) button: hide spacer columns, center button */
+  /* CTA button */
   .cta-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(1),
   .cta-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(3) {
     display: none !important;
@@ -204,13 +248,137 @@ st.markdown(
   .section-sub { text-align: center; color: #888; margin-bottom: 16px; font-size: .82em; }
   .divider { border: none; border-top: 2px solid #f5c6d0; margin: 20px auto; width: 60px; }
 
-  /* Footer */
-  .footer {
-    background: #1e0a3c; color: #d4a5b5;
-    text-align: center; padding: 24px 12px; margin-top: 30px;
+  /* ══════════════════════════════════════════════
+     CATEGORY TILES SECTION
+     ══════════════════════════════════════════════ */
+  .cat-tiles-section { padding: 16px 0.4rem 8px; background: #fff; }
+  .cat-tiles-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; margin-top: 10px;
   }
-  .footer h3 { font-family: 'Playfair Display', serif; color: #f5c6d0; margin-bottom: 6px; font-size: 1.1em; }
-  .footer a { color: #f5c6d0; text-decoration: none; margin: 0 6px; font-size: .82em; }
+  .cat-tile {
+    background: #fdf6f9; border: 1px solid #f0e8ed; border-radius: 12px;
+    padding: 14px 6px 10px; text-align: center; cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    text-decoration: none; display: block;
+  }
+  .cat-tile:hover {
+    transform: translateY(-3px); box-shadow: 0 6px 20px rgba(233,30,140,0.12);
+    background: #fff0f6;
+  }
+  .cat-tile-emoji { font-size: 1.75em; display: block; margin-bottom: 5px; line-height: 1; }
+  .cat-tile-label {
+    font-family: 'Playfair Display', serif; font-size: 0.70em;
+    font-weight: 600; color: #1e0a3c; display: block;
+  }
+
+  /* ══════════════════════════════════════════════
+     TRUST / SHOP WITH CONFIDENCE SECTION
+     ══════════════════════════════════════════════ */
+  .trust-section {
+    background: #fdf6f9; padding: 24px 0.4rem 20px; margin: 20px 0 0;
+    border-top: 2px solid #f5c6d0; border-bottom: 2px solid #f5c6d0;
+  }
+  .trust-cards {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; margin-top: 12px;
+  }
+  .trust-card {
+    background: #fff; border-radius: 14px; padding: 14px 8px;
+    text-align: center; border: 1px solid #f0e8ed;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .trust-card-icon { font-size: 1.7em; margin-bottom: 7px; display: block; }
+  .trust-card-title {
+    font-family: 'Playfair Display', serif; font-size: 0.72em;
+    font-weight: 700; color: #1e0a3c; margin-bottom: 4px;
+    text-transform: uppercase; letter-spacing: 0.3px; display: block;
+  }
+  .trust-card-desc { font-size: 0.66em; color: #888; line-height: 1.4; }
+
+  /* ══════════════════════════════════════════════
+     BRAND STORY SECTION
+     ══════════════════════════════════════════════ */
+  .brand-story {
+    background: linear-gradient(135deg, #1e0a3c 0%, #3d0c78 100%);
+    color: #fff; padding: 30px 1rem; text-align: center; margin: 0;
+  }
+  .brand-story h2 {
+    font-family: 'Playfair Display', serif; font-size: 1.15em; font-weight: 700;
+    color: #f5c6d0; margin-bottom: 12px; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .brand-story p {
+    font-size: 0.82em; line-height: 1.75; color: rgba(255,255,255,0.80);
+    max-width: 500px; margin: 0 auto;
+  }
+  .brand-story-stats {
+    display: flex; justify-content: center; gap: 24px;
+    margin-top: 22px; flex-wrap: wrap;
+  }
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-family: 'Playfair Display', serif; font-size: 1.55em;
+    font-weight: 700; color: #f5c6d0; display: block;
+  }
+  .stat-label {
+    font-size: 0.62em; color: rgba(255,255,255,0.60);
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }
+
+  /* ══════════════════════════════════════════════
+     ENHANCED FOOTER
+     ══════════════════════════════════════════════ */
+  .footer-enhanced { background: #1e0a3c; padding: 28px 0.8rem 16px; margin-top: 0; }
+  .footer-brand { text-align: center; margin-bottom: 20px; }
+  .footer-brand h3 {
+    font-family: 'Playfair Display', serif; color: #f5c6d0; font-size: 1.2em; margin-bottom: 4px;
+  }
+  .footer-brand p { color: #9e7b8a; font-size: 0.76em; }
+  .footer-links-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px 12px; margin-bottom: 20px;
+  }
+  .footer-col h4 {
+    font-family: 'Playfair Display', serif; color: #f5c6d0;
+    font-size: 0.74em; font-weight: 700; margin-bottom: 8px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .footer-col a {
+    display: block; color: #9e7b8a; text-decoration: none;
+    font-size: 0.70em; margin-bottom: 5px; transition: color 0.2s;
+  }
+  .footer-col a:hover { color: #f5c6d0; }
+  .footer-social { text-align: center; margin-bottom: 18px; }
+  .footer-social h4 {
+    font-family: 'Playfair Display', serif; color: #f5c6d0;
+    font-size: 0.74em; font-weight: 700; margin-bottom: 10px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .social-icons { display: flex; justify-content: center; gap: 10px; }
+  .social-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(245,198,208,0.10); border: 1px solid rgba(245,198,208,0.18);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.05em; text-decoration: none; color: #f5c6d0;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .social-icon:hover { background: rgba(233,30,140,0.25); transform: translateY(-2px); }
+  .footer-payment {
+    text-align: center; margin-bottom: 14px; padding-top: 16px;
+    border-top: 1px solid rgba(245,198,208,0.12);
+  }
+  .footer-payment p { color: #9e7b8a; font-size: 0.68em; margin-bottom: 8px; letter-spacing: 0.3px; }
+  .payment-icons { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .payment-icon {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 5px; padding: 4px 10px; font-size: 0.65em;
+    color: #d4a5b5; font-weight: 600; letter-spacing: 0.3px;
+  }
+  .footer-bottom {
+    text-align: center; padding-top: 12px;
+    border-top: 1px solid rgba(245,198,208,0.08);
+    color: #6b4a58; font-size: 0.66em;
+  }
 
   /* Cart dialog */
   .cart-dialog-item {
@@ -227,6 +395,9 @@ st.markdown(
     .product-name { font-size: 0.87em; }
     .section-title { font-size: 1.32em; }
     .content-pad { padding: 0 0.5rem; }
+    .promo-ticker { font-size: 0.78em; }
+    .cat-tile-emoji { font-size: 1.9em; }
+    .cat-tile-label { font-size: 0.72em; }
   }
 
   /* ══════════════════════════════════════════════
@@ -236,7 +407,6 @@ st.markdown(
     .navbar-wrap { padding: 10px 18px; }
     .navbar-brand { font-size: 1.2em; letter-spacing: 0.8px; }
     .nav-btn-bar .stButton > button { font-size: 0.80em !important; padding: 6px 10px !important; }
-    /* Show hidden nav spacer columns on tablet+ */
     .nav-btn-bar div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(4),
     .nav-btn-bar div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(5) {
       display: block !important;
@@ -248,12 +418,24 @@ st.markdown(
     .section-title { font-size: 1.55em; }
     .section-sub { font-size: .9em; margin-bottom: 22px; }
     .content-pad { padding: 0 0.75rem; }
-    .footer { padding: 28px 16px; margin-top: 40px; }
-    .footer h3 { font-size: 1.25em; }
-    .footer a { margin: 0 9px; font-size: .88em; }
+    .footer-enhanced { padding: 32px 1.2rem 20px; }
+    .footer-links-grid { grid-template-columns: repeat(4, 1fr); }
     .divider { margin: 26px auto; width: 70px; }
     .badge { font-size: .68em; padding: 2px 8px; top: 7px; left: 7px; }
-    .badge-featured { font-size: .65em; padding: 2px 8px; top: 7px; right: 7px; }
+    .badge-new { font-size: .68em; padding: 2px 8px; top: 7px; left: 7px; }
+    .badge-featured { font-size: .65em; padding: 2px 8px; top: 7px; right: 40px; }
+    .cat-tiles-section { padding: 20px 0.75rem 10px; }
+    .cat-tile { padding: 18px 8px 14px; }
+    .cat-tile-emoji { font-size: 2.0em; }
+    .cat-tile-label { font-size: 0.76em; }
+    .trust-section { padding: 28px 0.75rem 24px; }
+    .trust-card { padding: 18px 10px; }
+    .trust-card-title { font-size: 0.78em; }
+    .trust-card-desc { font-size: 0.70em; }
+    .brand-story { padding: 36px 1.5rem; }
+    .brand-story h2 { font-size: 1.35em; }
+    .brand-story p { font-size: 0.88em; }
+    .stat-num { font-size: 1.8em; }
   }
 
   /* ══════════════════════════════════════════════
@@ -271,6 +453,13 @@ st.markdown(
     .section-title { font-size: 1.78em; }
     .section-sub { margin-bottom: 26px; }
     .content-pad { padding: 0 1rem; }
+    .cat-tiles-grid { grid-template-columns: repeat(6, 1fr); }
+    .cat-tiles-section { padding: 24px 1rem 12px; }
+    .trust-section { padding: 30px 1rem 26px; }
+    .trust-cards { gap: 14px; }
+    .brand-story { padding: 42px 2rem; }
+    .brand-story h2 { font-size: 1.55em; }
+    .brand-story p { font-size: 0.92em; }
   }
 
   /* ══════════════════════════════════════════════
@@ -282,27 +471,18 @@ st.markdown(
     .nav-btn-bar .stButton > button { font-size: 0.9em !important; padding: 8px 14px !important; }
     .cat-nav-container .stButton > button { font-size: 0.83em !important; padding: 8px 10px !important; }
 
-    /* Product grid: restore 3-column Streamlit natural widths */
     .content-pad div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
       min-width: unset !important; flex: 1 1 0 !important; width: auto !important;
     }
-
-    /* Value props: 4 columns on desktop */
     .value-props-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
       min-width: unset !important; flex: 1 1 0 !important; width: auto !important;
     }
-
-    /* Cart: restore Streamlit's [2,1] ratio — revert lets the inline flex value win */
     .cart-page div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
       min-width: 0 !important; width: auto !important; flex: revert !important;
     }
-
-    /* Detail: restore Streamlit's [1,1] side-by-side layout */
     .detail-page div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
       min-width: 0 !important; width: auto !important; flex: revert !important;
     }
-
-    /* CTA: restore centered [2,1,2] layout */
     .cta-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(1),
     .cta-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child(3) {
       display: block !important; min-width: unset !important; flex: 1 1 0 !important;
@@ -319,15 +499,28 @@ st.markdown(
     .discount { font-size: .8em; }
     .stars { font-size: .85em; }
     .badge { font-size: .75em; padding: 3px 10px; top: 10px; left: 10px; }
-    .badge-featured { font-size: .72em; padding: 3px 10px; top: 10px; right: 10px; }
+    .badge-new { font-size: .75em; padding: 3px 10px; top: 10px; left: 10px; }
+    .badge-featured { font-size: .72em; padding: 3px 10px; top: 10px; right: 42px; }
     .section-title { font-size: 2em; padding: 0 1rem; }
     .section-sub { font-size: .95em; margin-bottom: 30px; }
     .content-pad { padding: 0 1.5rem; }
-    .footer { padding: 32px 20px; margin-top: 50px; }
-    .footer h3 { font-size: 1.4em; }
-    .footer a { margin: 0 12px; font-size: .9em; }
+    .footer-enhanced { padding: 42px 2rem 20px; }
+    .footer-links-grid { grid-template-columns: repeat(4, 1fr); gap: 20px 28px; }
+    .footer-brand h3 { font-size: 1.5em; }
     .divider { margin: 30px auto; width: 80px; }
     .product-card { border-radius: 16px; }
+    .cat-tiles-section { padding: 30px 1.5rem 14px; }
+    .cat-tile { padding: 22px 10px 16px; }
+    .cat-tile-emoji { font-size: 2.3em; }
+    .cat-tile-label { font-size: 0.82em; }
+    .trust-section { padding: 38px 1.5rem 32px; }
+    .trust-card { padding: 24px 16px; }
+    .trust-card-title { font-size: 0.86em; }
+    .trust-card-desc { font-size: 0.76em; }
+    .brand-story { padding: 52px 3rem; }
+    .brand-story h2 { font-size: 1.85em; }
+    .brand-story p { font-size: 1.0em; }
+    .stat-num { font-size: 2.2em; }
   }
 </style>
 """,
@@ -337,6 +530,8 @@ st.markdown(
 # ── Session state ─────────────────────────────────────────────────────────────
 if "cart" not in st.session_state:
     st.session_state.cart = []
+if "wishlist" not in st.session_state:
+    st.session_state.wishlist = set()
 if "view" not in st.session_state:
     st.session_state.view = "home"
 if "selected_product" not in st.session_state:
@@ -352,7 +547,7 @@ if "filter_price" not in st.session_state:
 if "filter_sort" not in st.session_state:
     st.session_state.filter_sort = "Featured"
 
-# ── Query-param redirect handler (hero banners + nav categories) ───────────────
+# ── Query-param redirect handler ──────────────────────────────────────────────
 _nav_redirect = st.query_params.get("nav_redirect", "")
 if _nav_redirect:
     st.query_params.clear()
@@ -522,37 +717,28 @@ body {{ font-family: 'Lato', sans-serif; overflow: hidden; background: #1e0a3c; 
   position: relative; width: 100%; height: 260px;
   border-radius: 0; overflow: hidden; background: #1e0a3c;
 }}
-
 .slide {{
   position: absolute; inset: 0; opacity: 0;
   transition: opacity 0.7s ease-in-out; cursor: pointer;
 }}
 .slide.active {{ opacity: 1; }}
-
 .slide-bg {{ width: 100%; height: 100%; object-fit: cover; display: block; }}
-
-/* Mobile overlay: gradient from bottom, text centered at bottom */
 .slide-overlay {{
   position: absolute; inset: 0;
   background: linear-gradient(0deg, rgba(30,10,60,0.92) 0%, rgba(30,10,60,0.55) 55%, transparent 100%);
-  display: flex; align-items: flex-end;
-  padding: 0 16px 26px;
+  display: flex; align-items: flex-end; padding: 0 16px 26px;
 }}
-
 .slide-content {{ max-width: 100%; color: white; text-align: center; width: 100%; }}
-
 .slide-content h2 {{
   font-size: 0.72em; font-weight: 400; opacity: 0.85;
   margin-bottom: 4px; letter-spacing: 0.5px; text-transform: uppercase;
   font-family: 'Lato', sans-serif;
 }}
-
 .slide-content h1 {{
   font-size: 1.45em; font-weight: 700; line-height: 1.1;
   margin-bottom: 12px; color: #f5c6d0;
   font-family: Georgia, serif; letter-spacing: 0.5px;
 }}
-
 .shop-btn {{
   background: white; color: #1e0a3c; border: none;
   padding: 9px 24px; border-radius: 40px; font-size: 0.78em;
@@ -560,7 +746,6 @@ body {{ font-family: 'Lato', sans-serif; overflow: hidden; background: #1e0a3c; 
   transition: all 0.2s; font-family: 'Lato', sans-serif;
 }}
 .shop-btn:hover {{ background: #f5c6d0; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }}
-
 .nav-btn {{
   position: absolute; top: 50%; transform: translateY(-50%);
   background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);
@@ -573,13 +758,10 @@ body {{ font-family: 'Lato', sans-serif; overflow: hidden; background: #1e0a3c; 
 .nav-btn.prev {{ left: 8px; }}
 .nav-btn.next {{ right: 8px; }}
 
-/* ── min-width: 380px ── */
 @media (min-width: 380px) {{
   .carousel-container {{ height: 290px; }}
   .slide-content h1 {{ font-size: 1.6em; }}
 }}
-
-/* ── min-width: 480px ── */
 @media (min-width: 480px) {{
   .carousel-container {{ height: 330px; }}
   .slide-content h1 {{ font-size: 1.85em; }}
@@ -589,8 +771,6 @@ body {{ font-family: 'Lato', sans-serif; overflow: hidden; background: #1e0a3c; 
   .nav-btn.prev {{ left: 10px; }}
   .nav-btn.next {{ right: 10px; }}
 }}
-
-/* ── min-width: 768px — switch to left-side text overlay ── */
 @media (min-width: 768px) {{
   .carousel-container {{ height: 400px; }}
   .slide-overlay {{
@@ -605,8 +785,6 @@ body {{ font-family: 'Lato', sans-serif; overflow: hidden; background: #1e0a3c; 
   .nav-btn.prev {{ left: 14px; }}
   .nav-btn.next {{ right: 14px; }}
 }}
-
-/* ── min-width: 960px ── */
 @media (min-width: 960px) {{
   .carousel-container {{ height: 470px; }}
   .slide-overlay {{ padding: 0 64px; }}
@@ -620,30 +798,15 @@ body {{ font-family: 'Lato', sans-serif; overflow: hidden; background: #1e0a3c; 
 }}
 
 .dots {{
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 8px;
-  z-index: 10;
+  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 8px; z-index: 10;
 }}
-
 .dot {{
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.4);
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s;
-  padding: 0;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,0.4); border: none; cursor: pointer;
+  transition: all 0.3s; padding: 0;
 }}
-.dot.active {{
-  background: white;
-  width: 26px;
-  border-radius: 4px;
-}}
+.dot.active {{ background: white; width: 26px; border-radius: 4px; }}
 </style>
 </head>
 <body>
@@ -679,35 +842,17 @@ goTo(current);
 resetTimer();
 
 document.getElementById('prevBtn').addEventListener('click', (e) => {{
-  e.stopPropagation();
-  goTo(current - 1);
-  resetTimer();
+  e.stopPropagation(); goTo(current - 1); resetTimer();
 }});
-
 document.getElementById('nextBtn').addEventListener('click', (e) => {{
-  e.stopPropagation();
-  goTo(current + 1);
-  resetTimer();
+  e.stopPropagation(); goTo(current + 1); resetTimer();
 }});
-
 document.querySelectorAll('.dot').forEach((dot, i) => {{
-  dot.addEventListener('click', (e) => {{
-    e.stopPropagation();
-    goTo(i);
-    resetTimer();
-  }});
+  dot.addEventListener('click', (e) => {{ e.stopPropagation(); goTo(i); resetTimer(); }});
 }});
 
-function handleClick(e, idx) {{
-  e.stopPropagation();
-  navigateTo(redirects[idx]);
-}}
-
-function dotClick(e, idx) {{
-  e.stopPropagation();
-  goTo(idx);
-  resetTimer();
-}}
+function handleClick(e, idx) {{ e.stopPropagation(); navigateTo(redirects[idx]); }}
+function dotClick(e, idx) {{ e.stopPropagation(); goTo(idx); resetTimer(); }}
 
 document.querySelectorAll('.slide').forEach((slide, i) => {{
   slide.addEventListener('click', () => navigateTo(redirects[i]));
@@ -722,7 +867,6 @@ function navigateTo(redirect) {{
   }}
 }}
 
-// Report actual carousel height to parent so iframe fits with no gap
 function reportHeight() {{
   const h = document.getElementById('carousel').offsetHeight;
   window.parent.postMessage({{type: 'streamlit:setFrameHeight', height: h + 10}}, '*');
@@ -770,45 +914,184 @@ def render_category_nav():
     st.markdown('</div>', unsafe_allow_html=True)
 
 
-# ── Top Navigation Bar ────────────────────────────────────────────────────────
-st.markdown(
-    '<div class="navbar-wrap"><span class="navbar-brand">💎 Love Earrings</span></div>',
-    unsafe_allow_html=True,
-)
+# ── New section renderers ─────────────────────────────────────────────────────
 
-st.markdown('<div class="nav-btn-bar" style="padding: 4px 1rem 0;">', unsafe_allow_html=True)
-nb1, nb2, nb3, nb4, nb_space, nb_cart = st.columns([1.2, 1, 1, 1.2, 4, 1.8])
-
-with nb1:
-    if st.button("🏠 Home", use_container_width=True, key="nav_home"):
-        st.session_state.view = "home"
-        st.session_state.selected_product = None
-        st.session_state.filter_cat = "All"
-        st.rerun()
-with nb2:
-    if st.button("🛍️ Shop", use_container_width=True, key="nav_shop"):
-        st.session_state.view = "shop"
-        st.session_state.selected_product = None
-        st.session_state.filter_cat = "All"
-        st.rerun()
-with nb3:
-    if st.button("⚙️ Manage", use_container_width=True, key="nav_manage"):
-        st.switch_page("pages/1_Manage_Service.py")
-with nb_cart:
-    cart_n = cart_count()
-    cart_label = f"🛒 Cart  {'·  ' + str(cart_n) if cart_n > 0 else ''}"
-    if st.button(cart_label, use_container_width=True, key="nav_cart",
-                 type="primary" if cart_n > 0 else "secondary"):
-        cart_popup()
-st.markdown('</div>', unsafe_allow_html=True)
-
-# ── Category nav bar (dynamic, always visible) ────────────────────────────────
-render_category_nav()
-
-st.markdown("<div style='margin-bottom:8px'></div>", unsafe_allow_html=True)
+def render_promo_ticker():
+    promos = [
+        "FREE SHIPPING on all orders over $35",
+        "BUY 2 GET 10% OFF — Use code LOVE10",
+        "NEW ARRIVALS — Hoops, Drops & Chandeliers",
+        "HYPOALLERGENIC &amp; SKIN-SAFE jewellery",
+        "FREE GIFT WRAPPING on every order",
+        "30-DAY HASSLE-FREE RETURNS",
+        "4.8★ RATED by 10,000+ happy customers",
+    ]
+    items_html = "".join(f"<span>{p}</span>" for p in promos)
+    # Duplicate for seamless loop
+    ticker_content = items_html + items_html
+    st.markdown(
+        f'<div class="promo-ticker"><div class="promo-ticker-inner">{ticker_content}</div></div>',
+        unsafe_allow_html=True,
+    )
 
 
-# ── Sidebar — filters ONLY ────────────────────────────────────────────────────
+def render_free_shipping_bar():
+    st.markdown(
+        '<div class="free-shipping-bar">'
+        '⚡ FREE SHIPPING on all orders over $35 &nbsp;·&nbsp; '
+        '🎁 Free gift wrapping on every order &nbsp;·&nbsp; '
+        '↩️ 30-Day easy returns'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+
+def render_category_tiles():
+    tiles = [
+        ("💛", "Studs", "category:Studs"),
+        ("⭕", "Hoops", "category:Hoops"),
+        ("🌊", "Drops", "category:Drops"),
+        ("✨", "Chandeliers", "category:Chandeliers"),
+        ("🌀", "Dangles", "category:Dangles"),
+        ("🎁", "Gifting", "shop"),
+    ]
+    tiles_html = "".join(
+        f'<a href="?nav_redirect={redirect}" class="cat-tile">'
+        f'<span class="cat-tile-emoji">{emoji}</span>'
+        f'<span class="cat-tile-label">{label}</span>'
+        f'</a>'
+        for emoji, label, redirect in tiles
+    )
+    st.markdown(
+        f"""<div class="cat-tiles-section">
+          <h2 class="section-title" style="margin-bottom:2px">Shop by Category</h2>
+          <p class="section-sub">Find your perfect style</p>
+          <div class="cat-tiles-grid">{tiles_html}</div>
+        </div>""",
+        unsafe_allow_html=True,
+    )
+
+
+def render_trust_section():
+    st.markdown(
+        """<div class="trust-section">
+          <h2 class="section-title" style="margin-bottom:2px">Shop With Confidence</h2>
+          <p class="section-sub">Quality and care in every piece</p>
+          <div class="trust-cards">
+            <div class="trust-card">
+              <span class="trust-card-icon">🌿</span>
+              <span class="trust-card-title">Skin Safe</span>
+              <span class="trust-card-desc">Hypoallergenic materials, safe for sensitive skin and daily wear</span>
+            </div>
+            <div class="trust-card">
+              <span class="trust-card-icon">💎</span>
+              <span class="trust-card-title">Premium Quality</span>
+              <span class="trust-card-desc">Sterling silver, gold-plated finishes &amp; genuine gemstones</span>
+            </div>
+            <div class="trust-card">
+              <span class="trust-card-icon">✅</span>
+              <span class="trust-card-title">Authenticity</span>
+              <span class="trust-card-desc">Every piece quality-checked and verified before it ships to you</span>
+            </div>
+          </div>
+        </div>""",
+        unsafe_allow_html=True,
+    )
+
+
+def render_brand_story():
+    st.markdown(
+        """<div class="brand-story">
+          <h2>Because You Deserve to Shine</h2>
+          <p>Our earrings are crafted for everyday moments — not just special occasions.
+          Each piece is designed to be worn daily, loved forever, and passed on with pride.
+          From minimalist studs to statement chandeliers, find the pair that tells your story.</p>
+          <div class="brand-story-stats">
+            <div class="stat-item">
+              <span class="stat-num">10K+</span>
+              <span class="stat-label">Happy Customers</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-num">200+</span>
+              <span class="stat-label">Unique Styles</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-num">4.8★</span>
+              <span class="stat-label">Avg. Rating</span>
+            </div>
+          </div>
+        </div>""",
+        unsafe_allow_html=True,
+    )
+
+
+def render_footer():
+    st.markdown(
+        """<div class="footer-enhanced">
+          <div class="footer-brand">
+            <h3>💎 Love Earrings</h3>
+            <p>Crafted with love, worn with pride.</p>
+          </div>
+          <div class="footer-links-grid">
+            <div class="footer-col">
+              <h4>Shop</h4>
+              <a href="?nav_redirect=shop">All Earrings</a>
+              <a href="?nav_redirect=category:Studs">Studs</a>
+              <a href="?nav_redirect=category:Hoops">Hoops</a>
+              <a href="?nav_redirect=category:Drops">Drops</a>
+              <a href="?nav_redirect=category:Chandeliers">Chandeliers</a>
+            </div>
+            <div class="footer-col">
+              <h4>Help</h4>
+              <a href="#">FAQ</a>
+              <a href="#">Contact Us</a>
+              <a href="#">Track Order</a>
+              <a href="#">Returns Portal</a>
+            </div>
+            <div class="footer-col">
+              <h4>Policies</h4>
+              <a href="#">Shipping &amp; Delivery</a>
+              <a href="#">Return &amp; Exchange</a>
+              <a href="#">Privacy Policy</a>
+              <a href="#">Terms of Service</a>
+            </div>
+            <div class="footer-col">
+              <h4>About</h4>
+              <a href="#">Our Story</a>
+              <a href="#">Sustainability</a>
+              <a href="#">Gifting</a>
+              <a href="#">Press</a>
+            </div>
+          </div>
+          <div class="footer-social">
+            <h4>Follow Us</h4>
+            <div class="social-icons">
+              <a href="#" class="social-icon" title="Instagram">📸</a>
+              <a href="#" class="social-icon" title="Facebook">👍</a>
+              <a href="#" class="social-icon" title="TikTok">🎵</a>
+              <a href="#" class="social-icon" title="YouTube">▶️</a>
+              <a href="#" class="social-icon" title="Pinterest">📌</a>
+            </div>
+          </div>
+          <div class="footer-payment">
+            <p>SECURE PAYMENT METHODS</p>
+            <div class="payment-icons">
+              <span class="payment-icon">VISA</span>
+              <span class="payment-icon">Mastercard</span>
+              <span class="payment-icon">PayPal</span>
+              <span class="payment-icon">Google Pay</span>
+              <span class="payment-icon">Apple Pay</span>
+            </div>
+          </div>
+          <div class="footer-bottom">
+            © 2026 Love Earrings. All rights reserved.
+          </div>
+        </div>""",
+        unsafe_allow_html=True,
+    )
+
+
+# ── Sidebar — filters ─────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("## 🔍 Filter Products")
     st.markdown("---")
@@ -822,11 +1105,9 @@ with st.sidebar:
         prices = [p["price"] for p in _all]
         price_min, price_max = float(min(prices)), float(max(prices))
 
-        # Initialise price range once products are known
         if st.session_state.filter_price is None:
             st.session_state.filter_price = (price_min, price_max)
 
-        # Clamp stored price to current product range
         stored_price = (
             max(price_min, st.session_state.filter_price[0]),
             min(price_max, st.session_state.filter_price[1]),
@@ -843,15 +1124,11 @@ with st.sidebar:
         selected_cat = st.selectbox("Category", categories, index=cat_idx)
         selected_color = st.selectbox("Color", color_options, index=color_idx)
         price_range = st.slider(
-            "Price Range ($)",
-            min_value=price_min,
-            max_value=price_max,
-            value=stored_price,
-            step=1.0,
+            "Price Range ($)", min_value=price_min, max_value=price_max,
+            value=stored_price, step=1.0,
         )
         sort_by = st.selectbox("Sort By", sort_options, index=sort_idx)
 
-        # Detect any filter change vs. last run
         filters_changed = (
             selected_cat != st.session_state.filter_cat
             or selected_color != st.session_state.filter_color
@@ -859,13 +1136,11 @@ with st.sidebar:
             or sort_by != st.session_state.filter_sort
         )
 
-        # Persist filter selections
         st.session_state.filter_cat = selected_cat
         st.session_state.filter_color = selected_color
         st.session_state.filter_price = price_range
         st.session_state.filter_sort = sort_by
 
-        # Active-filter badge + clear button
         active_count = sum([
             selected_cat != "All",
             selected_color != "All",
@@ -887,7 +1162,6 @@ with st.sidebar:
                 st.toast("Filters cleared!")
                 st.rerun()
 
-        # Auto-navigate to shop when a filter changes
         if filters_changed and st.session_state.view != "shop":
             st.session_state.view = "shop"
             st.session_state.selected_product = None
@@ -926,14 +1200,35 @@ def render_product_card(p, col):
         if p.get("original_price", 0) > p["price"]:
             discount = int((1 - p["price"] / p["original_price"]) * 100)
         stars = "★" * int(p.get("rating", 0)) + "☆" * (5 - int(p.get("rating", 0)))
-        badge_html = f'<span class="badge">-{discount}%</span>' if discount else ""
+
+        # Discount badge (left-top) — green "NEW" for featured, pink for discount
+        if p.get("featured") and discount == 0:
+            left_badge = '<span class="badge-new">NEW</span>'
+        elif discount:
+            left_badge = f'<span class="badge">-{discount}%</span>'
+        else:
+            left_badge = ""
+
+        # Featured badge (shifted left of wishlist heart)
         featured_html = (
             '<span class="badge-featured">✦ Featured</span>' if p.get("featured") else ""
         )
+
+        # Stock warning badge (bottom-left of image)
+        stock = p.get("stock", 0)
+        stock_badge = (
+            f'<span class="badge-stock">🔥 Only {stock} left!</span>'
+            if 0 < stock < 10 else ""
+        )
+
+        # Wishlist heart (static HTML indicator — toggled by Streamlit button below)
+        wishlisted = p["id"] in st.session_state.wishlist
+        heart = "❤️" if wishlisted else "🤍"
+        heart_class = "wishlist-heart wishlisted" if wishlisted else "wishlist-heart"
+
         orig_html = (
             f'<span class="price-was">${p["original_price"]:.2f}</span>'
-            if p.get("original_price")
-            else ""
+            if p.get("original_price") else ""
         )
         disc_html = f'<span class="discount">{discount}% OFF</span>' if discount else ""
 
@@ -942,7 +1237,9 @@ def render_product_card(p, col):
 <div class="product-card">
   <div class="product-img-wrap">
     <img src="{p['image']}" alt="{p['name']}">
-    {badge_html}{featured_html}
+    {left_badge}{featured_html}
+    <span class="{heart_class}">{heart}</span>
+    {stock_badge}
   </div>
   <div class="product-info">
     <div class="product-name">{p['name']}</div>
@@ -956,16 +1253,67 @@ def render_product_card(p, col):
             unsafe_allow_html=True,
         )
 
-        c1, c2 = st.columns(2)
+        c1, c2, c3 = st.columns([2, 2, 1])
         with c1:
-            if st.button("🛒 Add to Cart", key=f"cart_{p['id']}", use_container_width=True):
+            if st.button("🛒 Add", key=f"cart_{p['id']}", use_container_width=True):
                 add_to_cart(p)
                 st.toast(f"✅ {p['name']} added to cart!")
         with c2:
-            if st.button("👁️ View Details", key=f"view_{p['id']}", use_container_width=True):
+            if st.button("👁️ Details", key=f"view_{p['id']}", use_container_width=True):
                 st.session_state.selected_product = p
                 st.session_state.view = "detail"
                 st.rerun()
+        with c3:
+            wl_label = "❤️" if wishlisted else "🤍"
+            if st.button(wl_label, key=f"wl_{p['id']}", use_container_width=True):
+                if wishlisted:
+                    st.session_state.wishlist.discard(p["id"])
+                    st.toast(f"Removed from wishlist")
+                else:
+                    st.session_state.wishlist.add(p["id"])
+                    st.toast(f"💗 Added to wishlist!")
+                st.rerun()
+
+
+# ── Top section: promo ticker + navbar + free shipping bar ────────────────────
+render_promo_ticker()
+
+st.markdown(
+    '<div class="navbar-wrap"><span class="navbar-brand">💎 Love Earrings</span></div>',
+    unsafe_allow_html=True,
+)
+
+st.markdown('<div class="nav-btn-bar" style="padding: 4px 1rem 0;">', unsafe_allow_html=True)
+nb1, nb2, nb3, nb4, nb_space, nb_cart = st.columns([1.2, 1, 1, 1.2, 4, 1.8])
+
+with nb1:
+    if st.button("🏠 Home", use_container_width=True, key="nav_home"):
+        st.session_state.view = "home"
+        st.session_state.selected_product = None
+        st.session_state.filter_cat = "All"
+        st.rerun()
+with nb2:
+    if st.button("🛍️ Shop", use_container_width=True, key="nav_shop"):
+        st.session_state.view = "shop"
+        st.session_state.selected_product = None
+        st.session_state.filter_cat = "All"
+        st.rerun()
+with nb3:
+    if st.button("⚙️ Manage", use_container_width=True, key="nav_manage"):
+        st.switch_page("pages/1_Manage_Service.py")
+with nb_cart:
+    cart_n = cart_count()
+    cart_label = f"🛒 Cart  {'·  ' + str(cart_n) if cart_n > 0 else ''}"
+    if st.button(cart_label, use_container_width=True, key="nav_cart",
+                 type="primary" if cart_n > 0 else "secondary"):
+        cart_popup()
+st.markdown('</div>', unsafe_allow_html=True)
+
+render_free_shipping_bar()
+
+# ── Category nav bar ──────────────────────────────────────────────────────────
+render_category_nav()
+st.markdown("<div style='margin-bottom:6px'></div>", unsafe_allow_html=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -973,9 +1321,12 @@ def render_product_card(p, col):
 # ─────────────────────────────────────────────────────────────────────────────
 if st.session_state.view == "home":
 
-    # Hero carousel
     render_hero_carousel()
-    st.markdown("<div style='margin-bottom:28px'></div>", unsafe_allow_html=True)
+
+    # Category tiles
+    render_category_tiles()
+
+    st.markdown("<div style='margin-bottom:16px'></div>", unsafe_allow_html=True)
     st.markdown('<div class="content-pad">', unsafe_allow_html=True)
 
     all_products = load_products()
@@ -1003,9 +1354,14 @@ if st.session_state.view == "home":
         for i, p in enumerate(non_featured):
             render_product_card(p, cols2[i % 3])
 
-    st.markdown("<hr class='divider'>", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)  # close content-pad
+
+    # Trust section
+    render_trust_section()
 
     # Value props
+    st.markdown("<div style='margin-top:24px'></div>", unsafe_allow_html=True)
+    st.markdown('<div class="content-pad">', unsafe_allow_html=True)
     st.markdown('<h2 class="section-title">Why Love Earrings?</h2>', unsafe_allow_html=True)
     st.markdown('<div class="value-props-row">', unsafe_allow_html=True)
     v1, v2, v3, v4 = st.columns(4)
@@ -1024,7 +1380,6 @@ if st.session_state.view == "home":
             </div>""",
                 unsafe_allow_html=True,
             )
-
     st.markdown('</div>', unsafe_allow_html=True)  # close value-props-row
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown('<div class="cta-row">', unsafe_allow_html=True)
@@ -1034,24 +1389,13 @@ if st.session_state.view == "home":
             st.session_state.view = "shop"
             st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
-
     st.markdown('</div>', unsafe_allow_html=True)  # close content-pad
 
-    st.markdown(
-        """
-<div class="footer">
-  <h3>💎 Love Earrings</h3>
-  <p>Crafted with love, worn with pride.</p>
-  <p style="margin-top:14px">
-    <a href="#">Privacy Policy</a>
-    <a href="#">Terms of Service</a>
-    <a href="#">Contact Us</a>
-    <a href="#">FAQ</a>
-  </p>
-  <p style="margin-top:18px;font-size:.82em;color:#8a6070">© 2026 Love Earrings. All rights reserved.</p>
-</div>""",
-        unsafe_allow_html=True,
-    )
+    # Brand story
+    render_brand_story()
+
+    # Footer
+    render_footer()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1087,7 +1431,10 @@ elif st.session_state.view == "shop":
         cols = st.columns(3)
         for i, p in enumerate(products):
             render_product_card(p, cols[i % 3])
-    st.markdown('</div>', unsafe_allow_html=True)  # close content-pad
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    render_trust_section()
+    render_footer()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1117,6 +1464,16 @@ elif st.session_state.view == "detail":
             discount = int((1 - p["price"] / p["original_price"]) * 100)
         stars = "★" * int(p.get("rating", 0)) + "☆" * (5 - int(p.get("rating", 0)))
 
+        stock = p.get("stock", 0)
+        stock_warning = (
+            f'<div style="background:#fff3e0;border:1px solid #ffb74d;border-radius:8px;'
+            f'padding:6px 12px;margin-bottom:14px;font-size:.82em;color:#e65100;">'
+            f'🔥 Only {stock} pieces left — order soon!</div>'
+            if 0 < stock < 10 else ""
+        )
+
+        wishlisted = p["id"] in st.session_state.wishlist
+
         st.markdown(
             f"""
 <h1 style="font-family:'Playfair Display',serif;color:#1e0a3c;font-size:2em">{p['name']}</h1>
@@ -1128,14 +1485,14 @@ elif st.session_state.view == "detail":
   {'<span style="text-decoration:line-through;color:#aaa;font-size:1.2em">$' + f"{p['original_price']:.2f}" + '</span>' if p.get('original_price') else ''}
   {'<span style="background:#e91e8c;color:#fff;padding:3px 12px;border-radius:20px;font-size:.85em;font-weight:700">' + str(discount) + '% OFF</span>' if discount else ''}
 </div><br>
+{stock_warning}
 <p style="color:#555;line-height:1.7">{p.get('description','')}</p><br>
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
   {''.join(f'<span style="background:#f9f0f4;color:#c2185b;border:1px solid #f5c6d0;border-radius:20px;padding:4px 14px;font-size:.82em;font-weight:600">{c}</span>' for c in p.get('colors',[]))}
 </div>
 <div style="background:#f9f0f4;border-radius:10px;padding:10px 16px;margin-bottom:18px;font-size:.9em;color:#555">
   📦 Category: <strong>{p.get('category','')}</strong> &nbsp;|&nbsp;
-  🏷️ Stock: <strong>{'In Stock' if p.get('stock',0) > 0 else 'Out of Stock'}</strong>
-  {(' &nbsp;|&nbsp; 🔥 Only ' + str(p['stock']) + ' left!') if 0 < p.get('stock',0) < 10 else ''}
+  🏷️ Stock: <strong>{'In Stock' if stock > 0 else 'Out of Stock'}</strong>
 </div>
 """,
             unsafe_allow_html=True,
@@ -1145,7 +1502,7 @@ elif st.session_state.view == "detail":
             "Quantity", min_value=1, max_value=min(p.get("stock", 1), 10), value=1
         )
 
-        a1, a2 = st.columns(2)
+        a1, a2, a3 = st.columns([2, 2, 1])
         with a1:
             if st.button("🛒 Add to Cart", use_container_width=True, type="primary"):
                 add_to_cart(p, qty)
@@ -1154,6 +1511,16 @@ elif st.session_state.view == "detail":
             if st.button("💗 Buy Now", use_container_width=True):
                 add_to_cart(p, qty)
                 st.session_state.view = "cart"
+                st.rerun()
+        with a3:
+            wl_icon = "❤️" if wishlisted else "🤍"
+            if st.button(wl_icon, key=f"wl_detail_{p['id']}", use_container_width=True):
+                if wishlisted:
+                    st.session_state.wishlist.discard(p["id"])
+                    st.toast("Removed from wishlist")
+                else:
+                    st.session_state.wishlist.add(p["id"])
+                    st.toast("💗 Added to wishlist!")
                 st.rerun()
 
     st.markdown("---")
@@ -1167,7 +1534,9 @@ elif st.session_state.view == "detail":
         cols = st.columns(3)
         for i, rp in enumerate(related):
             render_product_card(rp, cols[i])
-    st.markdown('</div>', unsafe_allow_html=True)  # close content-pad
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    render_footer()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1263,4 +1632,6 @@ elif st.session_state.view == "cart":
                     })
                     st.session_state.checkout_done = True
                     st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)  # close content-pad
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    render_footer()

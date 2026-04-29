@@ -4,8 +4,8 @@
     "title": "Discover Handcrafted Earrings",
     "subtitle": "Made for every moment of your life",
     "button_text": "Shop Now",
-    "image": "https://images.unsplash.com/photo-1630018548696-e6f716289c97?w=1400&h=600&fit=crop",
-    "redirect_to": "shop",
+    "image": "app/static/images/banner_hb1.png",
+    "redirect_to": "https://github.com/kuldeepmodh1995/ecommerce-earings/pull/3",
     "sequence": 1,
     "enabled": true
   },
