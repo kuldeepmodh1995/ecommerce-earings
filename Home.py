@@ -204,10 +204,9 @@ st.markdown(
   /* ══════════════════════════════════════════════
      PRODUCT GRID — 2 cols mobile, 4 cols tablet+
      ══════════════════════════════════════════════ */
-  .content-pad div[data-testid="stHorizontalBlock"],
-  .content-pad [data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
-  .content-pad div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
-  .content-pad [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+  /* Product grid: 2 cols mobile — :has() scopes to cards only */
+  [data-testid="stHorizontalBlock"]:has(.product-card) { flex-wrap: wrap !important; }
+  [data-testid="stHorizontalBlock"]:has(.product-card) > [data-testid="stColumn"] {
     min-width: 50% !important; flex: 0 0 50% !important;
     width: 50% !important; max-width: 50% !important;
     padding-left: 4px !important; padding-right: 4px !important;
@@ -479,22 +478,7 @@ st.markdown(
   }
   .wishlist-empty p { color: #999; font-size: 0.82em; }
 
-  /* Wishlist product columns — same as content-pad grid */
-  .wishlist-products div[data-testid="stHorizontalBlock"],
-  .wishlist-products [data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
-  .wishlist-products div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
-  .wishlist-products [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
-    min-width: 50% !important; flex: 0 0 50% !important;
-    width: 50% !important; max-width: 50% !important;
-    padding-left: 4px !important; padding-right: 4px !important;
-    box-sizing: border-box !important;
-  }
-  @media (min-width: 600px) {
-    .wishlist-products div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
-    .wishlist-products [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
-      min-width: 25% !important; flex: 0 0 25% !important; width: 25% !important; max-width: 25% !important;
-    }
-  }
+  /* Wishlist: covered by the :has(.product-card) rules above */
   .wishlist-card-name { font-size: 0.76em; color: #1A1A1A; font-weight: 500; margin-bottom: 4px; }
   .wishlist-card-price { font-size: 0.76em; color: #C9A84C; font-weight: 700; }
 
@@ -519,8 +503,7 @@ st.markdown(
     .navbar-wrap { padding: 0 24px; height: 60px; }
     .navbar-brand { font-size: 1.4em; }
     .content-pad { padding: 0 14px; }
-    .content-pad div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
-    .content-pad [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+    [data-testid="stHorizontalBlock"]:has(.product-card) > [data-testid="stColumn"] {
       min-width: 25% !important; flex: 0 0 25% !important; width: 25% !important; max-width: 25% !important;
     }
     .cat-tiles-grid { grid-template-columns: repeat(6, 1fr); }
@@ -551,8 +534,7 @@ st.markdown(
     .navbar-wrap { padding: 0 44px; height: 66px; }
     .navbar-brand { font-size: 1.6em; }
     .content-pad { padding: 0 44px; }
-    .content-pad div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
-    .content-pad [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+    [data-testid="stHorizontalBlock"]:has(.product-card) > [data-testid="stColumn"] {
       min-width: unset !important; max-width: unset !important; flex: 1 1 0 !important; width: auto !important;
     }
     .value-props-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
@@ -1006,10 +988,10 @@ def render_navbar():
       <span></span>
     </button>
   </div>
-  <a href="?nav_redirect=home" class="navbar-brand">💎 Love Earrings</a>
+  <a href="?nav_redirect=home" class="navbar-brand" target="_self">💎 Love Earrings</a>
   <div class="navbar-right">
-    <a href="?nav_redirect=wishlist" class="navbar-icon-link">{wl_label}</a>
-    <a href="?nav_redirect=cart" class="navbar-icon-link">{cart_label}</a>
+    <a href="?nav_redirect=wishlist" class="navbar-icon-link" target="_self">{wl_label}</a>
+    <a href="?nav_redirect=cart" class="navbar-icon-link" target="_self">{cart_label}</a>
   </div>
 </div>
 
@@ -1023,31 +1005,32 @@ def render_navbar():
     <button class="nav-close-btn" onclick="if(typeof closeNavMenu==='function')closeNavMenu();">✕</button>
   </div>
   <div class="nav-overlay-links">
-    <a href="?nav_redirect=home">Home</a>
-    <a href="?nav_redirect=shop">Shop All</a>
-    <a href="?nav_redirect=wishlist">Wishlist</a>
-    <a href="?nav_redirect=manage">Manage</a>
+    <a href="?nav_redirect=home" target="_self">Home</a>
+    <a href="?nav_redirect=shop" target="_self">Shop All</a>
+    <a href="?nav_redirect=wishlist" target="_self">Wishlist</a>
+    <a href="?nav_redirect=manage" target="_self">Manage</a>
   </div>
   <div class="nav-overlay-section">
     <h4>Shop by Category</h4>
-    <a href="?nav_redirect=category:Studs">Studs</a>
-    <a href="?nav_redirect=category:Hoops">Hoops</a>
-    <a href="?nav_redirect=category:Drops">Drops</a>
-    <a href="?nav_redirect=category:Chandeliers">Chandeliers</a>
-    <a href="?nav_redirect=category:Dangles">Dangles</a>
+    <a href="?nav_redirect=category:Studs" target="_self">Studs</a>
+    <a href="?nav_redirect=category:Hoops" target="_self">Hoops</a>
+    <a href="?nav_redirect=category:Drops" target="_self">Drops</a>
+    <a href="?nav_redirect=category:Chandeliers" target="_self">Chandeliers</a>
+    <a href="?nav_redirect=category:Dangles" target="_self">Dangles</a>
   </div>
 </div>
 """,
         unsafe_allow_html=True,
     )
 
-    # Inject hamburger JS via components.html (same-origin iframe can access parent DOM)
+    # Inject hamburger JS, sticky-navbar JS, and link-intercept JS
     components.html(
         """
 <script>
 (function() {
   var p = window.parent;
 
+  /* ── Hamburger menu ── */
   function openMenu() {
     var overlay = p.document.getElementById('navOverlay');
     var bg = p.document.getElementById('navBg');
@@ -1064,7 +1047,6 @@ def render_navbar():
     p.document.body.style.overflow = '';
   }
 
-  // Also expose on parent window for onclick="" fallback
   p.openNavMenu = openMenu;
   p.closeNavMenu = closeMenu;
 
@@ -1095,6 +1077,84 @@ def render_navbar():
   p.document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeMenu();
   });
+
+  /* ── Sticky navbar ──────────────────────────────────────────────────────────
+     position:sticky can break inside Streamlit's nested overflow containers.
+     We implement it manually: once the user scrolls past the navbar's natural
+     position, we switch it to position:fixed and insert a same-height spacer
+     so the content below doesn't jump.
+  ──────────────────────────────────────────────────────────────────────────── */
+  function initStickyNav() {
+    var nav = p.document.querySelector('.navbar-wrap');
+    if (!nav || nav._stickyInit) return;
+    nav._stickyInit = true;
+
+    var scrollEl = p.document;           // listen on document scroll
+    var getScrollY = function() {
+      return p.window.pageYOffset || p.document.documentElement.scrollTop || 0;
+    };
+
+    // Measure where the navbar sits in the initial layout
+    var navTop = nav.getBoundingClientRect().top + getScrollY();
+    var navH   = nav.offsetHeight;
+
+    function onScroll() {
+      var scrollY = getScrollY();
+      var spacer  = p.document.getElementById('__navbar_spacer__');
+
+      if (scrollY >= navTop) {
+        // Stick it
+        if (nav.style.position !== 'fixed') {
+          nav.style.cssText += ';position:fixed!important;top:0!important;' +
+                               'left:0!important;right:0!important;z-index:9999!important;' +
+                               'width:100%!important;';
+          if (!spacer) {
+            spacer = p.document.createElement('div');
+            spacer.id = '__navbar_spacer__';
+            spacer.style.height = navH + 'px';
+            nav.parentNode.insertBefore(spacer, nav.nextSibling);
+          }
+        }
+      } else {
+        // Un-stick it
+        nav.style.position = '';
+        nav.style.top      = '';
+        nav.style.left     = '';
+        nav.style.right    = '';
+        nav.style.width    = '';
+        nav.style.zIndex   = '';
+        if (spacer) spacer.remove();
+      }
+    }
+
+    p.window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll(); // run once on init
+  }
+
+  setTimeout(initStickyNav, 200);
+  setTimeout(initStickyNav, 700);
+  setTimeout(initStickyNav, 1800);
+
+  /* ── Link-click interceptor ─────────────────────────────────────────────────
+     All <a href="?..."> links produced by st.markdown() live in the main
+     window, but the same fix is needed for links inside the nav overlay too.
+     We capture every click on the parent document and make sure ?-param links
+     always navigate the top-level window (window.top) so they can never
+     accidentally open inside an iframe or a new tab.
+  ──────────────────────────────────────────────────────────────────────────── */
+  if (!p._linkInterceptInstalled) {
+    p._linkInterceptInstalled = true;
+    p.document.addEventListener('click', function(e) {
+      var el = e.target.closest('a[href]');
+      if (!el) return;
+      var href = el.getAttribute('href');
+      // Only intercept internal query-param links (e.g. ?product_id=… ?nav_redirect=…)
+      if (!href || !href.startsWith('?')) return;
+      e.preventDefault();
+      p.window.top.location.href = p.window.location.pathname + href;
+    }, true); // capture phase so it fires before any other handlers
+  }
+
 })();
 </script>
 """,
@@ -1113,7 +1173,7 @@ def render_category_tiles():
         ("🎁", "Gifting", "shop"),
     ]
     tiles_html = "".join(
-        f'<a href="?nav_redirect={redirect}" class="cat-tile">'
+        f'<a href="?nav_redirect={redirect}" class="cat-tile" target="_self">'
         f'<span class="cat-tile-emoji">{emoji}</span>'
         f'<span class="cat-tile-label">{label}</span>'
         f'</a>'
@@ -1304,12 +1364,12 @@ def render_product_card(p, col):
         st.markdown(
             f"""
 <div class="product-card">
-  <a href="{product_url}" class="product-img-link">
+  <a href="{product_url}" class="product-img-link" target="_self">
     <img src="{p['image']}" alt="{p['name']}">
     {left_badge}
     {stock_badge}
   </a>
-  <a href="{product_url}" class="product-info-link">
+  <a href="{product_url}" class="product-info-link" target="_self">
     <div class="product-info">
       <div class="product-name">{p['name']}</div>
       <div class="price-wrap">
@@ -1386,11 +1446,11 @@ def render_wishlist_page():
 
                 st.markdown(
                     f"""<div class="product-card">
-                      <a href="{product_url}" class="product-img-link">
+                      <a href="{product_url}" class="product-img-link" target="_self">
                         <img src="{p['image']}" alt="{p['name']}">
                         {left_badge}
                       </a>
-                      <a href="{product_url}" class="product-info-link">
+                      <a href="{product_url}" class="product-info-link" target="_self">
                         <div class="product-info">
                           <div class="product-name">{p['name']}</div>
                           <div class="price-wrap">
