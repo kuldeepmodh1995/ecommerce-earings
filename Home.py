@@ -986,11 +986,46 @@ def render_navbar():
     cart_label = f"🛒 {cart_n}" if cart_n > 0 else "🛒"
     wl_label = f"♡ {wl_n}" if wl_n > 0 else "♡"
 
+    # ── Self-contained JS snippets ──────────────────────────────────────────────
+    # These run entirely in the parent window (where st.markdown HTML lives),
+    # so they never depend on the components.html iframe being loaded first.
+    _open_js = (
+        "(function(){"
+        "var o=document.getElementById('navOverlay'),"
+        "b=document.getElementById('navBg');"
+        "if(o)o.classList.add('open');"
+        "if(b)b.classList.add('open');"
+        "document.body.style.overflow='hidden';"
+        "})()"
+    )
+    _close_js = (
+        "(function(){"
+        "var o=document.getElementById('navOverlay'),"
+        "b=document.getElementById('navBg');"
+        "if(o)o.classList.remove('open');"
+        "if(b)b.classList.remove('open');"
+        "document.body.style.overflow='';"
+        "})()"
+    )
+
+    def _nav_js(dest):
+        """Close the slide-in menu and navigate — zero iframe dependency."""
+        return (
+            "(function(){"
+            "var o=document.getElementById('navOverlay'),"
+            "b=document.getElementById('navBg');"
+            "if(o)o.classList.remove('open');"
+            "if(b)b.classList.remove('open');"
+            "document.body.style.overflow='';"
+            f"window.top.location.href=window.location.pathname+'?nav_redirect={dest}';"
+            "})()"
+        )
+
     st.markdown(
         f"""
 <div class="navbar-wrap" id="main-navbar">
   <div class="navbar-left">
-    <button class="hamburger-btn" onclick="if(typeof openNavMenu==='function')openNavMenu();" aria-label="Open menu">
+    <button class="hamburger-btn" onclick="{_open_js}" aria-label="Open menu">
       <span></span>
       <span></span>
       <span></span>
@@ -1004,64 +1039,69 @@ def render_navbar():
 </div>
 
 <!-- Backdrop -->
-<div class="nav-overlay-bg" id="navBg" onclick="if(typeof closeNavMenu==='function')closeNavMenu();"></div>
+<div class="nav-overlay-bg" id="navBg" onclick="{_close_js}"></div>
 
 <!-- Slide-in menu -->
 <div class="nav-overlay" id="navOverlay">
   <div class="nav-overlay-header">
     <span class="nav-overlay-brand">💎 Love Earrings</span>
-    <button class="nav-close-btn" onclick="if(typeof closeNavMenu==='function')closeNavMenu();">✕</button>
+    <button class="nav-close-btn" onclick="{_close_js}">✕</button>
   </div>
   <div class="nav-overlay-links">
-    <a href="?nav_redirect=home" target="_self">Home</a>
-    <a href="?nav_redirect=shop" target="_self">Shop All</a>
-    <a href="?nav_redirect=wishlist" target="_self">Wishlist</a>
-    <a href="?nav_redirect=manage" target="_self">Manage</a>
+    <a onclick="{_nav_js('home')}" style="cursor:pointer">Home</a>
+    <a onclick="{_nav_js('shop')}" style="cursor:pointer">Shop All</a>
+    <a onclick="{_nav_js('wishlist')}" style="cursor:pointer">Wishlist</a>
+    <a onclick="{_nav_js('manage')}" style="cursor:pointer">Manage</a>
   </div>
   <div class="nav-overlay-section">
     <h4>Shop by Category</h4>
-    <a href="?nav_redirect=category:Studs" target="_self">Studs</a>
-    <a href="?nav_redirect=category:Hoops" target="_self">Hoops</a>
-    <a href="?nav_redirect=category:Drops" target="_self">Drops</a>
-    <a href="?nav_redirect=category:Chandeliers" target="_self">Chandeliers</a>
-    <a href="?nav_redirect=category:Dangles" target="_self">Dangles</a>
+    <a onclick="{_nav_js('category:Studs')}" style="cursor:pointer">Studs</a>
+    <a onclick="{_nav_js('category:Hoops')}" style="cursor:pointer">Hoops</a>
+    <a onclick="{_nav_js('category:Drops')}" style="cursor:pointer">Drops</a>
+    <a onclick="{_nav_js('category:Chandeliers')}" style="cursor:pointer">Chandeliers</a>
+    <a onclick="{_nav_js('category:Dangles')}" style="cursor:pointer">Dangles</a>
   </div>
 </div>
 """,
         unsafe_allow_html=True,
     )
 
-    # Inject hamburger JS, sticky-navbar JS, and link-intercept JS
+    # Inject sticky-navbar JS, link-intercept JS, and Escape-key handler
     components.html(
         """
 <script>
 (function() {
   var p = window.parent;
 
-  /* ── Hamburger menu ── */
+  /* ── Hamburger open / close (also used by Escape key) ────────────────────────
+     The inline onclick on the hamburger/close/backdrop already handles clicks
+     directly (no iframe dependency). This block only adds:
+       • Escape key to close
+       • MutationObserver fallback — re-attaches addEventListener as a
+         belt-and-suspenders backup after every Streamlit rerender
+  ──────────────────────────────────────────────────────────────────────────── */
   function openMenu() {
-    var overlay = p.document.getElementById('navOverlay');
-    var bg = p.document.getElementById('navBg');
-    if (overlay) overlay.classList.add('open');
-    if (bg) bg.classList.add('open');
+    var o = p.document.getElementById('navOverlay');
+    var b = p.document.getElementById('navBg');
+    if (o) o.classList.add('open');
+    if (b) b.classList.add('open');
     p.document.body.style.overflow = 'hidden';
   }
 
   function closeMenu() {
-    var overlay = p.document.getElementById('navOverlay');
-    var bg = p.document.getElementById('navBg');
-    if (overlay) overlay.classList.remove('open');
-    if (bg) bg.classList.remove('open');
+    var o = p.document.getElementById('navOverlay');
+    var b = p.document.getElementById('navBg');
+    if (o) o.classList.remove('open');
+    if (b) b.classList.remove('open');
     p.document.body.style.overflow = '';
   }
 
-  p.openNavMenu = openMenu;
-  p.closeNavMenu = closeMenu;
-
+  /* Fallback addEventListener attachment — covers any edge case where the
+     inline onclick attribute was stripped by a middleware / browser extension */
   function attachHandlers() {
-    var hambtn = p.document.querySelector('.hamburger-btn');
+    var hambtn   = p.document.querySelector('.hamburger-btn');
     var closebtn = p.document.querySelector('.nav-close-btn');
-    var bg = p.document.getElementById('navBg');
+    var bg       = p.document.getElementById('navBg');
 
     if (hambtn && !hambtn._navAttached) {
       hambtn.addEventListener('click', openMenu);
@@ -1078,13 +1118,24 @@ def render_navbar():
   }
 
   attachHandlers();
-  setTimeout(attachHandlers, 150);
-  setTimeout(attachHandlers, 600);
-  setTimeout(attachHandlers, 1500);
+  setTimeout(attachHandlers, 200);
 
-  p.document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeMenu();
-  });
+  /* Re-attach after every Streamlit rerender (DOM replacement) */
+  if (!p._navMutationObserver) {
+    p._navMutationObserver = new MutationObserver(function() {
+      var hambtn = p.document.querySelector('.hamburger-btn');
+      if (hambtn && !hambtn._navAttached) attachHandlers();
+    });
+    p._navMutationObserver.observe(p.document.body, { childList: true, subtree: true });
+  }
+
+  /* Escape key always closes the menu */
+  if (!p._navEscInstalled) {
+    p._navEscInstalled = true;
+    p.document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeMenu();
+    });
+  }
 
   /* ── Sticky navbar ──────────────────────────────────────────────────────────
      position:sticky can break inside Streamlit's nested overflow containers.
