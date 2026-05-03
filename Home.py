@@ -236,6 +236,14 @@ st.markdown(
     padding-left: 4px !important; padding-right: 4px !important;
     box-sizing: border-box !important;
   }
+  /* JS-added class fallback for browsers where :has() doesn't apply */
+  [data-testid="stHorizontalBlock"].has-product-cards { flex-wrap: wrap !important; }
+  [data-testid="stHorizontalBlock"].has-product-cards > [data-testid="stColumn"] {
+    min-width: 50% !important; flex: 0 0 50% !important;
+    width: 50% !important; max-width: 50% !important;
+    padding-left: 4px !important; padding-right: 4px !important;
+    box-sizing: border-box !important;
+  }
 
   /* ── Compact product card on mobile ── */
   @media (max-width: 599px) {
@@ -563,6 +571,9 @@ st.markdown(
     [data-testid="stHorizontalBlock"]:has(.product-card) > [data-testid="stColumn"] {
       min-width: 25% !important; flex: 0 0 25% !important; width: 25% !important; max-width: 25% !important;
     }
+    [data-testid="stHorizontalBlock"].has-product-cards > [data-testid="stColumn"] {
+      min-width: 25% !important; flex: 0 0 25% !important; width: 25% !important; max-width: 25% !important;
+    }
     .product-name { font-size: 0.74em; }
     .section-title { font-size: 1.75em; }
     .footer-links-grid { grid-template-columns: repeat(4, 1fr); }
@@ -593,6 +604,9 @@ st.markdown(
     [data-testid="stHorizontalBlock"]:has(.product-card) > [data-testid="stColumn"] {
       min-width: unset !important; max-width: unset !important; flex: 1 1 0 !important; width: auto !important;
     }
+    [data-testid="stHorizontalBlock"].has-product-cards > [data-testid="stColumn"] {
+      min-width: unset !important; max-width: unset !important; flex: 1 1 0 !important; width: auto !important;
+    }
     .value-props-row div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
     .value-props-row [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
       min-width: unset !important; max-width: unset !important; flex: 1 1 0 !important; width: auto !important;
@@ -618,6 +632,11 @@ st.markdown(
     .product-name { font-size: 0.82em; }
     .section-title { font-size: 2.1em; }
     .cat-tiles-section { padding: 28px 44px 14px; }
+    .cat-tiles-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+    .cat-tile { padding: 22px 10px 16px; }
+    .cat-tile-img { width: 64px; height: 64px; }
+    .cat-tile-emoji { font-size: 2.2em; }
+    .cat-tile-label { font-size: 0.74em; }
     .trust-section { padding: 38px 44px 32px; }
     .brand-story { padding: 56px 44px; }
     .brand-story h2 { font-size: 1.75em; }
@@ -989,14 +1008,19 @@ function reportHeight() {{
   }}
 }}
 reportHeight();
-setTimeout(reportHeight, 100);
-setTimeout(reportHeight, 400);
+setTimeout(reportHeight, 50);
+setTimeout(reportHeight, 200);
+setTimeout(reportHeight, 500);
+setTimeout(reportHeight, 1000);
 window.addEventListener('resize', function() {{ setTimeout(reportHeight, 50); }});
+if (window.ResizeObserver) {{
+  new ResizeObserver(reportHeight).observe(document.getElementById('carousel'));
+}}
 </script>
 </body>
 </html>
 """
-    components.html(html, height=520, scrolling=False)
+    components.html(html, height=270, scrolling=False)
 
 
 # ── Promo ticker ──────────────────────────────────────────────────────────────
@@ -1081,10 +1105,10 @@ def render_navbar():
       <span></span>
     </button>
   </div>
-  <a href="?nav_redirect=home" class="navbar-brand" target="_self">💎 Love Earrings</a>
+  <a href="?nav_redirect=home" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=home'; return false;" class="navbar-brand">💎 Love Earrings</a>
   <div class="navbar-right">
-    <a href="?nav_redirect=wishlist" class="navbar-icon-link" target="_self">{wl_label}</a>
-    <a href="?nav_redirect=cart" class="navbar-icon-link" target="_self">{cart_label}</a>
+    <a href="?nav_redirect=wishlist" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=wishlist'; return false;" class="navbar-icon-link">{wl_label}</a>
+    <a href="?nav_redirect=cart" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=cart'; return false;" class="navbar-icon-link">{cart_label}</a>
   </div>
 </div>
 
@@ -1098,18 +1122,18 @@ def render_navbar():
     <button class="nav-close-btn" onclick="{_close_js}">✕</button>
   </div>
   <div class="nav-overlay-links">
-    <a onclick="{_nav_js('home')}" style="cursor:pointer">Home</a>
-    <a onclick="{_nav_js('shop')}" style="cursor:pointer">Shop All</a>
-    <a onclick="{_nav_js('wishlist')}" style="cursor:pointer">Wishlist</a>
-    <a onclick="{_nav_js('manage')}" style="cursor:pointer">Manage</a>
+    <a href="?nav_redirect=home" onclick="{_nav_js('home')}; return false;" style="cursor:pointer">Home</a>
+    <a href="?nav_redirect=shop" onclick="{_nav_js('shop')}; return false;" style="cursor:pointer">Shop All</a>
+    <a href="?nav_redirect=wishlist" onclick="{_nav_js('wishlist')}; return false;" style="cursor:pointer">Wishlist</a>
+    <a href="?nav_redirect=manage" onclick="{_nav_js('manage')}; return false;" style="cursor:pointer">Manage Website</a>
   </div>
   <div class="nav-overlay-section">
     <h4>Shop by Category</h4>
-    <a onclick="{_nav_js('category:Studs')}" style="cursor:pointer">Studs</a>
-    <a onclick="{_nav_js('category:Hoops')}" style="cursor:pointer">Hoops</a>
-    <a onclick="{_nav_js('category:Drops')}" style="cursor:pointer">Drops</a>
-    <a onclick="{_nav_js('category:Chandeliers')}" style="cursor:pointer">Chandeliers</a>
-    <a onclick="{_nav_js('category:Dangles')}" style="cursor:pointer">Dangles</a>
+    <a href="?nav_redirect=category:Studs" onclick="{_nav_js('category:Studs')}; return false;" style="cursor:pointer">Studs</a>
+    <a href="?nav_redirect=category:Hoops" onclick="{_nav_js('category:Hoops')}; return false;" style="cursor:pointer">Hoops</a>
+    <a href="?nav_redirect=category:Drops" onclick="{_nav_js('category:Drops')}; return false;" style="cursor:pointer">Drops</a>
+    <a href="?nav_redirect=category:Chandeliers" onclick="{_nav_js('category:Chandeliers')}; return false;" style="cursor:pointer">Chandeliers</a>
+    <a href="?nav_redirect=category:Dangles" onclick="{_nav_js('category:Dangles')}; return false;" style="cursor:pointer">Dangles</a>
   </div>
 </div>
 """,
@@ -1246,6 +1270,33 @@ def render_navbar():
   setTimeout(initStickyNav, 700);
   setTimeout(initStickyNav, 1800);
 
+  /* ── Product grid 2-col mobile fallback ─────────────────────────────────────
+     Stamps .has-product-cards on every stHorizontalBlock that contains a
+     .product-card, enabling the CSS 50%/25% column rules that mirror the
+     :has(.product-card) selector (for browsers or environments where :has()
+     doesn't fire reliably).
+  ──────────────────────────────────────────────────────────────────────────── */
+  function stampProductGridClass() {
+    var blocks = p.document.querySelectorAll('[data-testid="stHorizontalBlock"]');
+    blocks.forEach(function(block) {
+      if (block.querySelector('.product-card') && !block.classList.contains('has-product-cards')) {
+        block.classList.add('has-product-cards');
+      }
+    });
+  }
+
+  stampProductGridClass();
+  setTimeout(stampProductGridClass, 300);
+  setTimeout(stampProductGridClass, 800);
+  setTimeout(stampProductGridClass, 2000);
+
+  if (!p._productGridObserver) {
+    p._productGridObserver = new MutationObserver(function() {
+      stampProductGridClass();
+    });
+    p._productGridObserver.observe(p.document.body, { childList: true, subtree: true });
+  }
+
   /* ── Link-click interceptor ─────────────────────────────────────────────────
      All <a href="?..."> links produced by st.markdown() live in the main
      window, but the same fix is needed for links inside the nav overlay too.
@@ -1289,8 +1340,10 @@ def render_category_tiles():
             )
         else:
             icon = f'<span class="cat-tile-emoji">{cat.get("emoji", "🏷️")}</span>'
+        cat_redirect = cat["redirect_to"]
+        cat_nav_js = f"window.top.location.href=window.location.pathname+'?nav_redirect={cat_redirect}'; return false;"
         tiles_html += (
-            f'<a href="?nav_redirect={cat["redirect_to"]}" class="cat-tile" target="_self">'
+            f'<a href="?nav_redirect={cat_redirect}" onclick="{cat_nav_js}" class="cat-tile">'
             f'{icon}'
             f'<span class="cat-tile-label">{cat["name"]}</span>'
             f'</a>'
@@ -1369,11 +1422,11 @@ def render_footer():
           <div class="footer-links-grid">
             <div class="footer-col">
               <h4>Shop</h4>
-              <a href="?nav_redirect=shop">All Earrings</a>
-              <a href="?nav_redirect=category:Studs">Studs</a>
-              <a href="?nav_redirect=category:Hoops">Hoops</a>
-              <a href="?nav_redirect=category:Drops">Drops</a>
-              <a href="?nav_redirect=category:Chandeliers">Chandeliers</a>
+              <a href="?nav_redirect=shop" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=shop'; return false;">All Earrings</a>
+              <a href="?nav_redirect=category:Studs" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=category:Studs'; return false;">Studs</a>
+              <a href="?nav_redirect=category:Hoops" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=category:Hoops'; return false;">Hoops</a>
+              <a href="?nav_redirect=category:Drops" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=category:Drops'; return false;">Drops</a>
+              <a href="?nav_redirect=category:Chandeliers" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=category:Chandeliers'; return false;">Chandeliers</a>
             </div>
             <div class="footer-col">
               <h4>Help</h4>
@@ -1477,16 +1530,18 @@ def render_product_card(p, col):
         disc_html = f'<span class="discount">{discount}% OFF</span>' if discount else ""
 
         product_url = f"?product_id={p['id']}"
+        p_id = p['id']
+        nav_js = f"window.top.location.href=window.location.pathname+'?product_id={p_id}'; return false;"
 
         st.markdown(
             f"""
 <div class="product-card">
-  <a href="{product_url}" class="product-img-link" target="_self">
+  <a href="{product_url}" onclick="{nav_js}" class="product-img-link">
     <img src="{p['image']}" alt="{p['name']}">
     {left_badge}
     {stock_badge}
   </a>
-  <a href="{product_url}" class="product-info-link" target="_self">
+  <a href="{product_url}" onclick="{nav_js}" class="product-info-link">
     <div class="product-info">
       <div class="product-name">{p['name']}</div>
       <div class="price-wrap">
@@ -1560,14 +1615,16 @@ def render_wishlist_page():
                 )
 
                 product_url = f"?product_id={p['id']}"
+                wl_p_id = p['id']
+                wl_nav_js = f"window.top.location.href=window.location.pathname+'?product_id={wl_p_id}'; return false;"
 
                 st.markdown(
                     f"""<div class="product-card">
-                      <a href="{product_url}" class="product-img-link" target="_self">
+                      <a href="{product_url}" onclick="{wl_nav_js}" class="product-img-link">
                         <img src="{p['image']}" alt="{p['name']}">
                         {left_badge}
                       </a>
-                      <a href="{product_url}" class="product-info-link" target="_self">
+                      <a href="{product_url}" onclick="{wl_nav_js}" class="product-info-link">
                         <div class="product-info">
                           <div class="product-name">{p['name']}</div>
                           <div class="price-wrap">
