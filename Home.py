@@ -672,17 +672,16 @@ if "filter_sort" not in st.session_state:
 # ── Query-param redirect handler ──────────────────────────────────────────────
 _product_id = st.query_params.get("product_id", "")
 if _product_id:
-    st.query_params.clear()
     _all_p = load_products()
     _match = next((p for p in _all_p if str(p["id"]) == str(_product_id)), None)
     if _match:
         st.session_state.selected_product = _match
         st.session_state.view = "detail"
+    st.query_params.clear()
     st.rerun()
 
 _nav_redirect = st.query_params.get("nav_redirect", "")
 if _nav_redirect:
-    st.query_params.clear()
     if _nav_redirect == "shop":
         st.session_state.view = "shop"
         st.session_state.filter_cat = "All"
@@ -702,7 +701,9 @@ if _nav_redirect:
         st.session_state.view = "cart"
         st.session_state.selected_product = None
     elif _nav_redirect == "manage":
+        st.query_params.clear()
         st.switch_page("pages/1_Manage_Service.py")
+    st.query_params.clear()
     st.rerun()
 
 
@@ -1341,9 +1342,8 @@ def render_category_tiles():
         else:
             icon = f'<span class="cat-tile-emoji">{cat.get("emoji", "🏷️")}</span>'
         cat_redirect = cat["redirect_to"]
-        cat_nav_js = f"window.top.location.href=window.location.pathname+'?nav_redirect={cat_redirect}'; return false;"
         tiles_html += (
-            f'<a href="?nav_redirect={cat_redirect}" onclick="{cat_nav_js}" class="cat-tile">'
+            f'<a href="?nav_redirect={cat_redirect}" class="cat-tile">'
             f'{icon}'
             f'<span class="cat-tile-label">{cat["name"]}</span>'
             f'</a>'
@@ -1422,11 +1422,11 @@ def render_footer():
           <div class="footer-links-grid">
             <div class="footer-col">
               <h4>Shop</h4>
-              <a href="?nav_redirect=shop" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=shop'; return false;">All Earrings</a>
-              <a href="?nav_redirect=category:Studs" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=category:Studs'; return false;">Studs</a>
-              <a href="?nav_redirect=category:Hoops" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=category:Hoops'; return false;">Hoops</a>
-              <a href="?nav_redirect=category:Drops" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=category:Drops'; return false;">Drops</a>
-              <a href="?nav_redirect=category:Chandeliers" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=category:Chandeliers'; return false;">Chandeliers</a>
+              <a href="?nav_redirect=shop">All Earrings</a>
+              <a href="?nav_redirect=category:Studs">Studs</a>
+              <a href="?nav_redirect=category:Hoops">Hoops</a>
+              <a href="?nav_redirect=category:Drops">Drops</a>
+              <a href="?nav_redirect=category:Chandeliers">Chandeliers</a>
             </div>
             <div class="footer-col">
               <h4>Help</h4>
@@ -1530,18 +1530,16 @@ def render_product_card(p, col):
         disc_html = f'<span class="discount">{discount}% OFF</span>' if discount else ""
 
         product_url = f"?product_id={p['id']}"
-        p_id = p['id']
-        nav_js = f"window.top.location.href=window.location.pathname+'?product_id={p_id}'; return false;"
 
         st.markdown(
             f"""
 <div class="product-card">
-  <a href="{product_url}" onclick="{nav_js}" class="product-img-link">
+  <a href="{product_url}" class="product-img-link">
     <img src="{p['image']}" alt="{p['name']}">
     {left_badge}
     {stock_badge}
   </a>
-  <a href="{product_url}" onclick="{nav_js}" class="product-info-link">
+  <a href="{product_url}" class="product-info-link">
     <div class="product-info">
       <div class="product-name">{p['name']}</div>
       <div class="price-wrap">
@@ -1615,16 +1613,14 @@ def render_wishlist_page():
                 )
 
                 product_url = f"?product_id={p['id']}"
-                wl_p_id = p['id']
-                wl_nav_js = f"window.top.location.href=window.location.pathname+'?product_id={wl_p_id}'; return false;"
 
                 st.markdown(
                     f"""<div class="product-card">
-                      <a href="{product_url}" onclick="{wl_nav_js}" class="product-img-link">
+                      <a href="{product_url}" class="product-img-link">
                         <img src="{p['image']}" alt="{p['name']}">
                         {left_badge}
                       </a>
-                      <a href="{product_url}" onclick="{wl_nav_js}" class="product-info-link">
+                      <a href="{product_url}" class="product-info-link">
                         <div class="product-info">
                           <div class="product-name">{p['name']}</div>
                           <div class="price-wrap">
