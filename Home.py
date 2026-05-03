@@ -246,14 +246,38 @@ st.markdown(
     box-sizing: border-box !important;
   }
 
-  /* ── Compact product card on mobile ── */
+  /* ── Mobile: 2-col grid + compact cards ── */
   @media (max-width: 599px) {
-    .product-img-link img { aspect-ratio: 1/1 !important; }
-    .product-info { padding: 5px 2px 2px !important; }
-    .product-name { font-size: 0.65em !important; }
-    .price-now { font-size: 0.72em !important; }
-    .card-btn-wrap { padding: 0 2px 6px !important; }
-    .card-btn-wrap .stButton > button { padding: 6px 4px !important; font-size: 0.58em !important; }
+    /* Zero Streamlit container side padding so cards use full width */
+    [data-testid="stMainBlockContainer"] {
+      padding-left: 0.25rem !important; padding-right: 0.25rem !important;
+    }
+    /* Enforce 2-per-row — repeated here for specificity over Emotion rules */
+    [data-testid="stHorizontalBlock"]:has(.product-card) > [data-testid="stColumn"],
+    [data-testid="stHorizontalBlock"].has-product-cards > [data-testid="stColumn"] {
+      min-width: 50% !important; flex: 0 0 50% !important;
+      width: 50% !important; max-width: 50% !important;
+      padding-left: 3px !important; padding-right: 3px !important;
+      box-sizing: border-box !important;
+    }
+    /* Square images so cards stay short enough to show 4 per screen */
+    .product-img-link img { aspect-ratio: 1/1 !important; height: auto !important; }
+    /* Compact card layout */
+    .product-card { margin-bottom: 4px !important; border-radius: 8px !important; }
+    .product-info { padding: 4px 3px 1px !important; }
+    .product-name {
+      font-size: 0.60em !important; line-height: 1.25 !important;
+      margin-bottom: 2px !important;
+      white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+    }
+    .price-wrap { margin-bottom: 3px !important; gap: 3px !important; }
+    .price-now { font-size: 0.68em !important; }
+    .price-was { font-size: 0.58em !important; }
+    .badge, .badge-new { font-size: 0.50em !important; padding: 1px 6px !important; top: 5px !important; left: 5px !important; }
+    .card-btn-wrap { padding: 0 2px 3px !important; }
+    .card-btn-wrap .stButton > button {
+      padding: 4px 2px !important; font-size: 0.54em !important; min-height: 26px !important;
+    }
   }
 
   /* ══════════════════════════════════════════════
@@ -1278,12 +1302,43 @@ def render_navbar():
   setTimeout(initStickyNav, 700);
   setTimeout(initStickyNav, 1800);
 
-  /* ── Product grid 2-col mobile fallback ─────────────────────────────────────
-     Stamps .has-product-cards on every stHorizontalBlock that contains a
-     .product-card, enabling the CSS 50%/25% column rules that mirror the
-     :has(.product-card) selector (for browsers or environments where :has()
-     doesn't fire reliably).
+  /* ── Inject product grid CSS into <head> — wins the cascade over Emotion ──
+     st.markdown() CSS sits inside the body and can be overridden by Emotion's
+     class rules that are injected later. Appending a <style> to <head> from
+     this iframe JS guarantees it is the LAST stylesheet, so !important rules
+     here beat everything.
   ──────────────────────────────────────────────────────────────────────────── */
+  if (!p._gridStyleInjected) {
+    p._gridStyleInjected = true;
+    var _gs = p.document.getElementById('le-grid-mobile') || p.document.createElement('style');
+    _gs.id = 'le-grid-mobile';
+    _gs.textContent = [
+      '[data-testid="stHorizontalBlock"]:has(.product-card) > [data-testid="stColumn"],',
+      '[data-testid="stHorizontalBlock"].has-product-cards > [data-testid="stColumn"] {',
+      '  min-width: 50% !important; flex: 0 0 50% !important;',
+      '  width: 50% !important; max-width: 50% !important;',
+      '  padding-left: 3px !important; padding-right: 3px !important;',
+      '  box-sizing: border-box !important;',
+      '}',
+      '@media (min-width: 600px) {',
+      '  [data-testid="stHorizontalBlock"]:has(.product-card) > [data-testid="stColumn"],',
+      '  [data-testid="stHorizontalBlock"].has-product-cards > [data-testid="stColumn"] {',
+      '    min-width: 25% !important; flex: 0 0 25% !important;',
+      '    width: 25% !important; max-width: 25% !important;',
+      '  }',
+      '}',
+      '@media (min-width: 960px) {',
+      '  [data-testid="stHorizontalBlock"]:has(.product-card) > [data-testid="stColumn"],',
+      '  [data-testid="stHorizontalBlock"].has-product-cards > [data-testid="stColumn"] {',
+      '    min-width: unset !important; max-width: unset !important;',
+      '    flex: 1 1 0 !important; width: auto !important;',
+      '  }',
+      '}'
+    ].join('\n');
+    p.document.head.appendChild(_gs);
+  }
+
+  /* ── Product grid class stamp — enables CSS rules for :has() fallback ─────── */
   function stampProductGridClass() {
     var blocks = p.document.querySelectorAll('[data-testid="stHorizontalBlock"]');
     blocks.forEach(function(block) {
