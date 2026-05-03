@@ -205,9 +205,10 @@ st.markdown(
   /* Navbar icon links (cart / wishlist) */
   .navbar-right { display: flex; align-items: center; gap: 10px; }
   .navbar-icon-link {
-    text-decoration: none; color: var(--color-midnight-ink); font-size: 0.95em;
+    text-decoration: none; color: var(--color-midnight-ink); font-size: 1.3em;
     font-weight: 500; padding: 6px 4px; transition: color 0.2s;
     white-space: nowrap; line-height: 1;
+    min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;
   }
   .navbar-icon-link:hover { color: var(--color-violet-impulse); }
 
@@ -386,6 +387,12 @@ st.markdown(
     letter-spacing: 0.3px;
   }
   .divider { border: none; border-top: 1px solid var(--color-mercury-stroke); margin: 24px auto; width: 40px; }
+
+  /* ══════════════════════════════════════════════
+     IFRAME / CAROUSEL GAP FIX
+     ══════════════════════════════════════════════ */
+  [data-testid="stIFrame"] { margin-bottom: -20px !important; }
+  [data-testid="stVerticalBlock"] > [data-testid="element-container"]:has([data-testid="stIFrame"]) { margin-bottom: 0 !important; padding-bottom: 0 !important; }
 
   /* ══════════════════════════════════════════════
      CATEGORY TILES
@@ -1106,10 +1113,10 @@ def render_navbar():
       <span></span>
     </button>
   </div>
-  <a href="?nav_redirect=home" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=home'; return false;" class="navbar-brand">💎 Love Earrings</a>
+  <a href="?nav_redirect=home" target="_top" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=home'; return false;" class="navbar-brand">💎 Love Earrings</a>
   <div class="navbar-right">
-    <a href="?nav_redirect=wishlist" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=wishlist'; return false;" class="navbar-icon-link">{wl_label}</a>
-    <a href="?nav_redirect=cart" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=cart'; return false;" class="navbar-icon-link">{cart_label}</a>
+    <a href="?nav_redirect=wishlist" target="_top" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=wishlist'; return false;" class="navbar-icon-link">{wl_label}</a>
+    <a href="?nav_redirect=cart" target="_top" onclick="window.top.location.href=window.location.pathname+'?nav_redirect=cart'; return false;" class="navbar-icon-link">{cart_label}</a>
   </div>
 </div>
 
@@ -1123,18 +1130,18 @@ def render_navbar():
     <button class="nav-close-btn" onclick="{_close_js}">✕</button>
   </div>
   <div class="nav-overlay-links">
-    <a href="?nav_redirect=home" onclick="{_nav_js('home')}; return false;" style="cursor:pointer">Home</a>
-    <a href="?nav_redirect=shop" onclick="{_nav_js('shop')}; return false;" style="cursor:pointer">Shop All</a>
-    <a href="?nav_redirect=wishlist" onclick="{_nav_js('wishlist')}; return false;" style="cursor:pointer">Wishlist</a>
-    <a href="?nav_redirect=manage" onclick="{_nav_js('manage')}; return false;" style="cursor:pointer">Manage Website</a>
+    <a href="?nav_redirect=home" target="_top" onclick="{_nav_js('home')}; return false;" style="cursor:pointer">Home</a>
+    <a href="?nav_redirect=shop" target="_top" onclick="{_nav_js('shop')}; return false;" style="cursor:pointer">Shop All</a>
+    <a href="?nav_redirect=wishlist" target="_top" onclick="{_nav_js('wishlist')}; return false;" style="cursor:pointer">Wishlist</a>
+    <a href="?nav_redirect=manage" target="_top" onclick="{_nav_js('manage')}; return false;" style="cursor:pointer">Manage Website</a>
   </div>
   <div class="nav-overlay-section">
     <h4>Shop by Category</h4>
-    <a href="?nav_redirect=category:Studs" onclick="{_nav_js('category:Studs')}; return false;" style="cursor:pointer">Studs</a>
-    <a href="?nav_redirect=category:Hoops" onclick="{_nav_js('category:Hoops')}; return false;" style="cursor:pointer">Hoops</a>
-    <a href="?nav_redirect=category:Drops" onclick="{_nav_js('category:Drops')}; return false;" style="cursor:pointer">Drops</a>
-    <a href="?nav_redirect=category:Chandeliers" onclick="{_nav_js('category:Chandeliers')}; return false;" style="cursor:pointer">Chandeliers</a>
-    <a href="?nav_redirect=category:Dangles" onclick="{_nav_js('category:Dangles')}; return false;" style="cursor:pointer">Dangles</a>
+    <a href="?nav_redirect=category:Studs" target="_top" onclick="{_nav_js('category:Studs')}; return false;" style="cursor:pointer">Studs</a>
+    <a href="?nav_redirect=category:Hoops" target="_top" onclick="{_nav_js('category:Hoops')}; return false;" style="cursor:pointer">Hoops</a>
+    <a href="?nav_redirect=category:Drops" target="_top" onclick="{_nav_js('category:Drops')}; return false;" style="cursor:pointer">Drops</a>
+    <a href="?nav_redirect=category:Chandeliers" target="_top" onclick="{_nav_js('category:Chandeliers')}; return false;" style="cursor:pointer">Chandeliers</a>
+    <a href="?nav_redirect=category:Dangles" target="_top" onclick="{_nav_js('category:Dangles')}; return false;" style="cursor:pointer">Dangles</a>
   </div>
 </div>
 """,
@@ -1298,25 +1305,7 @@ def render_navbar():
     p._productGridObserver.observe(p.document.body, { childList: true, subtree: true });
   }
 
-  /* ── Link-click interceptor ─────────────────────────────────────────────────
-     All <a href="?..."> links produced by st.markdown() live in the main
-     window, but the same fix is needed for links inside the nav overlay too.
-     We capture every click on the parent document and make sure ?-param links
-     always navigate the top-level window (window.top) so they can never
-     accidentally open inside an iframe or a new tab.
-  ──────────────────────────────────────────────────────────────────────────── */
-  if (!p._linkInterceptInstalled) {
-    p._linkInterceptInstalled = true;
-    p.document.addEventListener('click', function(e) {
-      var el = e.target.closest('a[href]');
-      if (!el) return;
-      var href = el.getAttribute('href');
-      // Only intercept internal query-param links (e.g. ?product_id=… ?nav_redirect=…)
-      if (!href || !href.startsWith('?')) return;
-      e.preventDefault();
-      p.window.top.location.href = p.window.location.pathname + href;
-    }, true); // capture phase so it fires before any other handlers
-  }
+  /* ── Navigation: all internal links use target="_top" (no JS interception needed) ── */
 
 })();
 </script>
@@ -1343,7 +1332,7 @@ def render_category_tiles():
             icon = f'<span class="cat-tile-emoji">{cat.get("emoji", "🏷️")}</span>'
         cat_redirect = cat["redirect_to"]
         tiles_html += (
-            f'<a href="?nav_redirect={cat_redirect}" class="cat-tile">'
+            f'<a href="?nav_redirect={cat_redirect}" target="_top" class="cat-tile">'
             f'{icon}'
             f'<span class="cat-tile-label">{cat["name"]}</span>'
             f'</a>'
@@ -1422,11 +1411,11 @@ def render_footer():
           <div class="footer-links-grid">
             <div class="footer-col">
               <h4>Shop</h4>
-              <a href="?nav_redirect=shop">All Earrings</a>
-              <a href="?nav_redirect=category:Studs">Studs</a>
-              <a href="?nav_redirect=category:Hoops">Hoops</a>
-              <a href="?nav_redirect=category:Drops">Drops</a>
-              <a href="?nav_redirect=category:Chandeliers">Chandeliers</a>
+              <a href="?nav_redirect=shop" target="_top">All Earrings</a>
+              <a href="?nav_redirect=category:Studs" target="_top">Studs</a>
+              <a href="?nav_redirect=category:Hoops" target="_top">Hoops</a>
+              <a href="?nav_redirect=category:Drops" target="_top">Drops</a>
+              <a href="?nav_redirect=category:Chandeliers" target="_top">Chandeliers</a>
             </div>
             <div class="footer-col">
               <h4>Help</h4>
@@ -1534,12 +1523,12 @@ def render_product_card(p, col):
         st.markdown(
             f"""
 <div class="product-card">
-  <a href="{product_url}" class="product-img-link">
+  <a href="{product_url}" target="_top" class="product-img-link">
     <img src="{p['image']}" alt="{p['name']}">
     {left_badge}
     {stock_badge}
   </a>
-  <a href="{product_url}" class="product-info-link">
+  <a href="{product_url}" target="_top" class="product-info-link">
     <div class="product-info">
       <div class="product-name">{p['name']}</div>
       <div class="price-wrap">
@@ -1594,53 +1583,55 @@ def render_wishlist_page():
         )
 
         st.markdown('<div class="wishlist-products">', unsafe_allow_html=True)
-        cols = st.columns(4)
-        for i, p in enumerate(wishlist_products):
-            with cols[i % 4]:
-                discount = 0
-                if p.get("original_price", 0) > p["price"]:
-                    discount = int((1 - p["price"] / p["original_price"]) * 100)
+        for _row_start in range(0, len(wishlist_products), 4):
+            _wl_batch = wishlist_products[_row_start:_row_start+4]
+            cols = st.columns(4)
+            for i, p in enumerate(_wl_batch):
+                with cols[i]:
+                    discount = 0
+                    if p.get("original_price", 0) > p["price"]:
+                        discount = int((1 - p["price"] / p["original_price"]) * 100)
 
-                left_badge = ""
-                if p.get("featured") and discount == 0:
-                    left_badge = '<span class="badge-new">NEW</span>'
-                elif discount:
-                    left_badge = f'<span class="badge">-{discount}%</span>'
+                    left_badge = ""
+                    if p.get("featured") and discount == 0:
+                        left_badge = '<span class="badge-new">NEW</span>'
+                    elif discount:
+                        left_badge = f'<span class="badge">-{discount}%</span>'
 
-                orig_html = (
-                    f'<span class="price-was">${p["original_price"]:.2f}</span>'
-                    if p.get("original_price") else ""
-                )
+                    orig_html = (
+                        f'<span class="price-was">${p["original_price"]:.2f}</span>'
+                        if p.get("original_price") else ""
+                    )
 
-                product_url = f"?product_id={p['id']}"
+                    product_url = f"?product_id={p['id']}"
 
-                st.markdown(
-                    f"""<div class="product-card">
-                      <a href="{product_url}" class="product-img-link">
-                        <img src="{p['image']}" alt="{p['name']}">
-                        {left_badge}
-                      </a>
-                      <a href="{product_url}" class="product-info-link">
-                        <div class="product-info">
-                          <div class="product-name">{p['name']}</div>
-                          <div class="price-wrap">
-                            <span class="price-now">${p['price']:.2f}</span>
-                            {orig_html}
-                          </div>
-                        </div>
-                      </a>
-                    </div>""",
-                    unsafe_allow_html=True,
-                )
-                st.markdown('<div class="card-btn-wrap">', unsafe_allow_html=True)
-                if st.button("Add to Cart", key=f"wl_cart_{p['id']}", use_container_width=True):
-                    add_to_cart(p)
-                    st.toast(f"✅ {p['name']} added to cart!")
-                st.markdown('</div>', unsafe_allow_html=True)
+                    st.markdown(
+                        f"""<div class="product-card">
+                          <a href="{product_url}" target="_top" class="product-img-link">
+                            <img src="{p['image']}" alt="{p['name']}">
+                            {left_badge}
+                          </a>
+                          <a href="{product_url}" target="_top" class="product-info-link">
+                            <div class="product-info">
+                              <div class="product-name">{p['name']}</div>
+                              <div class="price-wrap">
+                                <span class="price-now">${p['price']:.2f}</span>
+                                {orig_html}
+                              </div>
+                            </div>
+                          </a>
+                        </div>""",
+                        unsafe_allow_html=True,
+                    )
+                    st.markdown('<div class="card-btn-wrap">', unsafe_allow_html=True)
+                    if st.button("Add to Cart", key=f"wl_cart_{p['id']}", use_container_width=True):
+                        add_to_cart(p)
+                        st.toast(f"✅ {p['name']} added to cart!")
+                    st.markdown('</div>', unsafe_allow_html=True)
 
-                if st.button("Remove", key=f"wl_rm_{p['id']}", use_container_width=True):
-                    st.session_state.wishlist.discard(p["id"])
-                    st.rerun()
+                    if st.button("Remove", key=f"wl_rm_{p['id']}", use_container_width=True):
+                        st.session_state.wishlist.discard(p["id"])
+                        st.rerun()
 
         st.markdown('</div>', unsafe_allow_html=True)  # close wishlist-products
 
@@ -1674,9 +1665,10 @@ if st.session_state.view == "home":
     st.markdown('<p class="section-sub">Handpicked favourites loved by thousands</p>', unsafe_allow_html=True)
     featured = [p for p in all_products if p.get("featured")]
     if featured:
-        cols = st.columns(4)
-        for i, p in enumerate(featured):
-            render_product_card(p, cols[i % 4])
+        for i in range(0, len(featured), 4):
+            cols = st.columns(4)
+            for j, p in enumerate(featured[i:i+4]):
+                render_product_card(p, cols[j])
 
     # More Earrings section
     non_featured = [p for p in all_products if not p.get("featured")]
@@ -1684,9 +1676,10 @@ if st.session_state.view == "home":
         st.markdown("<hr class='divider'>", unsafe_allow_html=True)
         st.markdown('<h2 class="section-title">All Earrings</h2>', unsafe_allow_html=True)
         st.markdown('<p class="section-sub">Explore our full collection</p>', unsafe_allow_html=True)
-        cols2 = st.columns(4)
-        for i, p in enumerate(non_featured):
-            render_product_card(p, cols2[i % 4])
+        for i in range(0, len(non_featured), 4):
+            cols2 = st.columns(4)
+            for j, p in enumerate(non_featured[i:i+4]):
+                render_product_card(p, cols2[j])
 
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1788,9 +1781,10 @@ elif st.session_state.view == "shop":
     if not products:
         st.info("No earrings match your filters.")
     else:
-        cols = st.columns(4)
-        for i, p in enumerate(products):
-            render_product_card(p, cols[i % 4])
+        for i in range(0, len(products), 4):
+            cols = st.columns(4)
+            for j, p in enumerate(products[i:i+4]):
+                render_product_card(p, cols[j])
 
     st.markdown('</div>', unsafe_allow_html=True)
     render_trust_section()
@@ -1893,9 +1887,10 @@ elif st.session_state.view == "detail":
         if x["category"] == p["category"] and x["id"] != p["id"]
     ][:4]
     if related:
-        cols = st.columns(4)
-        for i, rp in enumerate(related):
-            render_product_card(rp, cols[i % 4])
+        for i in range(0, len(related), 4):
+            cols = st.columns(4)
+            for j, rp in enumerate(related[i:i+4]):
+                render_product_card(rp, cols[j])
 
     st.markdown('</div>', unsafe_allow_html=True)
     render_footer()
